@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="30px" height="21px" viewBox="0 0 30 21" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>3672678_arrow_left_arrows_direction_down_icon</title>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round">
+        <g id="3672678_arrow_left_arrows_direction_down_icon" transform="translate(15.078712, 10.500000) rotate(-90.000000) translate(-15.078712, -10.500000) translate(5.578712, -3.421288)" stroke="#999" stroke-width="2">
+            <path d="M19,1.77635684e-15 L19,13.637447 C19,18.1690142 15.3623136,21.8425752 10.875,21.8425752 C10.544037,21.8425752 10.2958148,21.8425752 10.1303333,21.8425752 C6.32359253,21.8425752 3.0493094,21.8425752 0.307483856,21.8425752" id="Path"></path>
+            <line x1="8.17124146e-14" y1="21.8425752" x2="6" y2="27.8425752" id="Path"></line>
+            <line x1="-3.55271368e-15" y1="21.8425752" x2="6" y2="15.8425752" id="Path"></line>
+        </g>
+    </g>
+</svg>
