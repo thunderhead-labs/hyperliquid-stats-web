@@ -20,7 +20,7 @@ const Footer = () => {
             </Flex>
             <Flex>
               <Flex mt='0.5'>
-                <Flex as="a" href='https://github.com' target='_blank' rel='noreferrer' flexDirection="row" justifyItems="center" alignItems="center">
+                <Flex as="a" href='https://github.com/thunderhead-labs/hyperliquid-stats-web' target='_blank' rel='noreferrer' flexDirection="row" justifyItems="center" alignItems="center">
                   <Flex>
                     <FaGithub size={34} />
                   </Flex>
