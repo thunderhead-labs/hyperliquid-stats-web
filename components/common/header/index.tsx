@@ -1,16 +1,11 @@
 'use client'
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import NextImg from "next/image"
 import { Container, Box, Text, Image, Flex, useMediaQuery } from '@chakra-ui/react';
 import * as S from './styles';
 
 const Header = () => {
   const [isMobile] = useMediaQuery('(max-width: 700px)');
-  const [] = useState()
-
-  useEffect(() => {
-
-  }, []);
 
   return (
     <Container maxWidth='100%' position='relative' zIndex='9' m="0" px="1rem">
