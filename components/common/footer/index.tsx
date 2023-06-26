@@ -4,7 +4,6 @@ import { Box, Text, Flex, Image, Container } from '@chakra-ui/react';
 import { FaGithub, FaTelegram } from 'react-icons/fa';
 
 const Footer = () => {
-
   return (
     <Box width="100%" position="relative" paddingTop="0" mt="10">
       <Box width="100%" bg="#050b0c" pt="5" zIndex="2" position="relative">

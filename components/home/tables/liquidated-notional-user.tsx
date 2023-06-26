@@ -32,7 +32,7 @@ export default function TableComponent() {
                 </span>,
         },
         {
-            Header: "Volume USD",
+            Header: "Liquidated Position USD",
             accessor: "value" as const,
             Cell: ({ value }: { value: number }) => <span>${formatNumberWithOptions(value)}</span>,
         },
