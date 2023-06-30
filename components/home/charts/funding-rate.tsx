@@ -72,10 +72,13 @@ export default function FundingRate() {
             }
 
             const existingEntry = map.get(key);
-            existingEntry[item.coin] = (existingEntry[item.coin] || 0) + item.sum_funding;
+
+            const value = (existingEntry[item.coin] || 0) + item.sum_funding;
+
+            existingEntry[item.coin] = value * 100;
 
             // Update total funding for the coin
-            coinFundingTotals.set(item.coin, (coinFundingTotals.get(item.coin) || 0) + item.sum_funding);
+            coinFundingTotals.set(item.coin, value * 100);
 
             map.set(key, existingEntry);
         });
@@ -151,7 +154,7 @@ export default function FundingRate() {
                     <YAxis
                         tick={{ fill: '#f9f9f9', fontSize: isMobile ? 14 : 15 }}
                         dx={6}
-                        width={55}
+                        width={75}
                         tickFormatter={formatterPercent}
                     />
                     <Tooltip
