@@ -8,24 +8,17 @@ import {
     LineChart,
     Line
 } from 'recharts';
-import { Box, Text, useMediaQuery } from "@chakra-ui/react"
+import { useMediaQuery } from "@chakra-ui/react"
 import { useEffect, useState } from 'react';
 import { useRequest } from '@/hooks/useRequest';
-import ChartWrapper from '../../common/chartWrapper';
+import ChartWrapper, { CoinSelector } from '../../common/chartWrapper';
 import {
     CHART_HEIGHT,
-    YAXIS_WIDTH,
-    BRIGHT_GREEN,
-    GREEN,
-    RED,
 } from "../../../constants";
 import {
-    yaxisFormatterNumber,
     tooltipFormatter,
-    tooltipLabelFormatter,
     xAxisFormatter,
     formatterPercent,
-    yaxisFormatter,
 } from '../../../helpers'
 import { getTokenHex } from "../../../constants/tokens";
 import {
@@ -39,9 +32,10 @@ const REQUESTS = [
 export default function FundingRate() {
     const [isMobile] = useMediaQuery('(max-width: 700px)');
 
-    const [coinKeys, setCoinKeys] = useState<any[]>([])
-    const [formattedData, setFormattedData] = useState<any[]>([])
+    const [coinKeys, setCoinKeys] = useState<string[]>([])
+    const [formattedData, setFormattedData] = useState<GroupedFundingData[]>([])
     const [dataFundingRate, loadingFundingRate, errorFundingRate] = useRequest(REQUESTS[0], [], 'chart_data');
+    const [coinsSelected, setCoinsSelected] = useState<string[]>(["ETH", "BTC", "ARB"]);
 
     const loading = loadingFundingRate;
     const error = errorFundingRate;
@@ -83,22 +77,7 @@ export default function FundingRate() {
             map.set(key, existingEntry);
         });
 
-        // Get the top 10 coins by total funding over the whole time period
-        const topCoins = Array.from(coinFundingTotals.entries())
-            .sort((a, b) => b[1] - a[1])
-            .slice(0, 10)
-            .map(([coin]) => coin);
-
-        // Filter out the coins not in the top 10 for each time period
-        const result = Array.from(map.values()).map((record: any) => {
-            Object.keys(record).forEach((coin) => {
-                if (coin !== 'time' && !topCoins.includes(coin) && coin !== 'unit') {
-                    delete record[coin];
-                }
-            });
-            return record;
-        });
-
+        const result = Array.from(map.values());
         return result;
     };
 
@@ -123,12 +102,26 @@ export default function FundingRate() {
         return coinsArray;
     };
 
+    const filterBySelectedCoins = (groupedData: GroupedFundingData[]): GroupedFundingData[] => {
+        const result: GroupedFundingData[] = JSON.parse(JSON.stringify(groupedData)) ;
+        result.filter(record => {
+            Object.keys(record).forEach((coin) => {
+                if (coin !== 'time' && !coinsSelected.includes(coin) && coin !== 'unit') {
+                    delete record[coin];
+                }
+            });
+            return record;
+        });
+        return result;
+    };
+
     const formatData = () => {
         if (dataFundingRate) {
             const groupedData = groupByTime(dataFundingRate);
-            const uniquieCoins = extractUniqueCoins(groupedData);
-            setFormattedData(groupedData);
-            setCoinKeys(uniquieCoins);
+            const filteredData = filterBySelectedCoins(groupedData);
+            const uniqueCoins = extractUniqueCoins(groupedData);
+            setFormattedData(filteredData);
+            setCoinKeys(uniqueCoins);
         }
     }
 
@@ -136,13 +129,31 @@ export default function FundingRate() {
         if (!loading && !error) {
             formatData();
         }
-    }, [loading])
+    }, [loading, coinsSelected])
+
+    const coinSelectors = coinKeys.map((coinKey) => {
+        return ({
+            name: coinKey,
+            event: () => setCoinsSelected(coinsSelected => {
+                let newCoinsSelected = coinsSelected;
+                if (coinsSelected.includes(coinKey)) {
+                    newCoinsSelected = coinsSelected.filter((e) => { return e !== coinKey });
+                } else {
+                    newCoinsSelected.push(coinKey);
+                }
+                formatData();
+                return newCoinsSelected;
+            }),
+            isChecked: coinsSelected.includes(coinKey),
+        });
+    }).sort((a: CoinSelector) => a.isChecked ? -1 : 1);
 
     return (
         <ChartWrapper
             title="Annualized Funding Rate"
             loading={loading}
             data={formattedData}
+            coinSelectors={coinSelectors}
         >
             <ResponsiveContainer width="100%" height={CHART_HEIGHT + 125}>
                 <LineChart data={formattedData}>
@@ -175,7 +186,7 @@ export default function FundingRate() {
                     />
                     <Legend wrapperStyle={{ bottom: -5 }} />
                     {
-                        coinKeys.map(((coinName, i) => {
+                        coinsSelected.map(((coinName, i) => {
                             return (
                                 <Line
                                     isAnimationActive={false}
@@ -190,9 +201,6 @@ export default function FundingRate() {
                     }
                 </LineChart>
             </ResponsiveContainer>
-            <Box w="100%" mt="3">
-                <Text color="#bbb">Top 10 Coins over time</Text>
-            </Box>
         </ChartWrapper>
     )
 }

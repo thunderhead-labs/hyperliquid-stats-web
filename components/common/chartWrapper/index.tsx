@@ -1,10 +1,16 @@
-import { RiLoader5Fill } from 'react-icons/ri';
-import { Box, Button, ButtonGroup, Text, Spinner } from '@chakra-ui/react';
+import { ChevronDownIcon } from '@chakra-ui/icons';
+import { Box, Button, ButtonGroup, Text, Spinner, MenuButton, Menu, MenuList, MenuItemOption, MenuOptionGroup } from '@chakra-ui/react';
 
 interface Toggle {
     text: string;
     event: () => void;
     active: boolean;
+}
+
+export interface CoinSelector {
+    name: string;
+    event: () => void;
+    isChecked: boolean;
 }
 
 const Loader = () => <Box w="100%" position="absolute" top="calc(50% - 10px)" display="flex" justifyContent="center"><Spinner display="flex" w="30px" h="30px" /></Box>
@@ -13,10 +19,9 @@ function ChartWrapper(props: any) {
     const {
         title,
         loading,
-        csvFields,
-        data,
         controls,
         zIndex,
+        coinSelectors,
     } = props;
 
     return (
@@ -54,6 +59,51 @@ function ChartWrapper(props: any) {
                                     )
                                 })}
                             </ButtonGroup>
+                        </Box>
+                        <Box w={{ xs: "100%", md: "100%" }} display="flex" justifyContent={{ xs: "flex-start", md: "flex-end" }}
+                            mb="1rem"
+                            >
+                            { coinSelectors &&
+                            <Menu closeOnSelect={false} preventOverflow={true}
+                             >
+                                <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
+                                    Select coins
+                                </MenuButton>
+                                <MenuList minWidth='100px'
+                                 maxHeight="300px"
+                                 overflowY="auto"
+                                 css={{
+                                    "&::-webkit-scrollbar": {
+                                      width: "4px",
+                                    },
+                                    "&::-webkit-scrollbar-track": {
+                                      width: "6px",
+                                    },
+                                    "&::-webkit-scrollbar-thumb": {
+                                      background: "#FFF",
+                                      borderRadius: "24px",
+                                    },
+                                  }}
+                                 >
+                                <MenuOptionGroup type='checkbox' defaultValue={coinSelectors}
+                                    value={coinSelectors.filter((coinSelector: CoinSelector) => coinSelector.isChecked).map((coinSelector: CoinSelector) => coinSelector.name)}
+                                >
+                                    {coinSelectors.map((coinSelector: CoinSelector, index: number) => {
+                                        return (
+                                            <MenuItemOption
+                                                value={coinSelector.name}
+                                                key={`toggle-chart-${index}`}
+                                                onClick={() => coinSelector.event()}
+                                                isChecked={coinSelector.isChecked}
+                                            >
+                                                {coinSelector.name}
+                                            </MenuItemOption>
+                                        )
+                                    })}
+                                </MenuOptionGroup>
+                            </MenuList>
+                            </Menu>
+}
                         </Box>
                     </Box>
                 </Box>
