@@ -52,11 +52,14 @@ export default function FundingRate() {
 
     };
 
-    const groupByTime = (data: FundingData[]): GroupedFundingData[] => {
+    const groupByTimeAndFilterUnSelected = (data: FundingData[]): GroupedFundingData[] => {
         const map = new Map<string, any>();
         const coinFundingTotals = new Map<string, number>();
 
         data.forEach((item) => {
+            if (!coinsSelected.includes(item.coin)) {
+                return;
+            }
             const key = item.time;
             if (!map.has(key)) {
                 map.set(key, {
@@ -82,46 +85,30 @@ export default function FundingRate() {
     };
 
 
-    const extractUniqueCoins = (formattedData: GroupedFundingData[]): string[] => {
+    const extractUniqueCoins = (fundingData: FundingData[]): string[] => {
         const coinSet = new Set<string>();
-        for (const data of formattedData) {
-            Object.keys(data).forEach(coin => {
-                if (coin !== 'time' &&
-                    coin !== 'unit'
-                ) {
-                    coinSet.add(coin);
-                }
-            });
-        }
-        const coinsArray = Array.from(coinSet);
-        if (coinsArray.includes('Other')) {
-            const index = coinsArray.indexOf('Other');
-            coinsArray.splice(index, 1);
-            coinsArray.push('Other');
-        }
-        return coinsArray;
+        for (const data of fundingData) {
+            const {coin} = data;
+            if (coin !== 'time' &&
+                coin !== 'unit'
+            ) {
+                coinSet.add(coin);
+            }
+        };
+        return Array.from(coinSet);
     };
 
-    const filterBySelectedCoins = (groupedData: GroupedFundingData[]): GroupedFundingData[] => {
-        const result: GroupedFundingData[] = JSON.parse(JSON.stringify(groupedData)) ;
-        result.filter(record => {
-            Object.keys(record).forEach((coin) => {
-                if (coin !== 'time' && !coinsSelected.includes(coin) && coin !== 'unit') {
-                    delete record[coin];
-                }
-            });
-            return record;
-        });
-        return result;
-    };
+    useEffect(() => {
+        if (!loading && !error) {
+            const uniqueCoins = extractUniqueCoins(dataFundingRate);
+            setCoinKeys(uniqueCoins);
+        }
+    },  [loading, dataFundingRate])
 
     const formatData = () => {
         if (dataFundingRate) {
-            const groupedData = groupByTime(dataFundingRate);
-            const filteredData = filterBySelectedCoins(groupedData);
-            const uniqueCoins = extractUniqueCoins(groupedData);
-            setFormattedData(filteredData);
-            setCoinKeys(uniqueCoins);
+            const groupedAndFilteredData = groupByTimeAndFilterUnSelected(dataFundingRate);
+            setFormattedData(groupedAndFilteredData);
         }
     }
 
