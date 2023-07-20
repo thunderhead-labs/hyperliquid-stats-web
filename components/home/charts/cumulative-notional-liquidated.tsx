@@ -47,7 +47,6 @@ export default function CumulativeNotionalLiquidated() {
   const [dataMode, setDataMode] = useState<'COINS' | 'MARGIN'>('COINS');
   const [formattedDataCoins, setFormattedDataCoins] = useState<any[]>([]);
   const [formattedDataMargin, setFormattedDataMargin] = useState<any[]>([]);
-  const [formattedCumulativeVolumeData, setFormattedCumulativeVolumeData] = useState<any[]>([]);
 
   const [coinKeys, setCoinKeys] = useState<any[]>([]);
 

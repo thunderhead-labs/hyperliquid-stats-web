@@ -1,6 +1,5 @@
 import {
   Bar,
-  Label,
   XAxis,
   YAxis,
   CartesianGrid,
