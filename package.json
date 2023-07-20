@@ -5,7 +5,56 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "npx eslint . --fix",
+    "prettify": "npx prettier --write ."
+  },
+  "eslintConfig": {
+    "plugins": [
+      "react",
+      "@typescript-eslint"
+    ],
+    "extends": [
+      "react-app",
+      "react-app/jest",
+      "eslint:recommended",
+      "plugin:react/recommended",
+      "plugin:@typescript-eslint/recommended"
+    ],
+    "rules": {
+      "no-var": "warn",
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        {
+          "vars": "all",
+          "args": "all",
+          "ignoreRestSiblings": false,
+          "argsIgnorePattern": "^_"
+        }
+      ],
+      "@typescript-eslint/naming-convention": [
+        "error",
+        {
+          "selector": "parameter",
+          "format": [
+            "camelCase"
+          ],
+          "leadingUnderscore": "allow"
+        }
+      ]
+    },
+    "ignorePatterns": [
+      "build/**"
+    ],
+    "overrides": [
+      {
+        "files": [
+          "**/*.stories.*"
+        ],
+        "rules": {
+          "import/no-anonymous-default-export": "off"
+        }
+      }
+    ]
   },
   "dependencies": {
     "@chakra-ui/icons": "^2.0.19",
@@ -27,6 +76,7 @@
     "moment": "^2.29.4",
     "next": "13.4.4",
     "polished": "^4.2.2",
+    "prettier": "^3.0.0",
     "react": "18.2.0",
     "react-date-range": "^1.4.0",
     "react-dom": "18.2.0",

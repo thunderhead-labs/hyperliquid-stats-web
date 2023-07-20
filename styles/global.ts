@@ -37,5 +37,4 @@ export const GlobalStyles = css`
   }
 
   ${custom}
- 
 `;

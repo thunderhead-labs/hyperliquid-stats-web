@@ -1,6 +1,6 @@
 {
-    "typescript.enablePromptUseWorkspaceTsdk": true,
-    "editor.wordWrap": "wordWrapColumn",
-    "editor.wordWrapColumn": 140,
-    "typescript.tsdk": "node_modules/typescript/lib"
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "editor.wordWrap": "wordWrapColumn",
+  "editor.wordWrapColumn": 140,
+  "typescript.tsdk": "node_modules/typescript/lib"
 }

@@ -1,4 +1,4 @@
-import {lighten} from "polished"
+import { lighten } from 'polished';
 
 const Button = {
   baseStyle: {

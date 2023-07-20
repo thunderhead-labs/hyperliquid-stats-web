@@ -7,5 +7,8 @@ export const formatNumber = (num: number | string | boolean, maximumFractionDigi
 
 export const formatAddress = (account: string, length?: number): string => {
   if (!length) return account;
-  return `${account.substring(0, length)}...${account.substring(account.length - length, account.length)}`;
+  return `${account.substring(0, length)}...${account.substring(
+    account.length - length,
+    account.length
+  )}`;
 };

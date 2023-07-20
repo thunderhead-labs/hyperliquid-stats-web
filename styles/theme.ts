@@ -8,8 +8,7 @@ import Drawer from './components/drawer';
 import Input from './components/input';
 import Tooltip from './components/tooltip';
 import Alert from './components/alert';
-import { tabsTheme } from "./components/tabs";
-
+import { tabsTheme } from './components/tabs';
 
 const config: ThemeConfig = {
   initialColorMode: 'dark',
@@ -68,6 +67,6 @@ const baseTheme = extendTheme({
   },
 });
 
-export const theme =  extendTheme(baseTheme)
+export const theme = extendTheme(baseTheme);
 
 export default baseTheme;
