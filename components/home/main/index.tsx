@@ -12,7 +12,7 @@ import HLPProfitLossChart from '../charts/hlp-liquidator-profit';
 import { DateRangeSelect } from '../charts/date-range';
 import FundingRateChart from '../charts/funding-rate';
 import CumulativeUsersChart from '../charts/cumulative-users';
-import CoinTradesByUsers from "../charts/uniquie-users-coin";
+import CoinTradesByUsers from "../charts/unique-users-coin";
 import CumulativeInflowChart from '../charts/cumulative-inflow';
 import CumulativeNotionalLiquidatedChart from '../charts/cumulative-notional-liquidated';
 import TableLargestUsers from "../tables/largest-users"

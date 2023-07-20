@@ -49,7 +49,6 @@ export default function FundingRate() {
     type GroupedFundingData = {
         time: Date;
         [coin: string]: number | Date;
-
     };
 
     const groupByTimeAndFilterUnSelected = (data: FundingData[]): GroupedFundingData[] => {
@@ -118,6 +117,14 @@ export default function FundingRate() {
         }
     }, [loading, coinsSelected])
 
+
+    const coinSelectorsSort = (a: CoinSelector, b: CoinSelector) => {
+        if (a.isChecked !== b.isChecked) {
+          return a.isChecked ? -1 : 1;
+        }
+        return a.name.localeCompare(b.name);
+    }
+
     const coinSelectors = coinKeys.map((coinKey) => {
         return ({
             name: coinKey,
@@ -133,7 +140,7 @@ export default function FundingRate() {
             }),
             isChecked: coinsSelected.includes(coinKey),
         });
-    }).sort((a: CoinSelector) => a.isChecked ? -1 : 1);
+    }).sort((a:CoinSelector, b: CoinSelector) => coinSelectorsSort(a, b));
 
     return (
         <ChartWrapper

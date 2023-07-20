@@ -117,9 +117,9 @@ export default function VolumeChart() {
 
     const formatData = () => {
         const groupedData = groupByTime(dataOpenInterest);
-        const uniquieCoins = extractUniqueCoins(groupedData);
+        const uniqueCoins = extractUniqueCoins(groupedData);
         setFormattedData(groupedData);
-        setCoinKeys(uniquieCoins);
+        setCoinKeys(uniqueCoins);
     }
 
     useEffect(() => {
