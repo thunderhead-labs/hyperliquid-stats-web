@@ -23,11 +23,7 @@ import ChartWrapper from '../../common/chartWrapper';
 const REQUESTS = [largest_users_by_usd_volume];
 
 export default function TableComponent() {
-  const [
-    dataLargestUsersByUsdVolume,
-    loadingLargestUsersByUsdVolume,
-    errorLargestUsersByUsdVolume,
-  ] = useRequest(REQUESTS[0], [], 'table_data');
+  const [dataLargestUsersByUsdVolume] = useRequest(REQUESTS[0], [], 'table_data');
   const [isMobile] = useMediaQuery('(max-width: 700px)');
 
   const columns = React.useMemo(
@@ -60,12 +56,11 @@ export default function TableComponent() {
     page,
     canPreviousPage,
     canNextPage,
-    pageOptions,
     pageCount,
     gotoPage,
     nextPage,
     previousPage,
-    state: { pageIndex, pageSize },
+    state: { pageIndex },
   } = useTable(
     {
       columns,

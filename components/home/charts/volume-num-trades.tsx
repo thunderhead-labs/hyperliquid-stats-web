@@ -105,19 +105,6 @@ export default function VolumeChart() {
     return result;
   };
 
-  type DailyTradesData = { time: string; daily_trades: number };
-
-  const formatDailyTradesByTime = (
-    dataDailyTrades: DailyTradesData[]
-  ): { [key: string]: number } => {
-    const result: { [key: string]: number } = {};
-    for (const data of dataDailyTrades) {
-      result[data.time] = data.daily_trades;
-    }
-    return result;
-  };
-
-  type CoinTradesData = { coin: string; daily_usd_volume: number; time: string };
   type FormattedCoinTradesData = any[]; //{ time: string, all: number, [coin: string]: number };
 
   const formatDailyTradesByCoins = (

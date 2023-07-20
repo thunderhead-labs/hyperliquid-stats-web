@@ -1,6 +1,5 @@
 'use client';
-import React, { useState } from 'react';
-import moment from 'moment';
+import React from 'react';
 import { Container, Box, Text, Grid, Flex } from '@chakra-ui/react';
 import * as S from './styles';
 import TopStats from '../charts/top-stats';

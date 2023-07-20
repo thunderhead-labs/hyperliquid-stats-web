@@ -23,8 +23,7 @@ import ChartWrapper from '../../common/chartWrapper';
 const REQUESTS = [largest_user_depositors];
 
 export default function TableComponent() {
-  const [dataLargestUsersByDeposits, loadingLargestUsersByDeposits, errorLargestUsersByDeposits] =
-    useRequest(REQUESTS[0], [], 'table_data');
+  const [dataLargestUsersByDeposits] = useRequest(REQUESTS[0], [], 'table_data');
   const [isMobile] = useMediaQuery('(max-width: 700px)');
 
   const columns = React.useMemo(

@@ -23,11 +23,7 @@ import { formatAddress } from '../../../utils/formatting';
 const REQUESTS = [largest_liquidated_notional_by_user];
 
 export default function TableComponent() {
-  const [
-    dataLargestLiquidatedNotional,
-    loadingLargestLiquidatedNotional,
-    errorLargestLiquidatedNotional,
-  ] = useRequest(REQUESTS[0], [], 'table_data');
+  const [dataLargestLiquidatedNotional] = useRequest(REQUESTS[0], [], 'table_data');
   const [isMobile] = useMediaQuery('(max-width: 700px)');
 
   const columns = React.useMemo(

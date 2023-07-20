@@ -42,21 +42,13 @@ export default function HLPProfitLossChart() {
     [],
     'chart_data'
   );
-  const [
-    dataCumulativeHLPLiquidatorPNL,
-    loadingCumulativeHLPLiquidatorPNL,
-    errorCumulative_HLPLiquidatorPNL,
-  ] = useRequest(REQUESTS[1], [], 'chart_data');
-  const [dataNonLiquidator, loadingNonLiquidator, errorNonLiquidator] = useRequest(
-    REQUESTS[2],
+  const [dataCumulativeHLPLiquidatorPNL, loadingCumulativeHLPLiquidatorPNL] = useRequest(
+    REQUESTS[1],
     [],
     'chart_data'
   );
-  const [
-    dataCumulativeNonLiquidatorPNL,
-    loadingCumulativeNonLiquidatorPNL,
-    errorCumulative_NonLiquidatorPNL,
-  ] = useRequest(REQUESTS[3], [], 'chart_data');
+  const [dataNonLiquidator] = useRequest(REQUESTS[2], [], 'chart_data');
+  const [dataCumulativeNonLiquidatorPNL] = useRequest(REQUESTS[3], [], 'chart_data');
 
   const formatTradingData = (dataHLPLiquidatorPNL: any, dataCumulativeHLPLiquidatorPNL: any) => {
     let currentProfitCumulative = 0;

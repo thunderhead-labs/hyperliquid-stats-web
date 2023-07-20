@@ -1,12 +1,10 @@
 import {
-  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   Legend,
   ResponsiveContainer,
-  ComposedChart,
   Line,
   LineChart,
 } from 'recharts';
@@ -23,44 +21,6 @@ import {
 } from '../../../helpers';
 import { getTokenHex } from '../../../constants/tokens';
 import { liquidity_by_coin } from '../../../constants/api';
-
-type DailyUniqueUsersByCoin = {
-  time: string;
-  coin: string;
-  daily_unique_users: number;
-  percentage_of_total_users: number;
-  all: number;
-};
-
-type UniqueUserTradeData = {
-  time: string;
-  daily_unique_users: number;
-};
-
-type CumulativeNewUsersData = {
-  time: string;
-  daily_new_users: number;
-  cumulative_new_users: number;
-};
-
-type GroupedTradeData = {
-  time: Date;
-  all: number;
-  daily_unique_users: number;
-  cumulative_unique_users: number;
-  unit: string;
-  [key: string]: number | Date | { [key: string]: number } | string | undefined;
-};
-
-type TempGroupedTradeData = {
-  time: Date;
-  coins: { [key: string]: number };
-  all: number;
-  daily_unique_users: number;
-  cumulative_unique_users: number;
-  unit: string;
-  [key: string]: number | Date | { [key: string]: number } | string | undefined;
-};
 
 const REQUESTS = [liquidity_by_coin];
 

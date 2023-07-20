@@ -28,7 +28,6 @@ export default function CumulativeUsers() {
   const [isMobile] = useMediaQuery('(max-width: 700px)');
 
   const [formattedData, setFormattedData] = useState<any[]>([]);
-  const [unquieKeys, setUnquieKeys] = useState<any[]>([]);
 
   const [dataCumulativeNewUsers, loadingCumulativeNewUsers, errorCumulativeNewUsers] = useRequest(
     REQUESTS[0],
@@ -40,8 +39,6 @@ export default function CumulativeUsers() {
     [],
     'chart_data'
   );
-  const [dataDailyUniqueUsersByCoin, loadingDailyUniqueUsersByCoin, errorDailyUniqueUsersByCoin] =
-    useRequest(REQUESTS[2], [], 'chart_data');
 
   const loading = loadingCumulativeNewUsers || loadingDailyUniqueUsers;
   const error = errorCumulativeNewUsers || errorDailyUniqueUsers;
@@ -67,10 +64,10 @@ export default function CumulativeUsers() {
   };
 
   useEffect(() => {
-    if (!loading) {
+    if (!loading || !error) {
       formatData();
     }
-  }, [loading]);
+  }, [loading, error]);
 
   return (
     <ChartWrapper title='Cumulative New Users' loading={loading} data={formattedData}>

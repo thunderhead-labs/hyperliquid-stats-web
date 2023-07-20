@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import NextImg from 'next/image';
-import { Container, Box, Text, Image, Flex, useMediaQuery } from '@chakra-ui/react';
+import { Container, Box, Image, Flex, useMediaQuery } from '@chakra-ui/react';
 import * as S from './styles';
 
 const Header = () => {

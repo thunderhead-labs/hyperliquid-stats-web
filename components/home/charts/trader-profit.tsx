@@ -12,18 +12,13 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { chain, sumBy, sortBy, maxBy, minBy } from 'lodash';
+import { sortBy, maxBy, minBy } from 'lodash';
 import { useRequest } from '@/hooks/useRequest';
 import { Box, Text, useMediaQuery } from '@chakra-ui/react';
 import { cumulative_user_pnl, user_pnl } from '../../../constants/api';
 import ChartWrapper from '../../common/chartWrapper';
 import { CHART_HEIGHT, YAXIS_WIDTH, BRIGHT_GREEN, GREEN, RED } from '../../../constants';
-import {
-  yaxisFormatter,
-  xAxisFormatter,
-  formatNumberWithOptions,
-  tooltipFormatterCurrency,
-} from '../../../helpers';
+import { yaxisFormatter, xAxisFormatter, tooltipFormatterCurrency } from '../../../helpers';
 
 const REQUESTS = [cumulative_user_pnl, user_pnl];
 

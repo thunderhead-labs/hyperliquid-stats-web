@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext } from 'react';
 import Select from 'react-dropdown-select';
-import { Box, Text } from '@chakra-ui/react';
+import { Box } from '@chakra-ui/react';
 import moment from 'moment';
 import { DateRange } from 'react-date-range';
 import strftime from 'strftime';
@@ -13,7 +13,7 @@ const DATA_START_DATE = new Date('2023-05-10');
 const DATE_NOW = new Date();
 
 export const DateRangeSelect = () => {
-  const { dates, setDates } = useContext(DataContext);
+  const { setDates } = useContext(DataContext);
 
   const [selectedDateRangeOption, setSelectedDateRangeOption] = useState<number | null>(null);
   const [rangeState, setRangeState] = useState<

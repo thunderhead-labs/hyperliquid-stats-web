@@ -23,11 +23,7 @@ import { formatAddress } from '../../../utils/formatting';
 const REQUESTS = [largest_user_trade_count];
 
 export default function TableComponent() {
-  const [
-    dataLargestUsersByTradeCount,
-    loadingLargestUsersByTradeCount,
-    errorLargestUsersByTradeCount,
-  ] = useRequest(REQUESTS[0], [], 'table_data');
+  const [dataLargestUsersByTradeCount] = useRequest(REQUESTS[0], [], 'table_data');
   const [isMobile] = useMediaQuery('(max-width: 700px)');
 
   const columns = React.useMemo(
@@ -60,12 +56,11 @@ export default function TableComponent() {
     page,
     canPreviousPage,
     canNextPage,
-    pageOptions,
     pageCount,
     gotoPage,
     nextPage,
     previousPage,
-    state: { pageIndex, pageSize },
+    state: { pageIndex },
   } = useTable(
     {
       columns,

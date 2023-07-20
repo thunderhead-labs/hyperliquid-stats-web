@@ -1,6 +1,4 @@
 import {
-  Bar,
-  Label,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -8,7 +6,6 @@ import {
   Legend,
   LineChart,
   ResponsiveContainer,
-  ComposedChart,
   Line,
 } from 'recharts';
 import { useEffect, useState } from 'react';
@@ -24,10 +21,6 @@ import {
 } from '../../../helpers';
 import { getTokenHex } from '../../../constants/tokens';
 import { open_interest } from '../../../constants/api';
-
-type OpenInterestData = { time: string; coin: string; open_interest: number };
-
-type GroupedOpenInterestData = { time: string; [key: string]: number | string };
 
 const REQUESTS = [open_interest];
 
