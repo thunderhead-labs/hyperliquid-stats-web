@@ -1,16 +1,40 @@
-import strftime from 'strftime'
+import strftime from 'strftime';
 
-import { excluded_percentage_tooltip } from "../constants"
+import { excluded_percentage_tooltip } from '../constants';
 
-const numberFmt0: Intl.NumberFormat = new Intl.NumberFormat('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
-const numberFmt1: Intl.NumberFormat = new Intl.NumberFormat('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 1 });
-const numberFmt2: Intl.NumberFormat = new Intl.NumberFormat('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 });
-const currencyFmt0: Intl.NumberFormat = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 });
-const currencyFmt1: Intl.NumberFormat = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 1, maximumFractionDigits: 1 });
-const currencyFmt2: Intl.NumberFormat = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const numberFmt0: Intl.NumberFormat = new Intl.NumberFormat('en-US', {
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 0,
+});
+const numberFmt1: Intl.NumberFormat = new Intl.NumberFormat('en-US', {
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 1,
+});
+const numberFmt2: Intl.NumberFormat = new Intl.NumberFormat('en-US', {
+  minimumFractionDigits: 3,
+  maximumFractionDigits: 3,
+});
+const currencyFmt0: Intl.NumberFormat = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD',
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 0,
+});
+const currencyFmt1: Intl.NumberFormat = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD',
+  minimumFractionDigits: 1,
+  maximumFractionDigits: 1,
+});
+const currencyFmt2: Intl.NumberFormat = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD',
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+});
 
 function getNumberFormatBasedOnValue(value: number): Intl.NumberFormat {
-  const absValue = Math.abs(value)
+  const absValue = Math.abs(value);
   if (absValue < 10) {
     return numberFmt2;
   } else if (absValue < 1000) {
@@ -21,7 +45,7 @@ function getNumberFormatBasedOnValue(value: number): Intl.NumberFormat {
 }
 
 function getCurrencyFormatBasedOnValue(value: number): Intl.NumberFormat {
-  const absValue = Math.abs(value)
+  const absValue = Math.abs(value);
   if (absValue < 10) {
     return currencyFmt2;
   } else if (absValue < 1000) {
@@ -37,22 +61,24 @@ interface FormatNumberOpts {
 }
 
 export const formatNumberWithOptions = (value: number, opts: FormatNumberOpts = {}): string => {
-  const currency = !!opts.currency
-  const compact = !!opts.compact
+  const currency = !!opts.currency;
+  const compact = !!opts.compact;
 
   if (currency && !compact) {
     return getCurrencyFormatBasedOnValue(value).format(value);
   }
 
-  const display = compact ? formatNumberToCompactForm(value) : getNumberFormatBasedOnValue(value).format(value);
+  const display = compact
+    ? formatNumberToCompactForm(value)
+    : getNumberFormatBasedOnValue(value).format(value);
   if (currency) {
     return `$${display}`;
   }
   return display;
-}
+};
 
 export const formatNumberToCompactForm = (value: number): string => {
-  const abs = Math.abs(value)
+  const abs = Math.abs(value);
   if (abs >= 1e9) {
     return `${(value / 1e9).toFixed(abs < 1e10 ? 2 : 1)}B`;
   }
@@ -63,116 +89,123 @@ export const formatNumberToCompactForm = (value: number): string => {
     return `${(value / 1e3).toFixed(abs < 1e4 ? 2 : 1)}K`;
   }
   return `${value.toFixed(1)}`;
-}
-
+};
 
 export const tooltipLabelFormatterPercent = (label: any, args: any): any => {
-  const hide = args && args[0] && args[0].payload && args[0].payload.unit && (args[0].payload.unit === '%' || args[0].payload.unit === 'single') ; 
+  const hide =
+    args &&
+    args[0] &&
+    args[0].payload &&
+    args[0].payload.unit &&
+    (args[0].payload.unit === '%' || args[0].payload.unit === 'single');
   if (hide) return '';
   if (!label) return;
   if (label.constructor !== Date) {
-    label = new Date(label * 1000)
+    label = new Date(label * 1000);
   }
-  const item = args && args[0] && args[0].payload && args[0]
-  const dateFmtString = 'Total %d-%m-%y : '
-  const date = strftime(dateFmtString, label)
-  const all = item && (item.payload.all)
+  const item = args && args[0] && args[0].payload && args[0];
+  const dateFmtString = 'Total %d-%m-%y : ';
+  const date = strftime(dateFmtString, label);
+  const all = item && item.payload.all;
   if (all) {
-    return `${date} ${formatNumberWithOptions(all, {compact: true})}%`
+    return `${date} ${formatNumberWithOptions(all, { compact: true })}%`;
   }
-  return date
-}
+  return date;
+};
 
 export const tooltipLabelFormatter = (label: any, args: any): any => {
-  const hide = args && args[0] && args[0].payload && args[0].payload.unit && (args[0].payload.unit === '%' || args[0].payload.unit === 'single') ; 
+  const hide =
+    args &&
+    args[0] &&
+    args[0].payload &&
+    args[0].payload.unit &&
+    (args[0].payload.unit === '%' || args[0].payload.unit === 'single');
   if (hide) return '';
 
   if (!label) return;
   if (label.constructor !== Date) {
-    label = new Date(label * 1000)
+    label = new Date(label * 1000);
   }
-  const item = args && args[0] && args[0].payload && args[0]
-  const dateFmtString = 'Total %d-%m-%y :'
-  const date = strftime(dateFmtString, label)
-  const all = item && (item.payload.all)
+  const item = args && args[0] && args[0].payload && args[0];
+  const dateFmtString = 'Total %d-%m-%y :';
+  const date = strftime(dateFmtString, label);
+  const all = item && item.payload.all;
   if (all) {
-    if (item && item.unit === '$' || item.payload && item.payload.unit === '$') {
-      return `${date} ${formatNumberWithOptions(all, {currency: true, compact: true})}`
+    if ((item && item.unit === '$') || (item.payload && item.payload.unit === '$')) {
+      return `${date} ${formatNumberWithOptions(all, { currency: true, compact: true })}`;
     }
-    return `${date} ${formatNumberWithOptions(all, {compact: true})}`
-    
+    return `${date} ${formatNumberWithOptions(all, { compact: true })}`;
   }
-  return date
-}
+  return date;
+};
 
 export const xAxisFormatter = (label: any, args: any): any => {
   if (!label) return;
   if (label.constructor !== Date) {
-    label = new Date(label * 1000)
+    label = new Date(label * 1000);
   }
-  const item = args && args[0] && args[0].payload && args[0]
-  const dateFmtString = '%d-%m'
-  const date = strftime(dateFmtString, label)
-  const all = item && (item.payload.all)
+  const item = args && args[0] && args[0].payload && args[0];
+  const dateFmtString = '%d-%m';
+  const date = strftime(dateFmtString, label);
+  const all = item && item.payload.all;
   if (all) {
-    if (item && item.unit === '%' || item.payload && item.payload.unit === '%') {
-      return `${date} ${formatNumberWithOptions(all, {compact: true})}%`
+    if ((item && item.unit === '%') || (item.payload && item.payload.unit === '%')) {
+      return `${date} ${formatNumberWithOptions(all, { compact: true })}%`;
     }
-    if (item && item.unit === '$' || item.payload && item.payload.unit === '$') {
-      return `${date} ${formatNumberWithOptions(all, {currency: true, compact: true})}`
+    if ((item && item.unit === '$') || (item.payload && item.payload.unit === '$')) {
+      return `${date} ${formatNumberWithOptions(all, { currency: true, compact: true })}`;
     }
-    return `${date} ${formatNumberWithOptions(all, {compact: true})}`
+    return `${date} ${formatNumberWithOptions(all, { compact: true })}`;
   }
 
-  return date
-}
+  return date;
+};
 
 export const yaxisFormatterPercent = (value: number): string => {
   return value.toFixed(0) + '%';
-}
-
+};
 
 export const formatterPercent = (value: number): string => {
   return value.toFixed(2) + '%';
-}
+};
 
 export const yaxisFormatterNumber = (value: number): string => {
   return formatNumberToCompactForm(value);
-}
+};
 
 export const yaxisFormatter = (value: number): string => {
-  
   return formatNumberWithOptions(value, { currency: true, compact: true });
-}
+};
 
 export const tooltipFormatterNumber = (value: number | string): string => {
   return formatNumberWithOptions(Number(value), { compact: true });
-}
+};
 
 export const tooltipFormatterCurrency = (value: number | string): string => {
   return formatNumberWithOptions(Number(value), { currency: true, compact: true });
-}
+};
 
 export const tooltipFormatterPercent = (value: number): string => {
   return value.toFixed(2) + '%';
-}
+};
 
 export const tooltipFormatter = (value: any, name: any, item: any) => {
   if (excluded_percentage_tooltip.indexOf(item.dataKey) > -1) {
     return `${value}`;
   }
-  if (item && item.unit === '%' || item.payload && item.payload.unit === '%') {
+  if ((item && item.unit === '%') || (item.payload && item.payload.unit === '%')) {
     return `${value.toFixed(2)}%`;
   }
   if (item && !item.unit) {
     return formatNumberWithOptions(item.value, { currency: false });
   }
-  return formatNumberWithOptions(value, { currency: true })
-}
+  return formatNumberWithOptions(value, { currency: true });
+};
 
-
-export const tooltipLabelFormatterUnits = (label: number | Date, args?: any[]): string | undefined => {
-  
+export const tooltipLabelFormatterUnits = (
+  label: number | Date,
+  args?: any[]
+): string | undefined => {
   if (!label) {
     return label as any | undefined;
   }
@@ -190,10 +223,10 @@ export const tooltipLabelFormatterUnits = (label: number | Date, args?: any[]): 
     return date;
   }
 
-  const all = item && (item.payload.all);
+  const all = item && item.payload.all;
   if (label.constructor !== Date) {
     return all ? `${label}, total: ${all}` : label.toString();
   }
 
   return all ? `${date}, total: ${all}` : date;
-}
+};

@@ -2,10 +2,9 @@ const Alert = {
   baseStyle: {
     container: {
       borderRadius: 'xl',
-    }
+    },
   },
-  variants: {
-  },
+  variants: {},
 };
 
 export default Alert;

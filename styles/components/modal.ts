@@ -7,9 +7,7 @@ export const ModalHeader = {
 const Modal = {
   variants: {
     default: {
-      dialogContainer: {
-        
-      },
+      dialogContainer: {},
     },
     full: {
       dialogContainer: {

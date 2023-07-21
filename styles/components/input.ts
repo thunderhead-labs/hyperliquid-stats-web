@@ -3,7 +3,7 @@ const Input = {
     rounded: {
       borderRadius: '12rem',
       background: 'red',
-    }
+    },
   },
 };
 

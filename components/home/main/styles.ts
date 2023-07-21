@@ -101,7 +101,7 @@ export const BgImg2 = styled(Box)`
   z-index: 0.5;
   animation: ${fade} 20s infinite;
   transition: visibility 20s ease-in-out;
-  
+
   img {
     width: 100%;
   }
