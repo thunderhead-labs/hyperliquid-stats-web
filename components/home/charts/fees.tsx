@@ -8,13 +8,12 @@ import {
   ResponsiveContainer,
   ComposedChart,
   Line,
-  Cell,
 } from 'recharts';
 import { useEffect, useState } from 'react';
 import { useRequest } from '@/hooks/useRequest';
 import { useMediaQuery } from '@chakra-ui/react';
 import ChartWrapper from '../../common/chartWrapper';
-import { CHART_HEIGHT, YAXIS_WIDTH, BRIGHT_GREEN, GREEN, RED } from '../../../constants';
+import { CHART_HEIGHT, YAXIS_WIDTH, BRIGHT_GREEN } from '../../../constants';
 import { yaxisFormatter, xAxisFormatter, tooltipFormatterCurrency } from '../../../helpers';
 import { total_accrued_fees } from '../../../constants/api';
 
@@ -24,7 +23,7 @@ export default function Fees() {
   const [isMobile] = useMediaQuery('(max-width: 700px)');
 
   const [dailyFeesAccrued, setDailyFeesAccrued] = useState<any[]>([]);
-  const [cumulativeFeesAccrued, loading, error] = useRequest(REQUESTS[0], [], 'total_accrued_fees');
+  const [cumulativeFeesAccrued, loading, error] = useRequest(REQUESTS[0], [], 'chart_data');
 
   interface DailyFeesAccrued {
     time: Date;

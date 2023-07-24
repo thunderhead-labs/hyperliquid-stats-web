@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import {
-  Area,
   Bar,
   Cell,
   CartesianGrid,
@@ -33,8 +32,9 @@ export default function TradersProfitLossChart() {
   );
   const [dataUserPNL, loadingUserPNL, errorUserPNL] = useRequest(REQUESTS[1], [], 'chart_data');
 
+  const loading = loadingUserPNL || loadingCumulativeUserPNL;
+  const error  = errorUserPNL || errorCumulativeUserPNL;
   const formatTradingData = () => {
-    let currentPnlCumulative = 0;
     let currentProfitCumulative = 0;
     let currentLossCumulative = 0;
 
@@ -90,15 +90,15 @@ export default function TradersProfitLossChart() {
   };
 
   useEffect(() => {
-    if (dataCumulativeUserPNL.length > 0 && dataUserPNL.length > 0) {
+    if (!loading && !error) {
       formatTradingData();
     }
-  }, [dataCumulativeUserPNL, dataUserPNL]);
+  }, [loading, error]);
 
   return (
     <ChartWrapper
       title='Traders Net PnL'
-      loading={loadingCumulativeUserPNL && loadingUserPNL}
+      loading={loading}
       data={data ? data.data : []}
     >
       <ResponsiveContainer width='100%' height={CHART_HEIGHT}>
