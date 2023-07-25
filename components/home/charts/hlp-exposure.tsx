@@ -25,7 +25,7 @@ const REQUESTS = [hlp_positions];
 
 export default function Hlp() {
   const [isMobile] = useMediaQuery('(max-width: 700px)');
-  const [dataMode, setDataMode] = useState<'COINS' | 'NET'>('NET');
+  const [dataMode, setDataMode] = useState<'COINS' | 'NET'>('COINS');
   const [coins, setCoins] = useState<string[]>([]);
   const [dataHlpPositions, loading, error] = useRequest(
     REQUESTS[0],
@@ -49,34 +49,46 @@ export default function Hlp() {
 
   const makeFormattedData = (data: HlpPosition[]): [GroupedData[], string[]] => {
     const map = new Map<string, GroupedData>();
-    const uniqueCoins = new Set<string>();
+    const uniqueTopCoins = new Set<string>();
+  
     data.forEach((item) => {
       let {time, coin, daily_ntl} = item;
+  
       if (!map.has(time)) {
-        let entry = {
+        map.set(time, {
           time: new Date(time),
           daily_ntl: daily_ntl,
           [`${coin}`]: daily_ntl,
-        };
-  
-        map.set(time, entry);
+          other: 0,
+        });
       } else {
         const existingEntry = map.get(time)!;
-        const updatedValue = (existingEntry[`${coin}`] || 0) + daily_ntl;
-        existingEntry[`${coin}`] = updatedValue;
+        existingEntry[`${coin}`] = (existingEntry[`${coin}`] || 0) + daily_ntl;
         existingEntry.daily_ntl += daily_ntl;
-
-        map.set(time, existingEntry);
-      }
-     
-      if (!uniqueCoins.has(coin)) {
-        uniqueCoins.add(coin);
       }
     });
+  
+    map.forEach((entry) => {
+      const coinEntries = Object.entries(entry).filter(([key]) => key !== 'time' && key !== 'daily_ntl' && key !== 'other');
+      const sortedCoinEntries = coinEntries.sort((a, b) => Math.abs(Number(b[1])) - Math.abs(Number(a[1])));
+      const topCoins = sortedCoinEntries.slice(0, 10).map(([coin]) => coin);
+      const otherCoins = sortedCoinEntries.slice(10);
 
+      topCoins.forEach(coin => uniqueTopCoins.add(coin));
+  
+      let otherTotal = 0;
+      otherCoins.forEach(([coin, value]) => {
+        otherTotal += value;
+        delete entry[coin];
+      });
+      entry.Other = otherTotal;
+    });
+  
     const result = Array.from(map.values());
-    return [result, Array.from(uniqueCoins)];
+    uniqueTopCoins.add("Other");
+    return [result, Array.from(uniqueTopCoins)];
   };
+  
 
   const controls = {
     toggles: [
@@ -165,7 +177,6 @@ export default function Hlp() {
             dataMode === 'COINS' &&
             (
               coins.map((coin, i) => {
-                console.log("***", coin, formattedData[0][coin]);
                 return (
                   <Bar
                     unit={''}
