@@ -3,7 +3,7 @@ import React from 'react';
 import { Container, Box, Text, Grid, Flex } from '@chakra-ui/react';
 import * as S from './styles';
 import TopStats from '../charts/top-stats';
-import VolumeChart from '../charts/volume';
+import RetailVolumeChart from '../charts/retail-volume';
 import VolumeNumTrades from '../charts/volume-num-trades';
 import OpenInterestChart from '../charts/open-interest';
 import TradersProfitLossChart from '../charts/trader-profit';
@@ -77,7 +77,7 @@ const Main = () => {
             <TopStats />
           </Box>
           <Grid templateColumns={{ xs: '1fr', md: 'repeat(2, 1fr)' }} gap={{ xs: '2', md: '3' }}>
-            <VolumeChart />
+            <RetailVolumeChart />
             <VolumeNumTrades />
           </Grid>
           <Grid templateColumns={{ xs: '1fr', md: 'repeat(2, 1fr)' }} gap={{ xs: '2', md: '3' }}>

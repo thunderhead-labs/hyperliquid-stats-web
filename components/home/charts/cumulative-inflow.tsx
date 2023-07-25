@@ -15,7 +15,12 @@ import { useRequest } from '@/hooks/useRequest';
 import { useMediaQuery } from '@chakra-ui/react';
 import ChartWrapper from '../../common/chartWrapper';
 import { CHART_HEIGHT, YAXIS_WIDTH, BRIGHT_GREEN, GREEN, RED } from '../../../constants';
-import { yaxisFormatter, xAxisFormatter, tooltipFormatterCurrency } from '../../../helpers';
+import {
+  yaxisFormatter,
+  xAxisFormatter,
+  tooltipFormatterCurrency,
+  dateTooltipFormatter,
+} from '../../../helpers';
 import { daily_inflow, cumulative_inflow } from '../../../constants/api';
 
 const REQUESTS = [daily_inflow, cumulative_inflow];
@@ -123,7 +128,7 @@ export default function CumulativeInflow() {
           />
           <Tooltip
             formatter={tooltipFormatterCurrency}
-            labelFormatter={() => ''}
+            labelFormatter={dateTooltipFormatter}
             contentStyle={{
               textAlign: 'left',
               background: '#0A1F1B',

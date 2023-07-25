@@ -13,7 +13,12 @@ import { useEffect, useState } from 'react';
 import { useRequest } from '@/hooks/useRequest';
 import ChartWrapper, { CoinSelector } from '../../common/chartWrapper';
 import { CHART_HEIGHT } from '../../../constants';
-import { tooltipFormatter, xAxisFormatter, formatterPercent } from '../../../helpers';
+import {
+  tooltipFormatter,
+  xAxisFormatter,
+  formatterPercent,
+  dateTooltipFormatter,
+} from '../../../helpers';
 import { getTokenHex } from '../../../constants/tokens';
 import { funding_rate } from '../../../constants/api';
 
@@ -162,7 +167,7 @@ export default function FundingRate() {
           />
           <Tooltip
             formatter={tooltipFormatter}
-            labelFormatter={() => ''}
+            labelFormatter={dateTooltipFormatter}
             contentStyle={{
               textAlign: 'left',
               background: '#0A1F1B',

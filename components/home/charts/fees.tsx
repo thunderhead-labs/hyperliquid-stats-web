@@ -14,7 +14,12 @@ import { useRequest } from '@/hooks/useRequest';
 import { useMediaQuery } from '@chakra-ui/react';
 import ChartWrapper from '../../common/chartWrapper';
 import { CHART_HEIGHT, YAXIS_WIDTH, BRIGHT_GREEN } from '../../../constants';
-import { yaxisFormatter, xAxisFormatter, tooltipFormatterCurrency, tooltipLabelFormatter } from '../../../helpers';
+import {
+  yaxisFormatter,
+  xAxisFormatter,
+  tooltipFormatterCurrency,
+  dateTooltipFormatter,
+} from '../../../helpers';
 import { total_accrued_fees } from '../../../constants/api';
 
 const REQUESTS = [total_accrued_fees];
@@ -35,9 +40,7 @@ export default function Fees() {
     cumulative_accrued_fees: number;
   }
 
-  const makeFormattedData = (
-    dailyFeesAccrued: DailyFeesAccrued[]
-  ): MergedData[] => {
+  const makeFormattedData = (dailyFeesAccrued: DailyFeesAccrued[]): MergedData[] => {
     const result = [];
     let cumulativeFees = 0;
     for (let i = 0; i < dailyFeesAccrued.length; i++) {
@@ -46,7 +49,7 @@ export default function Fees() {
       result.push({
         time: new Date(dailyFeesAccrued[i].time),
         daily_accrued_fees: dailyFeeAccrued,
-        cumulative_accrued_fees: cumulativeFees
+        cumulative_accrued_fees: cumulativeFees,
       });
     }
 
@@ -114,7 +117,7 @@ export default function Fees() {
           />
           <Tooltip
             formatter={tooltipFormatterCurrency}
-            labelFormatter={() => ''}
+            labelFormatter={dateTooltipFormatter}
             contentStyle={{
               textAlign: 'left',
               background: '#0A1F1B',

@@ -51,43 +51,56 @@ function ChartWrapper(props: any) {
             justifyContent='space-between'
             flexDirection={{ xs: 'column', md: 'row' }}
           >
-            <Text display='flex' w={{ xs: '100%', md: '100%' }} fontSize='1.2rem' fontWeight='600'>
+            <Text
+              display='flex'
+              w={{ xs: '100%', md: '100%' }}
+              fontSize='1.2rem'
+              fontWeight='600'
+              whiteSpace={'nowrap'}
+            >
               {title}
             </Text>
-            <Box
-              w={{ xs: '100%', md: '100%' }}
-              display='flex'
-              justifyContent={{ xs: 'flex-start', md: 'flex-end' }}
-              mt={controls && controls.toggles && controls.toggles.length && '2'}
-              mb='1rem'
-            >
-              <ButtonGroup isAttached={true}>
-                {controls &&
-                  controls.toggles &&
-                  controls.toggles.length > 0 &&
-                  controls.toggles.map((toggle: Toggle, index: number) => {
-                    return (
-                      <Button
-                        key={`toggle-chart-${index}`}
-                        onClick={() => toggle.event()}
-                        variant={toggle.active ? 'primary' : 'faded'}
-                        size='sm'
-                      >
-                        {toggle.text}
-                      </Button>
-                    );
-                  })}
-              </ButtonGroup>
-            </Box>
-            <Box
-              w={{ xs: '100%', md: '100%' }}
-              display='flex'
-              justifyContent={{ xs: 'flex-start', md: 'flex-end' }}
-              mb='1rem'
-            >
-              {coinSelectors && (
+            {controls && (
+              <Box
+                w={{ xs: '100%', md: '100%' }}
+                display='flex'
+                justifyContent={{ xs: 'flex-start', md: 'flex-end' }}
+                mt={controls && controls.toggles && controls.toggles.length && '2'}
+                mb='1rem'
+              >
+                <ButtonGroup isAttached={true}>
+                  {controls.toggles &&
+                    controls.toggles.length > 0 &&
+                    controls.toggles.map((toggle: Toggle, index: number) => {
+                      return (
+                        <Button
+                          key={`toggle-chart-${index}`}
+                          onClick={() => toggle.event()}
+                          variant={toggle.active ? 'primary' : 'faded'}
+                          size='sm'
+                        >
+                          {toggle.text}
+                        </Button>
+                      );
+                    })}
+                </ButtonGroup>
+              </Box>
+            )}
+            {coinSelectors && (
+              <Box
+                w={{ xs: '100%', md: '100%' }}
+                display='flex'
+                justifyContent={{ xs: 'flex-start', md: 'flex-end' }}
+                mb='1rem'
+              >
                 <Menu closeOnSelect={false} preventOverflow={true}>
-                  <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
+                  <MenuButton
+                    as={Button}
+                    rightIcon={<ChevronDownIcon />}
+                    variant='primary'
+                    fontSize={'14px'}
+                    fontWeight={'bold'}
+                  >
                     Select coins
                   </MenuButton>
                   <MenuList
@@ -129,8 +142,8 @@ function ChartWrapper(props: any) {
                     </MenuOptionGroup>
                   </MenuList>
                 </Menu>
-              )}
-            </Box>
+              </Box>
+            )}
           </Box>
         </Box>
         {loading && <Loader />}

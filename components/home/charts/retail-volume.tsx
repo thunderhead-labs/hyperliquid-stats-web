@@ -33,7 +33,6 @@ import {
   daily_usd_volume_by_coin,
   daily_usd_volume_by_crossed,
   daily_usd_volume_by_user,
-  total_volume,
 } from '../../../constants/api';
 
 const REQUESTS = [
@@ -42,12 +41,11 @@ const REQUESTS = [
   daily_usd_volume_by_coin,
   daily_usd_volume_by_crossed,
   daily_usd_volume_by_user,
-  total_volume,
 ];
 
-export default function VolumeChart() {
+export default function RetailVolumeChart() {
   const [isMobile] = useMediaQuery('(max-width: 700px)');
-  const [dataMode, setDataMode] = useState<'COINS' | 'MARGIN' | 'VS'>('COINS');
+  const [dataMode, setDataMode] = useState<'COINS' | 'MARGIN'>('COINS');
   const [formattedDataCoins, setFormattedDataCoins] = useState<any[]>([]);
   const [formattedDataMargin, setFormattedDataMargin] = useState<any[]>([]);
   const [coinKeys, setCoinKeys] = useState<any[]>([]);
@@ -68,27 +66,18 @@ export default function VolumeChart() {
   const [dataDailyUsdVolumeByUser, loadingDailyUsdVolumeByUser, errorDailyUsdVolumeByUser] =
     useRequest(REQUESTS[4], [], 'chart_data');
 
-  const [dataTotalUSDVolume, loadingDataTotalVolume, errorDataTotalVolume] = useRequest(
-    REQUESTS[5],
-    [],
-    'chart_data'
-  );
-
   const loading =
     loadingCumulativeUsdVolume ||
     loadingDailyUsdVolume ||
     loadingDailyUsdVolumeByCoin ||
     loadingDailyUsdVolumeByCrossed ||
-    loadingDailyUsdVolumeByUser ||
-    loadingDataTotalVolume;
-
+    loadingDailyUsdVolumeByUser;
   const error =
     errorCumulativeUsdVolume ||
     errorDailyUsdVolume ||
     errorDailyUsdVolumeByCoin ||
     errorDailyUsdVolumeByCrossed ||
-    errorDailyUsdVolumeByUser ||
-    errorDataTotalVolume;
+    errorDailyUsdVolumeByUser;
 
   type CumulativeVolumeData = { cumulative: number; time: string };
 
@@ -261,7 +250,7 @@ export default function VolumeChart() {
 
   return (
     <ChartWrapper
-      title='Cumulative Total non-HLP USD Volume'
+      title='Retail Volume'
       loading={loading}
       data={dataMode === 'COINS' ? formattedDataCoins : formattedDataMargin}
       zIndex={9}
@@ -350,31 +339,6 @@ export default function VolumeChart() {
                 dataKey={'taker'}
                 stackId='a'
                 name={'Taker'}
-                fill={BRAND_GREEN_3}
-                maxBarSize={20}
-              />
-            </>
-          )}
-          {dataMode === 'VS' && (
-            <>
-              <Bar
-                unit={''}
-                isAnimationActive={false}
-                type='monotone'
-                dataKey={'hlp'}
-                stackId='a'
-                name={'HLP'}
-                fill={BRAND_GREEN_2}
-                maxBarSize={20}
-              />
-              <Bar
-                unit={''}
-                isAnimationActive={false}
-                type='monotone'
-                dataKey={'total'}
-                stackId='a'
-                data={dataTotalUSDVolume}
-                name={'Total'}
                 fill={BRAND_GREEN_3}
                 maxBarSize={20}
               />

@@ -17,7 +17,12 @@ import { Box, Text, useMediaQuery } from '@chakra-ui/react';
 import { cumulative_user_pnl, user_pnl } from '../../../constants/api';
 import ChartWrapper from '../../common/chartWrapper';
 import { CHART_HEIGHT, YAXIS_WIDTH, BRIGHT_GREEN, GREEN, RED } from '../../../constants';
-import { yaxisFormatter, xAxisFormatter, tooltipFormatterCurrency } from '../../../helpers';
+import {
+  yaxisFormatter,
+  xAxisFormatter,
+  tooltipFormatterCurrency,
+  dateTooltipFormatter,
+} from '../../../helpers';
 
 const REQUESTS = [cumulative_user_pnl, user_pnl];
 
@@ -123,7 +128,7 @@ export default function TradersProfitLossChart() {
           />
           <Tooltip
             formatter={tooltipFormatterCurrency}
-            labelFormatter={() => ''}
+            labelFormatter={dateTooltipFormatter}
             contentStyle={{
               textAlign: 'left',
               background: '#0A1F1B',
