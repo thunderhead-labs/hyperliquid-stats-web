@@ -20,7 +20,7 @@ import TableLiquidatedNotional from '../tables/liquidated-notional-user';
 import TableTradeCount from '../tables/user-trade-count';
 import Liquidity from '../charts/liquidity';
 import Fees from '../charts/fees';
-import Hlp from '../charts/hlp';
+import HlpExposure from '../charts/hlp-exposure';
 
 const Main = () => {
   return (
@@ -98,7 +98,7 @@ const Main = () => {
           </Grid>
           <FundingRateChart />
           <Fees />
-          <Hlp />
+          <HlpExposure />
           <Grid templateColumns={{ xs: '1fr', md: 'repeat(2, 1fr)' }} gap={{ xs: '2', md: '3' }}>
             <TableLargestUsers />
             <TableUserDesposits />

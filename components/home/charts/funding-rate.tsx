@@ -45,7 +45,7 @@ export default function FundingRate() {
     [coin: string]: number | Date;
   };
 
-  const groupByTimeAndFilterUnSelected = (data: FundingData[]): GroupedFundingData[] => {
+  const groupByTimeAndFilterUnselected = (data: FundingData[]): GroupedFundingData[] => {
     const map = new Map<string, any>();
     const coinFundingTotals = new Map<string, number>();
 
@@ -97,7 +97,7 @@ export default function FundingRate() {
 
   const formatData = () => {
     if (dataFundingRate) {
-      const groupedAndFilteredData = groupByTimeAndFilterUnSelected(dataFundingRate);
+      const groupedAndFilteredData = groupByTimeAndFilterUnselected(dataFundingRate);
       setFormattedData(groupedAndFilteredData);
     }
   };

@@ -87,8 +87,6 @@ export default function CumulativeNotionalLiquidated() {
     return result;
   };
 
-  type VolumeData = { coin: string; daily_usd_volume: number; time: string };
-
   type LiquidationData = {
     time: string;
     leverage_type: 'Cross' | 'Isolated';
@@ -211,10 +209,10 @@ export default function CumulativeNotionalLiquidated() {
   };
 
   useEffect(() => {
-    if (!loading) {
+    if (!loading && !error) {
       formatData();
     }
-  }, [loading]);
+  }, [loading, error]);
 
   return (
     <ChartWrapper
@@ -266,7 +264,7 @@ export default function CumulativeNotionalLiquidated() {
               maxHeight: '500px',
             }}
             itemSorter={(item) => {
-              return Number(item.value) * -1;
+              return Math.abs(Number(item.value));
             }}
           />
           <Legend wrapperStyle={{ bottom: -5 }} />
