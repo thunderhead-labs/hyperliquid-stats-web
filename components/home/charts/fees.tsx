@@ -14,37 +14,39 @@ import { useRequest } from '@/hooks/useRequest';
 import { useMediaQuery } from '@chakra-ui/react';
 import ChartWrapper from '../../common/chartWrapper';
 import { CHART_HEIGHT, YAXIS_WIDTH, BRIGHT_GREEN } from '../../../constants';
-import { yaxisFormatter, xAxisFormatter, tooltipFormatterCurrency } from '../../../helpers';
+import { yaxisFormatter, xAxisFormatter, tooltipFormatterCurrency, tooltipLabelFormatter } from '../../../helpers';
 import { total_accrued_fees } from '../../../constants/api';
 
 const REQUESTS = [total_accrued_fees];
 
 export default function Fees() {
   const [isMobile] = useMediaQuery('(max-width: 700px)');
-
-  const [dailyFeesAccrued, setDailyFeesAccrued] = useState<any[]>([]);
-  const [cumulativeFeesAccrued, loading, error] = useRequest(REQUESTS[0], [], 'chart_data');
+  const [formattedData, setFormattedData] = useState<any[]>([]);
+  const [dailyFeesAccrued, loading, error] = useRequest(REQUESTS[0], [], 'chart_data');
 
   interface DailyFeesAccrued {
     time: Date;
-    daily_fees_accrued: number;
+    daily_accrued_fees: number;
   }
 
-  interface CumulativeFeesAccrued {
+  interface MergedData {
     time: Date;
-    cumulative_fees_accrued: number;
+    daily_accrued_fees: number;
+    cumulative_accrued_fees: number;
   }
 
-  const computeDailyFeesAccrued = (
-    cumulativeFeesAccrued: CumulativeFeesAccrued[]
-  ): DailyFeesAccrued[] => {
-    const result: DailyFeesAccrued[] = [];
-    for (let i = 1; i < cumulativeFeesAccrued.length; i++) {
+  const makeFormattedData = (
+    dailyFeesAccrued: DailyFeesAccrued[]
+  ): MergedData[] => {
+    const result = [];
+    let cumulativeFees = 0;
+    for (let i = 0; i < dailyFeesAccrued.length; i++) {
+      const dailyFeeAccrued = dailyFeesAccrued[i].daily_accrued_fees ?? 0;
+      cumulativeFees += dailyFeeAccrued;
       result.push({
-        time: cumulativeFeesAccrued[i].time,
-        daily_fees_accrued:
-          cumulativeFeesAccrued[i].cumulative_fees_accrued -
-          cumulativeFeesAccrued[i - 1].cumulative_fees_accrued,
+        time: new Date(dailyFeesAccrued[i].time),
+        daily_accrued_fees: dailyFeeAccrued,
+        cumulative_accrued_fees: cumulativeFees
       });
     }
 
@@ -52,8 +54,8 @@ export default function Fees() {
   };
 
   const formatData = () => {
-    const newDailyFeesAccrued = computeDailyFeesAccrued(cumulativeFeesAccrued);
-    setDailyFeesAccrued(newDailyFeesAccrued);
+    const newFormattedData = makeFormattedData(dailyFeesAccrued);
+    setFormattedData(newFormattedData);
   };
 
   useEffect(() => {
@@ -63,9 +65,9 @@ export default function Fees() {
   }, [loading, error]);
 
   return (
-    <ChartWrapper title='Fees Accrued' loading={loading} data={cumulativeFeesAccrued}>
+    <ChartWrapper title='Fees Accrued' loading={loading} data={formattedData}>
       <ResponsiveContainer width='100%' height={CHART_HEIGHT}>
-        <ComposedChart data={cumulativeFeesAccrued}>
+        <ComposedChart data={formattedData}>
           <CartesianGrid strokeDasharray='15 15' opacity={0.1} />
           <XAxis
             dataKey='time'
@@ -75,7 +77,7 @@ export default function Fees() {
             tickMargin={10}
           />
           <YAxis
-            dataKey='fees'
+            dataKey='daily_accrued_fees'
             interval='preserveStartEnd'
             tickCount={7}
             tickFormatter={yaxisFormatter}
@@ -83,12 +85,32 @@ export default function Fees() {
             tick={{ fill: '#f9f9f9', fontSize: isMobile ? 14 : 15 }}
           />
           <YAxis
-            dataKey='cumulative_fees_accrued'
+            dataKey='cumulative_accrued_fees'
             orientation='right'
             yAxisId='right'
             tickFormatter={yaxisFormatter}
             width={YAXIS_WIDTH}
             tick={{ fill: '#f9f9f9', fontSize: isMobile ? 14 : 15 }}
+          />
+          <Legend wrapperStyle={{ bottom: -5 }} />
+          <Bar
+            isAnimationActive={false}
+            type='monotone'
+            data={formattedData}
+            dataKey={'daily_accrued_fees'}
+            name={'Daily fees accrued'}
+            fill={'#fff'}
+            maxBarSize={20}
+          />
+          <Line
+            isAnimationActive={false}
+            type='monotone'
+            dot={false}
+            strokeWidth={1}
+            stroke={BRIGHT_GREEN}
+            dataKey='cumulative_accrued_fees'
+            yAxisId='right'
+            name='Cumulative fees accrued'
           />
           <Tooltip
             formatter={tooltipFormatterCurrency}
@@ -105,26 +127,6 @@ export default function Fees() {
             itemSorter={(item) => {
               return Number(item.value) * -1;
             }}
-          />
-          <Legend wrapperStyle={{ bottom: -5 }} />
-          <Bar
-            isAnimationActive={false}
-            type='monotone'
-            data={dailyFeesAccrued}
-            dataKey={'daily_fees_accrued'}
-            name={'Daily fees accrued'}
-            fill={'#fff'}
-            maxBarSize={20}
-          />
-          <Line
-            isAnimationActive={false}
-            type='monotone'
-            dot={false}
-            strokeWidth={1}
-            stroke={BRIGHT_GREEN}
-            dataKey='cumulative_fees_accrued'
-            yAxisId='right'
-            name='Cumulative fees accrued'
           />
         </ComposedChart>
       </ResponsiveContainer>
