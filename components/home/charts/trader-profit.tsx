@@ -33,7 +33,7 @@ export default function TradersProfitLossChart() {
   const [dataUserPNL, loadingUserPNL, errorUserPNL] = useRequest(REQUESTS[1], [], 'chart_data');
 
   const loading = loadingUserPNL || loadingCumulativeUserPNL;
-  const error  = errorUserPNL || errorCumulativeUserPNL;
+  const error = errorUserPNL || errorCumulativeUserPNL;
   const formatTradingData = () => {
     let currentProfitCumulative = 0;
     let currentLossCumulative = 0;
@@ -96,11 +96,7 @@ export default function TradersProfitLossChart() {
   }, [loading, error]);
 
   return (
-    <ChartWrapper
-      title='Traders Net PnL'
-      loading={loading}
-      data={data ? data.data : []}
-    >
+    <ChartWrapper title='Traders Net PnL' loading={loading} data={data ? data.data : []}>
       <ResponsiveContainer width='100%' height={CHART_HEIGHT}>
         <ComposedChart data={data ? data.data : []}>
           <CartesianGrid strokeDasharray='15 15' opacity={0.1} />

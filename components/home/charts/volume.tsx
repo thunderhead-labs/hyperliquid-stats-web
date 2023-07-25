@@ -68,8 +68,11 @@ export default function VolumeChart() {
   const [dataDailyUsdVolumeByUser, loadingDailyUsdVolumeByUser, errorDailyUsdVolumeByUser] =
     useRequest(REQUESTS[4], [], 'chart_data');
 
-  const [dataTotalUSDVolume, loadingDataTotalVolume, errorDataTotalVolume] =
-    useRequest(REQUESTS[5], [], 'chart_data');
+  const [dataTotalUSDVolume, loadingDataTotalVolume, errorDataTotalVolume] = useRequest(
+    REQUESTS[5],
+    [],
+    'chart_data'
+  );
 
   const loading =
     loadingCumulativeUsdVolume ||
@@ -352,7 +355,7 @@ export default function VolumeChart() {
               />
             </>
           )}
-        {dataMode === 'VS' && (
+          {dataMode === 'VS' && (
             <>
               <Bar
                 unit={''}
