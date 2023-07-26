@@ -16,7 +16,7 @@ import { useRequest } from '@/hooks/useRequest';
 import ChartWrapper from '../../common/chartWrapper';
 import { BRIGHT_GREEN, CHART_HEIGHT, GREEN, RED } from '../../../constants';
 import {
-  dateTooltipFormatter,
+  tooltopFormatterDate,
   tooltipFormatterCurrency,
   xAxisFormatter,
   yaxisFormatterNumber,
@@ -227,7 +227,7 @@ export default function Hlp() {
           />
           <Tooltip
             formatter={tooltipFormatterCurrency}
-            labelFormatter={dateTooltipFormatter}
+            labelFormatter={tooltopFormatterDate}
             contentStyle={{
               textAlign: 'left',
               background: '#0A1F1B',

@@ -18,7 +18,7 @@ import {
   xAxisFormatter,
   yaxisFormatterNumber,
   tooltipFormatter,
-  dateTooltipFormatter,
+  tooltopFormatterDate,
 } from '../../../helpers';
 import {
   cumulative_new_users,
@@ -103,7 +103,7 @@ export default function CumulativeUsers() {
           />
           <Tooltip
             formatter={tooltipFormatter}
-            labelFormatter={dateTooltipFormatter}
+            labelFormatter={tooltopFormatterDate}
             contentStyle={{
               textAlign: 'left',
               background: '#0A1F1B',

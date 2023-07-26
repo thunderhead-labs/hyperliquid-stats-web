@@ -21,7 +21,7 @@ import {
   yaxisFormatter,
   xAxisFormatter,
   tooltipFormatterCurrency,
-  dateTooltipFormatter,
+  tooltopFormatterDate,
 } from '../../../helpers';
 
 const REQUESTS = [cumulative_user_pnl, user_pnl];
@@ -128,7 +128,7 @@ export default function TradersProfitLossChart() {
           />
           <Tooltip
             formatter={tooltipFormatterCurrency}
-            labelFormatter={dateTooltipFormatter}
+            labelFormatter={tooltopFormatterDate}
             contentStyle={{
               textAlign: 'left',
               background: '#0A1F1B',

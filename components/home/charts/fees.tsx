@@ -18,7 +18,7 @@ import {
   yaxisFormatter,
   xAxisFormatter,
   tooltipFormatterCurrency,
-  dateTooltipFormatter,
+  tooltopFormatterDate,
 } from '../../../helpers';
 import { total_accrued_fees } from '../../../constants/api';
 
@@ -117,7 +117,7 @@ export default function Fees() {
           />
           <Tooltip
             formatter={tooltipFormatterCurrency}
-            labelFormatter={dateTooltipFormatter}
+            labelFormatter={tooltopFormatterDate}
             contentStyle={{
               textAlign: 'left',
               background: '#0A1F1B',

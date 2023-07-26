@@ -22,7 +22,7 @@ import {
 } from '../../../constants/api';
 import ChartWrapper from '../../common/chartWrapper';
 import { CHART_HEIGHT, YAXIS_WIDTH, BRIGHT_GREEN, GREEN, RED } from '../../../constants';
-import { yaxisFormatter, xAxisFormatter, tooltipFormatterCurrency } from '../../../helpers';
+import { yaxisFormatter, xAxisFormatter, tooltipFormatterCurrency, tooltopFormatterDate } from '../../../helpers';
 
 const REQUESTS = [
   hlp_liquidator_pnl,
@@ -180,7 +180,7 @@ export default function HLPProfitLossChart() {
           />
           <Tooltip
             formatter={tooltipFormatterCurrency}
-            labelFormatter={() => ''}
+            labelFormatter={tooltopFormatterDate}
             contentStyle={{
               textAlign: 'left',
               background: '#0A1F1B',
