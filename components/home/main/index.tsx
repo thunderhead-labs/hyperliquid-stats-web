@@ -7,20 +7,19 @@ import RetailVolumeChart from '../charts/retail-volume';
 import VolumeNumTrades from '../charts/volume-num-trades';
 import OpenInterestChart from '../charts/open-interest';
 import TradersProfitLossChart from '../charts/trader-profit';
-import HLPProfitLossChart from '../charts/hlp-liquidator-profit';
 import { DateRangeSelect } from '../charts/date-range';
 import FundingRateChart from '../charts/funding-rate';
 import CumulativeUsersChart from '../charts/cumulative-users';
 import CoinTradesByUsers from '../charts/unique-users-coin';
 import CumulativeInflowChart from '../charts/cumulative-inflow';
-import CumulativeNotionalLiquidatedChart from '../charts/cumulative-notional-liquidated';
+import CumulativeNotionalLiquidatedChart from '../charts/liquidator';
 import TableLargestUsers from '../tables/largest-users';
 import TableUserDesposits from '../tables/user-deposits';
 import TableLiquidatedNotional from '../tables/liquidated-notional-user';
 import TableTradeCount from '../tables/user-trade-count';
 import Liquidity from '../charts/liquidity';
 import Fees from '../charts/fees';
-import HlpExposure from '../charts/hlp-exposure';
+import HlpExposure from '../charts/hlp';
 
 const Main = () => {
   return (
@@ -86,7 +85,6 @@ const Main = () => {
           </Grid>
           <Grid templateColumns={{ xs: '1fr', md: 'repeat(2, 1fr)' }} gap={{ xs: '2', md: '3' }}>
             <TradersProfitLossChart />
-            <HLPProfitLossChart />
           </Grid>
           <Grid templateColumns={{ xs: '1fr', md: 'repeat(2, 1fr)' }} gap={{ xs: '2', md: '3' }}>
             <CumulativeInflowChart />

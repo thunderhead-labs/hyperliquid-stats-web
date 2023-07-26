@@ -14,12 +14,21 @@ import { Box, Text, useMediaQuery } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { useRequest } from '@/hooks/useRequest';
 import ChartWrapper from '../../common/chartWrapper';
-import { BRIGHT_GREEN, CHART_HEIGHT, GREEN, RED } from '../../../constants';
 import {
-  tooltopFormatterDate,
+  BLUE,
+  BRIGHT_GREEN,
+  CHART_HEIGHT,
+  GREEN,
+  ORANGE,
+  RED,
+  YAXIS_WIDTH,
+} from '../../../constants';
+import {
+  tooltipFormatterDate,
   tooltipFormatterCurrency,
   xAxisFormatter,
-  yaxisFormatterNumber,
+  yaxisFormatter,
+  tooltipFormatterLongShort,
 } from '../../../helpers';
 import { getTokenHex } from '@/constants/tokens';
 import { asset_ctxs, hlp_liquidator_pnl, hlp_positions } from '@/constants/api';
@@ -27,7 +36,7 @@ const REQUESTS = [hlp_positions, asset_ctxs, hlp_liquidator_pnl];
 
 export default function Hlp() {
   const [isMobile] = useMediaQuery('(max-width: 700px)');
-  const [dataMode, setDataMode] = useState<'COINS' | 'NET' | 'PNL' | 'HEDGED'>('NET');
+  const [dataMode, setDataMode] = useState<'COINS' | 'NET' | 'PNL' | 'HEDGED'>('PNL');
   const [coins, setCoins] = useState<string[]>([]);
   const [dataHlpPositions, loadingDataHlpPositions, errorDataHlpPositions] = useRequest(
     REQUESTS[0],
@@ -110,6 +119,7 @@ export default function Hlp() {
 
     let ethOraclePxPrev: number | null | undefined = null;
     let prevTime: string | null = null;
+    let hedgedCumulativePnl = 0;
     hlpPositions.forEach((item: HlpPosition) => {
       let { time, coin, daily_ntl } = item;
       if (!map.has(time)) {
@@ -118,15 +128,17 @@ export default function Hlp() {
         let hedgedPnl = pnl ?? 0;
         let prevDayNtlPosition = prevTime ? map.get(prevTime)?.daily_ntl : null;
         if (ethOraclePxPrev && ethOraclePx && prevDayNtlPosition) {
-          const ethPxChange = 1 - ethOraclePxPrev / ethOraclePx;
+          const ethPxChange = 1 - ethOraclePx / ethOraclePxPrev;
           const ethPnL = prevDayNtlPosition * ethPxChange;
           hedgedPnl += ethPnL;
         }
+        hedgedCumulativePnl += hedgedPnl;
         map.set(time, {
           time: new Date(time),
           daily_ntl: daily_ntl,
           [`${coin}`]: daily_ntl,
           hedged_pnl: hedgedPnl,
+          hedged_cumulative_pnl: hedgedCumulativePnl,
           Other: 0,
         });
         ethOraclePxPrev = ethOraclePx;
@@ -140,7 +152,12 @@ export default function Hlp() {
 
     map.forEach((entry) => {
       const coinEntries = Object.entries(entry).filter(
-        ([key]) => key !== 'time' && key !== 'daily_ntl' && key !== 'hedged_pnl' && key !== 'other'
+        ([key]) =>
+          key !== 'time' &&
+          key !== 'daily_ntl' &&
+          key !== 'hedged_pnl' &&
+          key !== 'other' &&
+          key !== 'hedged_cumulative_pnl'
       );
       const sortedCoinEntries = coinEntries.sort(
         (a, b) => Math.abs(Number(b[1])) - Math.abs(Number(a[1]))
@@ -166,17 +183,7 @@ export default function Hlp() {
   const controls = {
     toggles: [
       {
-        text: 'Net notional position',
-        event: () => setDataMode('NET'),
-        active: dataMode === 'NET',
-      },
-      {
-        text: 'By coins',
-        event: () => setDataMode('COINS'),
-        active: dataMode === 'COINS',
-      },
-      {
-        text: 'Net PnL',
+        text: 'PnL',
         event: () => setDataMode('PNL'),
         active: dataMode === 'PNL',
       },
@@ -184,6 +191,16 @@ export default function Hlp() {
         text: 'Hedged PnL',
         event: () => setDataMode('HEDGED'),
         active: dataMode === 'HEDGED',
+      },
+      {
+        text: 'Net notional position',
+        event: () => setDataMode('NET'),
+        active: dataMode === 'NET',
+      },
+      {
+        text: 'Coin positions',
+        event: () => setDataMode('COINS'),
+        active: dataMode === 'COINS',
       },
     ],
   };
@@ -208,7 +225,7 @@ export default function Hlp() {
   }, [loading, error, hlpPnL]);
 
   return (
-    <ChartWrapper title='HLP Exposure' loading={false} data={formattedData} controls={controls}>
+    <ChartWrapper title='HLP' loading={false} data={formattedData} controls={controls}>
       <ResponsiveContainer width='100%' height={CHART_HEIGHT + 125}>
         <ComposedChart data={dataMode === 'PNL' ? formattedHlpPnL : formattedData}>
           <CartesianGrid strokeDasharray='15 15' opacity={0.1} />
@@ -223,11 +240,11 @@ export default function Hlp() {
             tick={{ fill: '#f9f9f9', fontSize: isMobile ? 14 : 15 }}
             dx={6}
             width={75}
-            tickFormatter={yaxisFormatterNumber}
+            tickFormatter={yaxisFormatter}
           />
           <Tooltip
-            formatter={tooltipFormatterCurrency}
-            labelFormatter={tooltopFormatterDate}
+            formatter={dataMode === 'NET' ? tooltipFormatterLongShort : tooltipFormatterCurrency}
+            labelFormatter={tooltipFormatterDate}
             contentStyle={{
               textAlign: 'left',
               background: '#0A1F1B',
@@ -252,7 +269,7 @@ export default function Hlp() {
               maxBarSize={20}
             >
               {(formattedData || []).map((item: GroupedData, i: number) => {
-                return <Cell key={`cell-${i}`} fill={item.daily_ntl > 0 ? GREEN : RED} />;
+                return <Cell key={`cell-${i}`} fill={item.daily_ntl > 0 ? BLUE : ORANGE} />;
               })}
             </Bar>
           )}
@@ -273,18 +290,27 @@ export default function Hlp() {
               );
             })}
           {dataMode === 'HEDGED' && (
-            <Bar
-              isAnimationActive={false}
-              type='monotone'
-              dataKey={'hedged_pnl'}
-              name={'Daily hedged PnL'}
-              fill={'#fff'}
-              maxBarSize={20}
-            >
-              {(formattedData || []).map((item: GroupedData, i: number) => {
-                return <Cell key={`cell-${i}`} fill={item.hedged_pnl > 0 ? GREEN : RED} />;
-              })}
-            </Bar>
+            <>
+              <Line
+                type='monotone'
+                strokeWidth={1}
+                stroke={BRIGHT_GREEN}
+                dataKey='hedged_cumulative_pnl'
+                name='Cumulative PnL'
+              />
+              <Bar
+                isAnimationActive={false}
+                type='monotone'
+                dataKey={'hedged_pnl'}
+                name={'Daily hedged PnL'}
+                fill={'#fff'}
+                maxBarSize={20}
+              >
+                {(formattedData || []).map((item: GroupedData, i: number) => {
+                  return <Cell key={`cell-${i}`} fill={item.hedged_pnl > 0 ? GREEN : RED} />;
+                })}
+              </Bar>
+            </>
           )}
           {dataMode === 'PNL' && (
             <>
@@ -299,7 +325,7 @@ export default function Hlp() {
                 isAnimationActive={false}
                 type='monotone'
                 dataKey={'pnl'}
-                name={'Net PnL'}
+                name={'PnL'}
                 fill={'#fff'}
                 maxBarSize={20}
               >

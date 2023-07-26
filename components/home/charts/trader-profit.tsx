@@ -21,7 +21,7 @@ import {
   yaxisFormatter,
   xAxisFormatter,
   tooltipFormatterCurrency,
-  tooltopFormatterDate,
+  tooltipFormatterDate,
 } from '../../../helpers';
 
 const REQUESTS = [cumulative_user_pnl, user_pnl];
@@ -128,7 +128,7 @@ export default function TradersProfitLossChart() {
           />
           <Tooltip
             formatter={tooltipFormatterCurrency}
-            labelFormatter={tooltopFormatterDate}
+            labelFormatter={tooltipFormatterDate}
             contentStyle={{
               textAlign: 'left',
               background: '#0A1F1B',
@@ -143,11 +143,10 @@ export default function TradersProfitLossChart() {
             }}
           />
           <Legend wrapperStyle={{ bottom: -5 }} />
-          <Bar type='monotone' fill={'#FFF'} dataKey='user_pnl' name='Net PnL'>
+          <Bar type='monotone' fill={'#FFF'} dataKey='user_pnl' name='Net PnL' maxBarSize={20}>
             {((data && data.data) || []).map((item: any, i: number) => {
               return <Cell key={`cell-${i}`} fill={item.user_pnl > 0 ? GREEN : RED} />;
             })}
-            maxBarSize={20}
           </Bar>
           <Line
             type='monotone'

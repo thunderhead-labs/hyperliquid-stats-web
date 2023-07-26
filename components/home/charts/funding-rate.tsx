@@ -17,7 +17,7 @@ import {
   tooltipFormatter,
   xAxisFormatter,
   formatterPercent,
-  tooltopFormatterDate,
+  tooltipFormatterDate,
 } from '../../../helpers';
 import { getTokenHex } from '../../../constants/tokens';
 import { funding_rate } from '../../../constants/api';
@@ -167,7 +167,7 @@ export default function FundingRate() {
           />
           <Tooltip
             formatter={tooltipFormatter}
-            labelFormatter={tooltopFormatterDate}
+            labelFormatter={tooltipFormatterDate}
             contentStyle={{
               textAlign: 'left',
               background: '#0A1F1B',

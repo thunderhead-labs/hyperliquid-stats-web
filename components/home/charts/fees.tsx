@@ -13,12 +13,12 @@ import { useEffect, useState } from 'react';
 import { useRequest } from '@/hooks/useRequest';
 import { useMediaQuery } from '@chakra-ui/react';
 import ChartWrapper from '../../common/chartWrapper';
-import { CHART_HEIGHT, YAXIS_WIDTH, BRIGHT_GREEN } from '../../../constants';
+import { CHART_HEIGHT, YAXIS_WIDTH, BRIGHT_GREEN, GREEN } from '../../../constants';
 import {
   yaxisFormatter,
   xAxisFormatter,
   tooltipFormatterCurrency,
-  tooltopFormatterDate,
+  tooltipFormatterDate,
 } from '../../../helpers';
 import { total_accrued_fees } from '../../../constants/api';
 
@@ -102,7 +102,7 @@ export default function Fees() {
             data={formattedData}
             dataKey={'daily_accrued_fees'}
             name={'Daily fees accrued'}
-            fill={'#fff'}
+            fill={GREEN}
             maxBarSize={20}
           />
           <Line
@@ -117,7 +117,7 @@ export default function Fees() {
           />
           <Tooltip
             formatter={tooltipFormatterCurrency}
-            labelFormatter={tooltopFormatterDate}
+            labelFormatter={tooltipFormatterDate}
             contentStyle={{
               textAlign: 'left',
               background: '#0A1F1B',

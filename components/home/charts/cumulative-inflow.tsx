@@ -19,7 +19,7 @@ import {
   yaxisFormatter,
   xAxisFormatter,
   tooltipFormatterCurrency,
-  tooltopFormatterDate,
+  tooltipFormatterDate,
 } from '../../../helpers';
 import { daily_inflow, cumulative_inflow } from '../../../constants/api';
 
@@ -128,7 +128,7 @@ export default function CumulativeInflow() {
           />
           <Tooltip
             formatter={tooltipFormatterCurrency}
-            labelFormatter={tooltopFormatterDate}
+            labelFormatter={tooltipFormatterDate}
             contentStyle={{
               textAlign: 'left',
               background: '#0A1F1B',

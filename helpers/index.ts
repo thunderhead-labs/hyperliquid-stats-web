@@ -185,7 +185,16 @@ export const tooltipFormatterCurrency = (value: number | string): string => {
   return formatNumberWithOptions(Number(value), { currency: true, compact: true });
 };
 
-export const tooltopFormatterDate = (label: any) => {
+export const tooltipFormatterLongShort = (value: number | string): string => {
+  let formattedNumber = formatNumberToCompactForm(Math.abs(+value));
+  if (+value < 0) {
+    return `Short $${formattedNumber}`;
+  } else {
+    return `Long $${formattedNumber}`;
+  }
+};
+
+export const tooltipFormatterDate = (label: any) => {
   const date = new Date(label);
   return `Date : ${date.toLocaleDateString()}`;
 };
