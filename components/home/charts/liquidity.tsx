@@ -24,7 +24,7 @@ import { liquidity_by_coin } from '../../../constants/api';
 
 const REQUESTS = [liquidity_by_coin];
 
-export default function CumulativeUsers() {
+export default function Liquidity() {
   const [isMobile] = useMediaQuery('(max-width: 700px)');
 
   const [formattedData0, setFormattedData0] = useState<any[]>([]);
@@ -289,7 +289,7 @@ export default function CumulativeUsers() {
               maxHeight: '500px',
             }}
             itemSorter={(item) => {
-              return Number(item.value) * -1;
+              return Number(item.value);
             }}
           />
           <Legend wrapperStyle={{ bottom: -5 }} />

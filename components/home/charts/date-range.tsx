@@ -9,7 +9,7 @@ import 'react-date-range/dist/styles.css';
 import 'react-date-range/dist/theme/default.css';
 
 const ALL_TIME_ID = 4;
-const DATA_START_DATE = new Date('2023-05-10');
+const DATA_START_DATE = new Date('2023-06-14');
 const DATE_NOW = new Date();
 
 export const DateRangeSelect = () => {

@@ -67,7 +67,7 @@ type TempGroupedTradeData = {
 
 const REQUESTS = [cumulative_new_users, daily_unique_users, daily_unique_users_by_coin];
 
-export default function CumulativeUsers() {
+export default function UniqueUsers() {
   const [isMobile] = useMediaQuery('(max-width: 700px)');
 
   const [formattedData, setFormattedData] = useState<any[]>([]);

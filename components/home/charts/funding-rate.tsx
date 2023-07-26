@@ -149,7 +149,7 @@ export default function FundingRate() {
       data={formattedData}
       coinSelectors={coinSelectors}
     >
-      <ResponsiveContainer width='100%' height={CHART_HEIGHT + 125}>
+      <ResponsiveContainer width='100%' height={CHART_HEIGHT}>
         <LineChart data={formattedData}>
           <CartesianGrid strokeDasharray='15 15' opacity={0.1} />
           <XAxis

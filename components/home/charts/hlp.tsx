@@ -14,15 +14,7 @@ import { Box, Text, useMediaQuery } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { useRequest } from '@/hooks/useRequest';
 import ChartWrapper from '../../common/chartWrapper';
-import {
-  BLUE,
-  BRIGHT_GREEN,
-  CHART_HEIGHT,
-  GREEN,
-  ORANGE,
-  RED,
-  YAXIS_WIDTH,
-} from '../../../constants';
+import { BLUE, BRIGHT_GREEN, CHART_HEIGHT, GREEN, ORANGE, RED } from '../../../constants';
 import {
   tooltipFormatterDate,
   tooltipFormatterCurrency,
@@ -33,6 +25,8 @@ import {
 import { getTokenHex } from '@/constants/tokens';
 import { asset_ctxs, hlp_liquidator_pnl, hlp_positions } from '@/constants/api';
 const REQUESTS = [hlp_positions, asset_ctxs, hlp_liquidator_pnl];
+
+const DAY = 60 * 60 * 24 * 1000;
 
 export default function Hlp() {
   const [isMobile] = useMediaQuery('(max-width: 700px)');
@@ -68,6 +62,7 @@ export default function Hlp() {
     time: string;
     coin: string;
     avg_oracle_px: number;
+    first_oracle_px: number;
     avg_open_interest: number;
   };
 
@@ -88,7 +83,7 @@ export default function Hlp() {
     const map = new Map<string, number>();
     assetCtxs.forEach((item) => {
       if (item.coin === 'ETH') {
-        map.set(item.time, item.avg_oracle_px);
+        map.set(item.time, item.first_oracle_px);
       }
     });
     return map;
@@ -113,11 +108,21 @@ export default function Hlp() {
     return map;
   };
 
+  function getNextTime(time: string) {
+    const date = new Date(time);
+    date.setDate(date.getDate() + 1);
+
+    var dd = String(date.getDate()).padStart(2, '0');
+    var mm = String(date.getMonth() + 1).padStart(2, '0'); //January is 0!
+    var yyyy = date.getFullYear();
+
+    return yyyy + '-' + mm + '-' + dd + 'T00:00:00';
+  }
+
   const makeFormattedData = (hlpPositions: HlpPosition[]): [GroupedData[], string[]] => {
     const map = new Map<string, GroupedData>();
     const uniqueTopCoins = new Set<string>();
 
-    let ethOraclePxPrev: number | null | undefined = null;
     let prevTime: string | null = null;
     let hedgedCumulativePnl = 0;
     hlpPositions.forEach((item: HlpPosition) => {
@@ -126,10 +131,12 @@ export default function Hlp() {
         const pnl = hlpPnL.get(time)?.pnl;
         const ethOraclePx = ethOraclePxs.get(time);
         let hedgedPnl = pnl ?? 0;
+        const nextTime = getNextTime(time);
+        let ethOraclePxNext = ethOraclePxs.get(nextTime);
         let prevDayNtlPosition = prevTime ? map.get(prevTime)?.daily_ntl : null;
-        if (ethOraclePxPrev && ethOraclePx && prevDayNtlPosition) {
-          const ethPxChange = 1 - ethOraclePx / ethOraclePxPrev;
-          const ethPnL = prevDayNtlPosition * ethPxChange;
+        if (ethOraclePxNext && ethOraclePx && prevDayNtlPosition) {
+          const ethPxChange = 1 - ethOraclePx / ethOraclePxNext;
+          const ethPnL = -1 * prevDayNtlPosition * ethPxChange;
           hedgedPnl += ethPnL;
         }
         hedgedCumulativePnl += hedgedPnl;
@@ -141,7 +148,6 @@ export default function Hlp() {
           hedged_cumulative_pnl: hedgedCumulativePnl,
           Other: 0,
         });
-        ethOraclePxPrev = ethOraclePx;
         prevTime = time;
       } else {
         const existingEntry = map.get(time)!;
@@ -205,6 +211,7 @@ export default function Hlp() {
     ],
   };
 
+  console.log('***assetCtxs', assetCtxs);
   const formatData = () => {
     if (dataHlpPositions && assetCtxs && dataHlpPnL) {
       const newEthOraclePxs = getEthOraclePxs(assetCtxs);
@@ -226,7 +233,7 @@ export default function Hlp() {
 
   return (
     <ChartWrapper title='HLP' loading={false} data={formattedData} controls={controls}>
-      <ResponsiveContainer width='100%' height={CHART_HEIGHT + 125}>
+      <ResponsiveContainer width='100%' height={CHART_HEIGHT}>
         <ComposedChart data={dataMode === 'PNL' ? formattedHlpPnL : formattedData}>
           <CartesianGrid strokeDasharray='15 15' opacity={0.1} />
           <XAxis
