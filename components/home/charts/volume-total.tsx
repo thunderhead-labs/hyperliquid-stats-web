@@ -43,6 +43,7 @@ export default function TotalVolumeChart() {
     total: number;
     [coin: string]: any;
     cumulative: number;
+    unit: string;
     Other: number;
   }
 
@@ -61,6 +62,7 @@ export default function TotalVolumeChart() {
           [`${coin}`]: total_volume,
           cumulative: cumulative,
           Other: 0,
+          unit: '$',
         });
       } else {
         const existingEntry = map.get(time)!;
@@ -72,7 +74,12 @@ export default function TotalVolumeChart() {
 
     map.forEach((entry) => {
       const coinEntries = Object.entries(entry).filter(
-        ([key]) => key !== 'time' && key !== 'total' && key !== 'cumulative' && key !== 'other'
+        ([key]) =>
+          key !== 'time' &&
+          key !== 'total' &&
+          key !== 'cumulative' &&
+          key !== 'other' &&
+          key !== 'unit'
       );
       const sortedCoinEntries = coinEntries.sort(
         (a, b) => Math.abs(Number(b[1])) - Math.abs(Number(a[1]))
@@ -164,7 +171,7 @@ export default function TotalVolumeChart() {
           />
           <Tooltip
             formatter={tooltipFormatterCurrency}
-            labelFormatter={tooltipFormatterDate}
+            labelFormatter={(label, args) => tooltipLabelFormatter(label, args, 'total')}
             contentStyle={{
               textAlign: 'left',
               background: '#0A1F1B',
@@ -181,7 +188,10 @@ export default function TotalVolumeChart() {
         </ComposedChart>
       </ResponsiveContainer>
       <Box w='100%' mt='3'>
-        <Text color='#bbb'>Top 10 Coins grouped daily and remaining coins grouped by Other</Text>
+        <Text color='#bbb'>
+          Top 10 Coins grouped daily and remaining coins grouped by Other. Volume tracked since
+          introduction of fees.
+        </Text>
       </Box>
     </ChartWrapper>
   );

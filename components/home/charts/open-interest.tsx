@@ -12,12 +12,13 @@ import { useEffect, useState } from 'react';
 import { Box, Text, useMediaQuery } from '@chakra-ui/react';
 import { useRequest } from '@/hooks/useRequest';
 import ChartWrapper from '../../common/chartWrapper';
-import { CHART_HEIGHT, YAXIS_WIDTH } from '../../../constants';
+import { BRIGHT_GREEN, CHART_HEIGHT, GREEN, YAXIS_WIDTH } from '../../../constants';
 import {
   xAxisFormatter,
   tooltipLabelFormatter,
   yaxisFormatter,
   tooltipFormatterCurrency,
+  tooltipFormatterDate,
 } from '../../../helpers';
 import { getTokenHex } from '../../../constants/tokens';
 import { open_interest } from '../../../constants/api';
@@ -144,7 +145,7 @@ export default function VolumeChart() {
           />
           <Tooltip
             formatter={tooltipFormatterCurrency}
-            labelFormatter={tooltipLabelFormatter}
+            labelFormatter={tooltipFormatterDate}
             contentStyle={{
               textAlign: 'left',
               background: '#0A1F1B',
@@ -172,6 +173,15 @@ export default function VolumeChart() {
               />
             );
           })}
+          <Line
+            unit={''}
+            isAnimationActive={false}
+            dataKey={'all'}
+            dot={false}
+            name={'Total open interest'}
+            stroke={BRIGHT_GREEN}
+            key={'total-open-interest'}
+          />
         </LineChart>
       </ResponsiveContainer>
       <Box w='100%' mt='3'>

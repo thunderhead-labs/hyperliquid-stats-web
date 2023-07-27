@@ -211,7 +211,6 @@ export default function Hlp() {
     ],
   };
 
-  console.log('***assetCtxs', assetCtxs);
   const formatData = () => {
     if (dataHlpPositions && assetCtxs && dataHlpPnL) {
       const newEthOraclePxs = getEthOraclePxs(assetCtxs);

@@ -1,19 +1,19 @@
 'use strict';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box, Grid, Text, Spinner } from '@chakra-ui/react';
 import {
   total_users,
-  total_usd_volume,
   total_deposits,
   total_withdrawals,
   total_notional_liquidated,
+  total_volume,
 } from '../../../constants/api';
 import { useRequest } from '@/hooks/useRequest';
 import { formatNumber } from '@/utils/formatting';
 
 const REQUESTS = [
   total_users,
-  total_usd_volume,
+  total_volume,
   total_deposits,
   total_withdrawals,
   total_notional_liquidated,
@@ -34,12 +34,8 @@ const TopStats = () => {
     'total_users',
     true
   );
-  const [dataTotalUsdVol, loadingUsdVol, errorUsdVol] = useRequest(
-    REQUESTS[1],
-    0,
-    'total_usd_volume',
-    true
-  );
+  const [dataTotalVolume, loadingVol, errorVol] = useRequest(REQUESTS[1], 0, 'chart_data', true);
+  const [totalVolume, setTotalVolume] = useState<number>(0);
   const [dataTotalDeposits, loadingTotalDeposits, errorTotalDeposits] = useRequest(
     REQUESTS[2],
     0,
@@ -57,6 +53,27 @@ const TopStats = () => {
     loadingTotalNotionalLiquidated,
     errorTotalNotionalLiquidated,
   ] = useRequest(REQUESTS[4], 0, 'total_notional_liquidated', true);
+
+  interface TotalVolume {
+    time: string;
+    total_volume: number;
+    coin: string;
+  }
+
+  const computeTotalVolume = (dataTotalVolume: TotalVolume[]) => {
+    let totalVolume = 0;
+    dataTotalVolume.forEach((volume: TotalVolume) => {
+      totalVolume += volume.total_volume;
+    });
+
+    setTotalVolume(totalVolume);
+  };
+
+  useEffect(() => {
+    if (!loadingVol && !errorVol && dataTotalVolume) {
+      computeTotalVolume(dataTotalVolume);
+    }
+  }, [loadingVol, errorVol]);
 
   return (
     <Grid
@@ -81,12 +98,12 @@ const TopStats = () => {
       </Card>
       <Card bg='#0f2e29' boxShadow='0px 0px 7px rgb(0 0 0 / 20%)'>
         <Text fontSize='xl' w='100%' fontWeight='bold' textAlign='center'>
-          {dataTotalUsdVol ? `$${formatNumber(dataTotalUsdVol, 0)}` : errorUsdVol ? 'Error' : null}
+          {totalVolume ? `$${formatNumber(totalVolume, 0)}` : errorVol ? 'Error' : null}
         </Text>
-        <Text fontSize='md' textAlign='center' mt='0.5rem' hidden={!dataTotalUsdVol}>
-          Total non-HLP Volume
+        <Text fontSize='md' textAlign='center' mt='0.5rem' hidden={!dataTotalVolume}>
+          Total Volume
         </Text>
-        {loadingUsdVol && <Loader />}
+        {loadingVol && <Loader />}
       </Card>
       <Card bg='#0f2e29' boxShadow='0px 0px 7px rgb(0 0 0 / 20%)'>
         <Text fontSize='xl' w='100%' fontWeight='bold' textAlign='center'>

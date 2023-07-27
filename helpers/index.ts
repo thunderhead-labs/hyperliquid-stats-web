@@ -113,7 +113,7 @@ export const tooltipLabelFormatterPercent = (label: any, args: any): any => {
   return date;
 };
 
-export const tooltipLabelFormatter = (label: any, args: any): any => {
+export const tooltipLabelFormatter = (label: any, args: any, key?: string): any => {
   const hide =
     args &&
     args[0] &&
@@ -129,12 +129,17 @@ export const tooltipLabelFormatter = (label: any, args: any): any => {
   const item = args && args[0] && args[0].payload && args[0];
   const dateFmtString = 'Total %d-%m-%y :';
   const date = strftime(dateFmtString, label);
-  const all = item && item.payload.all;
-  if (all) {
+  let value;
+  if (key) {
+    value = item && item.payload[key];
+  } else {
+    value = item && item.payload.all;
+  }
+  if (value) {
     if ((item && item.unit === '$') || (item.payload && item.payload.unit === '$')) {
-      return `${date} ${formatNumberWithOptions(all, { currency: true, compact: true })}`;
+      return `${date} ${formatNumberWithOptions(value, { currency: true, compact: true })}`;
     }
-    return `${date} ${formatNumberWithOptions(all, { compact: true })}`;
+    return `${date} ${formatNumberWithOptions(value, { compact: true })}`;
   }
   return date;
 };

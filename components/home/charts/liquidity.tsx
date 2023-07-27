@@ -31,7 +31,6 @@ export default function Liquidity() {
   const [formattedData1000, setFormattedData1000] = useState<any[]>([]);
   const [formattedData3000, setFormattedData3000] = useState<any[]>([]);
   const [formattedData10000, setFormattedData10000] = useState<any[]>([]);
-  const [minMax, setMinMax] = useState<any>();
 
   const [coinKeys0, setCoinKeys0] = useState<any[]>([]);
   const [coinKeys1000, setCoinKeys1000] = useState<any[]>([]);
@@ -88,8 +87,6 @@ export default function Liquidity() {
 
   const transformData = (data: InputData): OutputData => {
     const coinTotals = new Map<string, number>();
-
-    const minMax: { min: number; max: number } = { min: Infinity, max: -Infinity };
 
     // Compute overall totals for each coin
     for (let key in data) {
@@ -168,31 +165,6 @@ export default function Liquidity() {
     };
   };
 
-  type MinMaxValues = {
-    min: number;
-    max: number;
-  };
-
-  const getMinMaxValues = (data: any): MinMaxValues => {
-    let min = Infinity;
-    let max = -Infinity;
-    for (let prop in data) {
-      if (Object.prototype.hasOwnProperty.call(data, prop)) {
-        const propData = data[prop];
-        propData.forEach((item: any) => {
-          for (let key in item) {
-            if (key !== 'time' && typeof item[key] === 'number') {
-              const value = item[key] as number;
-              min = Math.min(min, value);
-              max = Math.max(max, value);
-            }
-          }
-        });
-      }
-    }
-    return { min, max };
-  };
-
   const extractUniqueCoins = (
     data:
       | OutputData['median_slippage_1000']
@@ -220,8 +192,6 @@ export default function Liquidity() {
     const formattedUniqueCoinKeys1000 = extractUniqueCoins(formattedData.median_slippage_1000);
     const formattedUniqueCoinKeys3000 = extractUniqueCoins(formattedData.median_slippage_3000);
     const formattedUniqueCoinKeys10000 = extractUniqueCoins(formattedData.median_slippage_10000);
-    const minMaxValues = getMinMaxValues(formattedData);
-    setMinMax(minMaxValues);
     setCoinKeys0(formattedUniqueCoinKeys0);
     setCoinKeys1000(formattedUniqueCoinKeys1000);
     setCoinKeys3000(formattedUniqueCoinKeys3000);
@@ -271,7 +241,6 @@ export default function Liquidity() {
             tickMargin={10}
           />
           <YAxis
-            domain={minMax ? [minMax.min, minMax.max] : [0, 'auto']}
             width={45}
             tick={{ fill: '#f9f9f9', fontSize: isMobile ? 14 : 15 }}
             dx={6}
