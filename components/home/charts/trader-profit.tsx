@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import {
-  Area,
   Bar,
   Cell,
   CartesianGrid,
@@ -18,7 +17,12 @@ import { Box, Text, useMediaQuery } from '@chakra-ui/react';
 import { cumulative_user_pnl, user_pnl } from '../../../constants/api';
 import ChartWrapper from '../../common/chartWrapper';
 import { CHART_HEIGHT, YAXIS_WIDTH, BRIGHT_GREEN, GREEN, RED } from '../../../constants';
-import { yaxisFormatter, xAxisFormatter, tooltipFormatterCurrency } from '../../../helpers';
+import {
+  yaxisFormatter,
+  xAxisFormatter,
+  tooltipFormatterCurrency,
+  tooltipFormatterDate,
+} from '../../../helpers';
 
 const REQUESTS = [cumulative_user_pnl, user_pnl];
 
@@ -33,8 +37,9 @@ export default function TradersProfitLossChart() {
   );
   const [dataUserPNL, loadingUserPNL, errorUserPNL] = useRequest(REQUESTS[1], [], 'chart_data');
 
+  const loading = loadingUserPNL || loadingCumulativeUserPNL;
+  const error = errorUserPNL || errorCumulativeUserPNL;
   const formatTradingData = () => {
-    let currentPnlCumulative = 0;
     let currentProfitCumulative = 0;
     let currentLossCumulative = 0;
 
@@ -90,17 +95,13 @@ export default function TradersProfitLossChart() {
   };
 
   useEffect(() => {
-    if (dataCumulativeUserPNL.length > 0 && dataUserPNL.length > 0) {
+    if (!loading && !error) {
       formatTradingData();
     }
-  }, [dataCumulativeUserPNL, dataUserPNL]);
+  }, [loading, error]);
 
   return (
-    <ChartWrapper
-      title='Traders Net PnL'
-      loading={loadingCumulativeUserPNL && loadingUserPNL}
-      data={data ? data.data : []}
-    >
+    <ChartWrapper title='Traders Net PnL' loading={loading} data={data ? data.data : []}>
       <ResponsiveContainer width='100%' height={CHART_HEIGHT}>
         <ComposedChart data={data ? data.data : []}>
           <CartesianGrid strokeDasharray='15 15' opacity={0.1} />
@@ -127,7 +128,7 @@ export default function TradersProfitLossChart() {
           />
           <Tooltip
             formatter={tooltipFormatterCurrency}
-            labelFormatter={() => ''}
+            labelFormatter={tooltipFormatterDate}
             contentStyle={{
               textAlign: 'left',
               background: '#0A1F1B',
@@ -142,11 +143,10 @@ export default function TradersProfitLossChart() {
             }}
           />
           <Legend wrapperStyle={{ bottom: -5 }} />
-          <Bar type='monotone' fill={'#FFF'} dataKey='user_pnl' name='Net PnL'>
+          <Bar type='monotone' fill={'#FFF'} dataKey='user_pnl' name='Net PnL' maxBarSize={20}>
             {((data && data.data) || []).map((item: any, i: number) => {
               return <Cell key={`cell-${i}`} fill={item.user_pnl > 0 ? GREEN : RED} />;
             })}
-            maxBarSize={20}
           </Bar>
           <Line
             type='monotone'

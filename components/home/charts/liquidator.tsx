@@ -8,6 +8,7 @@ import {
   ResponsiveContainer,
   ComposedChart,
   Line,
+  Cell,
 } from 'recharts';
 import { useEffect, useState } from 'react';
 import { useRequest } from '@/hooks/useRequest';
@@ -19,12 +20,15 @@ import {
   BRIGHT_GREEN,
   BRAND_GREEN_2,
   BRAND_GREEN_3,
+  GREEN,
+  RED,
 } from '../../../constants';
 import {
   tooltipLabelFormatter,
   yaxisFormatter,
   xAxisFormatter,
   tooltipFormatterCurrency,
+  tooltipFormatterDate,
 } from '../../../helpers';
 import { getTokenHex } from '../../../constants/tokens';
 import {
@@ -32,6 +36,8 @@ import {
   daily_notional_liquidated_total,
   daily_notional_liquidated_by_leverage_type,
   daily_notional_liquidated_by_coin,
+  hlp_liquidator_pnl_false,
+  cumulative_hlp_liquidator_pnl_false,
 } from '../../../constants/api';
 
 const REQUESTS = [
@@ -39,12 +45,14 @@ const REQUESTS = [
   daily_notional_liquidated_total,
   daily_notional_liquidated_by_leverage_type,
   daily_notional_liquidated_by_coin,
+  hlp_liquidator_pnl_false,
+  cumulative_hlp_liquidator_pnl_false,
 ];
 
-export default function CumulativeNotionalLiquidated() {
+export default function LiquidatorChart() {
   const [isMobile] = useMediaQuery('(max-width: 700px)');
 
-  const [dataMode, setDataMode] = useState<'COINS' | 'MARGIN'>('COINS');
+  const [dataMode, setDataMode] = useState<'COINS' | 'MARGIN' | 'PNL'>('COINS');
   const [formattedDataCoins, setFormattedDataCoins] = useState<any[]>([]);
   const [formattedDataMargin, setFormattedDataMargin] = useState<any[]>([]);
 
@@ -61,20 +69,38 @@ export default function CumulativeNotionalLiquidated() {
   ] = useRequest(REQUESTS[2], [], 'chart_data');
   const [dataDailyLiquidatedByCoins, loadingDailyLiquidatedByCoins, errorDailyLiquidatedByCoins] =
     useRequest(REQUESTS[3], [], 'chart_data');
+  const [dataLiquidatorPnl, loadingLiquidatorPnl, errorLiquidatorPnl] = useRequest(
+    REQUESTS[4],
+    [],
+    'chart_data'
+  );
+  const [
+    dataLiquidatorCumulativePnl,
+    loadingLiquidatorCumulativePnl,
+    errorLiquidatorCumulativePnl,
+  ] = useRequest(REQUESTS[5], [], 'chart_data');
+  const [formattedLiquidatorPnl, setFormattedLiquidatorPnl] = useState<LiquidatorPnl[]>([]);
 
-  console.log('test coinKeys', coinKeys);
+  type LiquidatorPnl = {
+    time: Date;
+    pnl: number;
+    cumulativePnl: number;
+  };
 
   const loading =
     loadingCumulativeLiquidated ||
     loadingDailyLiquidatedTotal ||
     loadingDailyLiquidatedByMargin ||
-    loadingDailyLiquidatedByCoins;
+    loadingDailyLiquidatedByCoins ||
+    loadingLiquidatorPnl ||
+    loadingLiquidatorCumulativePnl;
   const error =
     errorCumulativeLiquidated ||
     errorDailyUsdVolumeTotal ||
     errorDailyLiquidatedByMargin ||
-    errorDailyLiquidatedByCoins;
-
+    errorDailyLiquidatedByCoins ||
+    errorLiquidatorPnl ||
+    errorLiquidatorCumulativePnl;
   type CumulativeLiquidationData = { cumulative: number; time: string };
 
   const formatCumulativeLiquidatedByTime = (
@@ -87,7 +113,27 @@ export default function CumulativeNotionalLiquidated() {
     return result;
   };
 
-  type VolumeData = { coin: string; daily_usd_volume: number; time: string };
+  const formatLiquidatorPnl = (
+    dataLiquidatorPnl: any,
+    dataLiquidatorCumulativePnl: any
+  ): LiquidatorPnl[] => {
+    const map = new Map<string, LiquidatorPnl>();
+    dataLiquidatorPnl.map((item: any) => {
+      let entry = {
+        time: new Date(item.time),
+        pnl: item.total_pnl,
+        cumulativePnl: 0,
+      };
+      map.set(item.time, entry);
+    });
+
+    dataLiquidatorCumulativePnl.map((item: any) => {
+      let existingEntry = map.get(item.time)!;
+      existingEntry.cumulativePnl = item.cumulative_pnl;
+    });
+
+    return Array.from(map.values());
+  };
 
   type LiquidationData = {
     time: string;
@@ -189,6 +235,11 @@ export default function CumulativeNotionalLiquidated() {
       dataDailyLiquidatedByCoins,
       formattedCumulativeLiquidatedByTime
     );
+    const newFormattedLiquidatorPnl = formatLiquidatorPnl(
+      dataLiquidatorPnl,
+      dataLiquidatorCumulativePnl
+    );
+    setFormattedLiquidatorPnl(newFormattedLiquidatorPnl);
     setCoinKeys(extractUniqueCoins(formattedDailyTradesByCoins));
     setFormattedDataMargin(formattedVolumeByMargin);
     setFormattedDataCoins(formattedDailyTradesByCoins);
@@ -198,37 +249,64 @@ export default function CumulativeNotionalLiquidated() {
   const controls = {
     toggles: [
       {
-        text: 'Coins',
+        text: 'By coin',
         event: () => setDataMode('COINS'),
         active: dataMode === 'COINS',
       },
       {
-        text: 'Cross / Isolated Margin',
+        text: 'By margin type',
         event: () => setDataMode('MARGIN'),
         active: dataMode === 'MARGIN',
+      },
+      {
+        text: 'Liquidator PnL',
+        event: () => setDataMode('PNL'),
+        active: dataMode === 'PNL',
       },
     ],
   };
 
   useEffect(() => {
-    if (!loading) {
+    if (!loading && !error) {
       formatData();
     }
-  }, [loading]);
+  }, [loading, error]);
 
+  const dataModeToData = (dataMode: string) => {
+    switch (dataMode) {
+      case 'COINS':
+        return formattedDataCoins;
+      case 'MARGIN':
+        return formattedDataMargin;
+      case 'PNL':
+        return formattedLiquidatorPnl;
+    }
+  };
+
+  const pnlYDomain = () => {
+    let maxPnl = formattedLiquidatorPnl.reduce((max, curr) => {
+      return Math.abs(max.pnl) > Math.abs(curr.pnl) ? max : curr;
+    }).pnl;
+    return [-1 * Math.abs(maxPnl) * 1.1, Math.abs(maxPnl) * 1.1];
+  };
+
+  const cumulativePnlYDomain = () => {
+    let maxCumulativePnl = formattedLiquidatorPnl.reduce((max, curr) => {
+      return Math.abs(max.cumulativePnl) > Math.abs(curr.cumulativePnl) ? max : curr;
+    }).cumulativePnl;
+
+    return [-1 * Math.abs(maxCumulativePnl) * 1.1, Math.abs(maxCumulativePnl) * 1.1];
+  };
   return (
     <ChartWrapper
-      title='Cumulative Liquidated'
+      title='Liquidations'
       loading={loading}
-      data={dataMode === 'COINS' ? formattedDataCoins : formattedDataMargin}
+      data={dataModeToData(dataMode)}
       controls={controls}
       zIndex={7}
     >
       <ResponsiveContainer width='100%' height={CHART_HEIGHT}>
-        <ComposedChart
-          data={dataMode === 'COINS' ? formattedDataCoins : formattedDataMargin}
-          syncId='syncA'
-        >
+        <ComposedChart data={dataModeToData(dataMode)} syncId='syncA'>
           <CartesianGrid strokeDasharray='15 15' opacity={0.1} />
           <XAxis
             dataKey='time'
@@ -237,25 +315,9 @@ export default function CumulativeNotionalLiquidated() {
             tick={{ fill: '#f9f9f9', fontSize: isMobile ? 14 : 15 }}
             tickMargin={10}
           />
-          <YAxis
-            dataKey='all'
-            interval='preserveStartEnd'
-            tickCount={7}
-            tickFormatter={yaxisFormatter}
-            width={70}
-            tick={{ fill: '#f9f9f9', fontSize: isMobile ? 14 : 15 }}
-          />
-          <YAxis
-            dataKey='cumulative'
-            orientation='right'
-            yAxisId='right'
-            tickFormatter={yaxisFormatter}
-            width={YAXIS_WIDTH}
-            tick={{ fill: '#f9f9f9', fontSize: isMobile ? 14 : 15 }}
-          />
           <Tooltip
             formatter={tooltipFormatterCurrency}
-            labelFormatter={tooltipLabelFormatter}
+            labelFormatter={dataMode === 'PNL' ? tooltipFormatterDate : tooltipLabelFormatter}
             contentStyle={{
               textAlign: 'left',
               background: '#0A1F1B',
@@ -266,7 +328,7 @@ export default function CumulativeNotionalLiquidated() {
               maxHeight: '500px',
             }}
             itemSorter={(item) => {
-              return Number(item.value) * -1;
+              return Math.abs(Number(item.value));
             }}
           />
           <Legend wrapperStyle={{ bottom: -5 }} />
@@ -314,16 +376,77 @@ export default function CumulativeNotionalLiquidated() {
               />
             </>
           )}
-          <Line
-            isAnimationActive={false}
-            type='monotone'
-            dot={false}
-            strokeWidth={1}
-            stroke={BRIGHT_GREEN}
-            dataKey='cumulative'
-            yAxisId='right'
-            name='Cumulative'
-          />
+          {dataMode !== 'PNL' && (
+            <>
+              <YAxis
+                dataKey={'all'}
+                interval='preserveStartEnd'
+                tickCount={7}
+                tickFormatter={yaxisFormatter}
+                width={70}
+                tick={{ fill: '#f9f9f9', fontSize: isMobile ? 14 : 15 }}
+              />
+              <YAxis
+                orientation='right'
+                yAxisId='right'
+                dataKey={'cumulative'}
+                tickFormatter={yaxisFormatter}
+                width={YAXIS_WIDTH}
+                tick={{ fill: '#f9f9f9', fontSize: isMobile ? 14 : 15 }}
+              />
+              <Line
+                isAnimationActive={false}
+                type='monotone'
+                dot={false}
+                strokeWidth={1}
+                stroke={BRIGHT_GREEN}
+                dataKey='cumulative'
+                yAxisId='right'
+                name='Cumulative'
+              />
+            </>
+          )}
+          {dataMode === 'PNL' && (
+            <>
+              <YAxis
+                tickCount={7}
+                width={70}
+                tickFormatter={yaxisFormatter}
+                domain={pnlYDomain()}
+                tick={{ fill: '#f9f9f9', fontSize: isMobile ? 14 : 15 }}
+              />
+              <YAxis
+                orientation='right'
+                yAxisId='right'
+                tickFormatter={yaxisFormatter}
+                domain={cumulativePnlYDomain()}
+                width={YAXIS_WIDTH}
+                tick={{ fill: '#f9f9f9', fontSize: isMobile ? 14 : 15 }}
+              />
+              <Bar
+                isAnimationActive={false}
+                type='monotone'
+                fill={'#FFF'}
+                dataKey='pnl'
+                name='PnL'
+                maxBarSize={20}
+              >
+                {formattedLiquidatorPnl.map((item: any, i: number) => {
+                  return <Cell key={`cell-${i}`} fill={item.pnl > 0 ? GREEN : RED} />;
+                })}
+              </Bar>
+              <Line
+                isAnimationActive={false}
+                type='monotone'
+                dot={false}
+                strokeWidth={1}
+                stroke={BRIGHT_GREEN}
+                dataKey='cumulativePnl'
+                name='Cumulative PnL'
+                yAxisId='right'
+              />
+            </>
+          )}
         </ComposedChart>
       </ResponsiveContainer>
       <Box w='100%' mt='3'>

@@ -14,7 +14,12 @@ import { useRequest } from '@/hooks/useRequest';
 import { useMediaQuery } from '@chakra-ui/react';
 import ChartWrapper from '../../common/chartWrapper';
 import { CHART_HEIGHT, YAXIS_WIDTH, BRIGHT_GREEN, GREEN } from '../../../constants';
-import { xAxisFormatter, yaxisFormatterNumber, tooltipFormatter } from '../../../helpers';
+import {
+  xAxisFormatter,
+  yaxisFormatterNumber,
+  tooltipFormatter,
+  tooltipFormatterDate,
+} from '../../../helpers';
 import {
   cumulative_new_users,
   daily_unique_users,
@@ -98,7 +103,7 @@ export default function CumulativeUsers() {
           />
           <Tooltip
             formatter={tooltipFormatter}
-            labelFormatter={() => ''}
+            labelFormatter={tooltipFormatterDate}
             contentStyle={{
               textAlign: 'left',
               background: '#0A1F1B',

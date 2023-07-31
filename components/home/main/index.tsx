@@ -3,22 +3,23 @@ import React from 'react';
 import { Container, Box, Text, Grid, Flex } from '@chakra-ui/react';
 import * as S from './styles';
 import TopStats from '../charts/top-stats';
-import VolumeNonMMChart from '../charts/volume-non-hlp';
+import RetailVolumeChart from '../charts/retail-volume';
 import VolumeNumTrades from '../charts/volume-num-trades';
 import OpenInterestChart from '../charts/open-interest';
 import TradersProfitLossChart from '../charts/trader-profit';
-import HLPProfitLossChart from '../charts/hlp-liquidator-profit';
 import { DateRangeSelect } from '../charts/date-range';
 import FundingRateChart from '../charts/funding-rate';
 import CumulativeUsersChart from '../charts/cumulative-users';
-import CoinTradesByUsers from '../charts/unique-users-coin';
 import CumulativeInflowChart from '../charts/cumulative-inflow';
-import CumulativeNotionalLiquidatedChart from '../charts/cumulative-notional-liquidated';
+import CumulativeNotionalLiquidatedChart from '../charts/liquidator';
 import TableLargestUsers from '../tables/largest-users';
 import TableUserDesposits from '../tables/user-deposits';
 import TableLiquidatedNotional from '../tables/liquidated-notional-user';
 import TableTradeCount from '../tables/user-trade-count';
 import Liquidity from '../charts/liquidity';
+import HlpExposure from '../charts/hlp';
+import TotalVolumeChart from '../charts/volume-total';
+import UniqueUsers from '../charts/unique-users-coin';
 
 const Main = () => {
   return (
@@ -75,27 +76,28 @@ const Main = () => {
             <TopStats />
           </Box>
           <Grid templateColumns={{ xs: '1fr', md: 'repeat(2, 1fr)' }} gap={{ xs: '2', md: '3' }}>
-            <VolumeNonMMChart />
-            <VolumeNumTrades />
+            <TotalVolumeChart />
+            <OpenInterestChart />
           </Grid>
           <Grid templateColumns={{ xs: '1fr', md: 'repeat(2, 1fr)' }} gap={{ xs: '2', md: '3' }}>
-            <CumulativeUsersChart />
-            <CoinTradesByUsers />
+            <RetailVolumeChart />
+            <FundingRateChart />
           </Grid>
           <Grid templateColumns={{ xs: '1fr', md: 'repeat(2, 1fr)' }} gap={{ xs: '2', md: '3' }}>
-            <TradersProfitLossChart />
-            <HLPProfitLossChart />
-          </Grid>
-          <Grid templateColumns={{ xs: '1fr', md: 'repeat(2, 1fr)' }} gap={{ xs: '2', md: '3' }}>
-            <CumulativeInflowChart />
+            <HlpExposure />
             <CumulativeNotionalLiquidatedChart />
           </Grid>
           <Grid templateColumns={{ xs: '1fr', md: 'repeat(2, 1fr)' }} gap={{ xs: '2', md: '3' }}>
-            <OpenInterestChart />
-            <Liquidity />
+            <CumulativeInflowChart />
+            <TradersProfitLossChart />
           </Grid>
-          <Grid templateColumns={{ xs: '1fr', md: 'repeat(1, 1fr)' }} gap={{ xs: '2', md: '3' }}>
-            <FundingRateChart />
+          <Grid templateColumns={{ xs: '1fr', md: 'repeat(2, 1fr)' }} gap={{ xs: '2', md: '3' }}>
+            <Liquidity />
+            <UniqueUsers />
+          </Grid>
+          <Grid templateColumns={{ xs: '1fr', md: 'repeat(2, 1fr)' }} gap={{ xs: '2', md: '3' }}>
+            <CumulativeUsersChart />
+            <VolumeNumTrades />
           </Grid>
           <Grid templateColumns={{ xs: '1fr', md: 'repeat(2, 1fr)' }} gap={{ xs: '2', md: '3' }}>
             <TableLargestUsers />

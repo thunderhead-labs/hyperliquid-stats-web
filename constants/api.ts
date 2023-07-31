@@ -49,3 +49,8 @@ export const daily_notional_liquidated_by_leverage_type =
 
 export const liquidity_by_coin = '/hyperliquid/liquidity_by_coin';
 export const daily_notional_liquidated_by_coin = '/hyperliquid/daily_notional_liquidated_by_coin';
+
+export const total_accrued_fees = '/hyperliquid/total_accrued_fees';
+export const total_volume = '/hyperliquid/total_volume';
+export const hlp_positions = '/hyperliquid/hlp_positions';
+export const asset_ctxs = '/hyperliquid/asset_ctxs';

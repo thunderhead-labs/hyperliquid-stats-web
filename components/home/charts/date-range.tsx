@@ -9,7 +9,7 @@ import 'react-date-range/dist/styles.css';
 import 'react-date-range/dist/theme/default.css';
 
 const ALL_TIME_ID = 4;
-const DATA_START_DATE = new Date('2023-05-10');
+const DATA_START_DATE = new Date('2023-06-14');
 const DATE_NOW = new Date();
 
 export const DateRangeSelect = () => {
@@ -102,10 +102,7 @@ export const DateRangeSelect = () => {
     onChange([item.selection.startDate, item.selection.endDate]);
   };
 
-  const customContentRenderer = ({ props, state }: any) => {
-    const start = dataRange.fromValue && dataRange.fromValue.toISOString().slice(0, 10);
-    const end = dataRange.toValue && (dataRange.toValue as Date).toISOString().slice(0, 10);
-
+  const customContentRenderer = () => {
     return (
       <div style={{ cursor: 'pointer' }}>
         {dataRange.fromValue &&
@@ -119,31 +116,9 @@ export const DateRangeSelect = () => {
     );
   };
 
-  const customDropdownRenderer = ({ props, state, methods }: any) => {
-    const regexp = new RegExp(state.search, 'i');
-
+  const customDropdownRenderer = ({ props, state }: any) => {
     return (
       <Box className='react-datepicker'>
-        {/* <Box className="date-range-items">
-                    {props.options
-                        .filter((item: any) => regexp.test(item[props.searchBy] || item[props.labelField]))
-                        .map((option: any, index: any) => {
-                            if (!props.keepSelectedInList && methods.isSelected(option)) {
-                                return null;
-                            }
-
-                            return (
-                                <Box
-                                    data-disabled={option.disabled}
-                                    key={index}
-                                    onClick={option.disabled ? () => null : () => onSelectItem(option)}
-                                    className={option.id === selectedDateRangeOption ? 'date-range-item selected' : 'date-range-item'}
-                                >
-                                    <Box className="date-range-item__label">{option[props.labelField]}</Box>
-                                </Box>
-                            );
-                        })}
-                </Box> */}
         <Box className='date-range-custom' color={props.color}>
           <DateRange
             editableDateInputs={true}

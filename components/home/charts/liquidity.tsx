@@ -24,14 +24,12 @@ import { liquidity_by_coin } from '../../../constants/api';
 
 const REQUESTS = [liquidity_by_coin];
 
-export default function CumulativeUsers() {
+export default function Liquidity() {
   const [isMobile] = useMediaQuery('(max-width: 700px)');
-
   const [formattedData0, setFormattedData0] = useState<any[]>([]);
   const [formattedData1000, setFormattedData1000] = useState<any[]>([]);
   const [formattedData3000, setFormattedData3000] = useState<any[]>([]);
   const [formattedData10000, setFormattedData10000] = useState<any[]>([]);
-  const [minMax, setMinMax] = useState<any>();
 
   const [coinKeys0, setCoinKeys0] = useState<any[]>([]);
   const [coinKeys1000, setCoinKeys1000] = useState<any[]>([]);
@@ -39,6 +37,7 @@ export default function CumulativeUsers() {
   const [coinKeys10000, setCoinKeys10000] = useState<any[]>([]);
 
   const [dataMode, setDataMode] = useState<'0' | '1000' | '3000' | '10000'>('0');
+  const [coinsSelected, setCoinsSelected] = useState<string[]>(['ETH', 'BTC', 'ARB']);
 
   const [dataLiqudity, loadingLiqudity, errorLiqudity] = useRequest(REQUESTS[0], [], 'chart_data');
   const loading = loadingLiqudity;
@@ -87,32 +86,9 @@ export default function CumulativeUsers() {
   };
 
   const transformData = (data: InputData): OutputData => {
-    const coinTotals = new Map<string, number>();
-
-    const minMax: { min: number; max: number } = { min: Infinity, max: -Infinity };
-
-    // Compute overall totals for each coin
-    for (let key in data) {
-      data[key].forEach((record) => {
-        coinTotals.set(
-          key,
-          (coinTotals.get(key) || 0) +
-            record.median_slippage_1000 +
-            record.median_slippage_3000 +
-            record.median_slippage_10000
-        );
-      });
-    }
-
-    // Get the top 10 coins by total over the whole time period
-    const topCoins = Array.from(coinTotals.entries())
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 10)
-      .map(([coin]) => coin);
-
     // Filter data for each category by top 10 coins
     const filteredData: InputData = {};
-    for (let coin of topCoins) {
+    for (let coin of coinsSelected) {
       filteredData[coin] = data[coin];
     }
 
@@ -168,31 +144,6 @@ export default function CumulativeUsers() {
     };
   };
 
-  type MinMaxValues = {
-    min: number;
-    max: number;
-  };
-
-  const getMinMaxValues = (data: any): MinMaxValues => {
-    let min = Infinity;
-    let max = -Infinity;
-    for (let prop in data) {
-      if (Object.prototype.hasOwnProperty.call(data, prop)) {
-        const propData = data[prop];
-        propData.forEach((item: any) => {
-          for (let key in item) {
-            if (key !== 'time' && typeof item[key] === 'number') {
-              const value = item[key] as number;
-              min = Math.min(min, value);
-              max = Math.max(max, value);
-            }
-          }
-        });
-      }
-    }
-    return { min, max };
-  };
-
   const extractUniqueCoins = (
     data:
       | OutputData['median_slippage_1000']
@@ -220,8 +171,6 @@ export default function CumulativeUsers() {
     const formattedUniqueCoinKeys1000 = extractUniqueCoins(formattedData.median_slippage_1000);
     const formattedUniqueCoinKeys3000 = extractUniqueCoins(formattedData.median_slippage_3000);
     const formattedUniqueCoinKeys10000 = extractUniqueCoins(formattedData.median_slippage_10000);
-    const minMaxValues = getMinMaxValues(formattedData);
-    setMinMax(minMaxValues);
     setCoinKeys0(formattedUniqueCoinKeys0);
     setCoinKeys1000(formattedUniqueCoinKeys1000);
     setCoinKeys3000(formattedUniqueCoinKeys3000);
@@ -271,7 +220,6 @@ export default function CumulativeUsers() {
             tickMargin={10}
           />
           <YAxis
-            domain={minMax ? [minMax.min, minMax.max] : [0, 'auto']}
             width={45}
             tick={{ fill: '#f9f9f9', fontSize: isMobile ? 14 : 15 }}
             dx={6}
@@ -289,7 +237,7 @@ export default function CumulativeUsers() {
               maxHeight: '500px',
             }}
             itemSorter={(item) => {
-              return Number(item.value) * -1;
+              return Number(item.value);
             }}
           />
           <Legend wrapperStyle={{ bottom: -5 }} />

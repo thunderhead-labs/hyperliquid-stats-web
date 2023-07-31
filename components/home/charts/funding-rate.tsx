@@ -13,7 +13,12 @@ import { useEffect, useState } from 'react';
 import { useRequest } from '@/hooks/useRequest';
 import ChartWrapper, { CoinSelector } from '../../common/chartWrapper';
 import { CHART_HEIGHT } from '../../../constants';
-import { tooltipFormatter, xAxisFormatter, formatterPercent } from '../../../helpers';
+import {
+  tooltipFormatter,
+  xAxisFormatter,
+  formatterPercent,
+  tooltipFormatterDate,
+} from '../../../helpers';
 import { getTokenHex } from '../../../constants/tokens';
 import { funding_rate } from '../../../constants/api';
 
@@ -45,7 +50,7 @@ export default function FundingRate() {
     [coin: string]: number | Date;
   };
 
-  const groupByTimeAndFilterUnSelected = (data: FundingData[]): GroupedFundingData[] => {
+  const groupByTimeAndFilterUnselected = (data: FundingData[]): GroupedFundingData[] => {
     const map = new Map<string, any>();
     const coinFundingTotals = new Map<string, number>();
 
@@ -97,7 +102,7 @@ export default function FundingRate() {
 
   const formatData = () => {
     if (dataFundingRate) {
-      const groupedAndFilteredData = groupByTimeAndFilterUnSelected(dataFundingRate);
+      const groupedAndFilteredData = groupByTimeAndFilterUnselected(dataFundingRate);
       setFormattedData(groupedAndFilteredData);
     }
   };
@@ -144,7 +149,7 @@ export default function FundingRate() {
       data={formattedData}
       coinSelectors={coinSelectors}
     >
-      <ResponsiveContainer width='100%' height={CHART_HEIGHT + 125}>
+      <ResponsiveContainer width='100%' height={CHART_HEIGHT}>
         <LineChart data={formattedData}>
           <CartesianGrid strokeDasharray='15 15' opacity={0.1} />
           <XAxis
@@ -162,7 +167,7 @@ export default function FundingRate() {
           />
           <Tooltip
             formatter={tooltipFormatter}
-            labelFormatter={() => ''}
+            labelFormatter={tooltipFormatterDate}
             contentStyle={{
               textAlign: 'left',
               background: '#0A1F1B',

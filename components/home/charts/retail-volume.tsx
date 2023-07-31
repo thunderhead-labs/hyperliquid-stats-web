@@ -43,12 +43,11 @@ const REQUESTS = [
   daily_usd_volume_by_user,
 ];
 
-export default function VolumeChart() {
+export default function RetailVolumeChart() {
   const [isMobile] = useMediaQuery('(max-width: 700px)');
   const [dataMode, setDataMode] = useState<'COINS' | 'MARGIN'>('COINS');
   const [formattedDataCoins, setFormattedDataCoins] = useState<any[]>([]);
-  const [formattedDataMarin, setFormattedDataMarin] = useState<any[]>([]);
-  const [formattedCumulativeVolumeData, setFormattedCumulativeVolumeData] = useState<any[]>([]);
+  const [formattedDataMargin, setFormattedDataMargin] = useState<any[]>([]);
   const [coinKeys, setCoinKeys] = useState<any[]>([]);
   const [dataCumulativeUsdVolume, loadingCumulativeUsdVolume, errorCumulativeUsdVolume] =
     useRequest(REQUESTS[0], [], 'chart_data');
@@ -73,7 +72,6 @@ export default function VolumeChart() {
     loadingDailyUsdVolumeByCoin ||
     loadingDailyUsdVolumeByCrossed ||
     loadingDailyUsdVolumeByUser;
-
   const error =
     errorCumulativeUsdVolume ||
     errorDailyUsdVolume ||
@@ -226,7 +224,7 @@ export default function VolumeChart() {
     );
     setCoinKeys(extractUniqueCoins(formattedVolumeByCoins));
     setFormattedDataCoins(formattedVolumeByCoins);
-    setFormattedDataMarin(formattedVolumeByCrossed);
+    setFormattedDataMargin(formattedVolumeByCrossed);
   };
 
   const controls = {
@@ -245,22 +243,22 @@ export default function VolumeChart() {
   };
 
   useEffect(() => {
-    if (!loading) {
+    if (!loading || error) {
       formatData();
     }
-  }, [loading]);
+  }, [loading, error]);
 
   return (
     <ChartWrapper
-      title='Cumulative Total non-HLP USD Volume'
+      title='Retail Volume'
       loading={loading}
-      data={dataMode === 'COINS' ? formattedDataCoins : formattedDataMarin}
+      data={dataMode === 'COINS' ? formattedDataCoins : formattedDataMargin}
       zIndex={9}
       controls={controls}
     >
       <ResponsiveContainer width='100%' height={CHART_HEIGHT}>
         <ComposedChart
-          data={dataMode === 'COINS' ? formattedDataCoins : formattedDataMarin}
+          data={dataMode === 'COINS' ? formattedDataCoins : formattedDataMargin}
           syncId='syncA'
         >
           <CartesianGrid strokeDasharray='15 15' opacity={0.1} />
