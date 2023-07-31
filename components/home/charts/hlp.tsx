@@ -143,6 +143,7 @@ export default function Hlp() {
       existingEntry[`${coin}`] = (existingEntry[`${coin}`] || 0) + daily_ntl;
       existingEntry.daily_ntl += daily_ntl;
 
+      // hedge the previous day's position and add the pnl from that to the current day
       const oraclePx = oraclePxs.get(coin + time);
       let hedgedPnl = 0; 
       const nextTime = getNextTime(time);
@@ -152,8 +153,10 @@ export default function Hlp() {
       let prevDayNtlPosition = prevTimeData ? prevTimeData[`${coin}`] : null; 
 
       if (oraclePxNext && oraclePx && prevDayNtlPosition) {
+        // calculate price movement
         const pxChange = 1 - oraclePx / oraclePxNext;
         const pnl = -1 * prevDayNtlPosition * pxChange;
+        // update hedged pnl based on the price movement and previous days position
         hedgedPnl += pnl;
       }
 
