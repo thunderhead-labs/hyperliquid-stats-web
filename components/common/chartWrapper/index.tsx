@@ -92,7 +92,7 @@ function ChartWrapper(props: any) {
                     {controlButtons}
                   </Grid>
                 ) : (
-                  <ButtonGroup display={'flex'} flexWrap={'wrap'} isAttached={true}>
+                  <ButtonGroup isAttached={true}>
                     {controlButtons}
                   </ButtonGroup>
                 )}
