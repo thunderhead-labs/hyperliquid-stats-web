@@ -259,7 +259,7 @@ export default function RetailVolumeChart() {
       <ResponsiveContainer width='100%' height={CHART_HEIGHT}>
         <ComposedChart
           data={dataMode === 'COINS' ? formattedDataCoins : formattedDataMargin}
-          syncId='syncA'
+          syncId='retailSync'
         >
           <CartesianGrid strokeDasharray='15 15' opacity={0.1} />
           <XAxis
