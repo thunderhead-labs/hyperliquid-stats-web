@@ -143,7 +143,6 @@ export default function Hlp() {
       existingEntry[`${coin}`] = (existingEntry[`${coin}`] || 0) + daily_ntl;
       existingEntry.daily_ntl += daily_ntl;
 
-      // hedge the previous day's position and add the pnl from that to the current day
       const oraclePx = oraclePxs.get(coin + time);
       let hedgedPnl = 0; 
       const nextTime = getNextTime(time);
@@ -153,10 +152,8 @@ export default function Hlp() {
       let prevDayNtlPosition = prevTimeData ? prevTimeData[`${coin}`] : null; 
 
       if (oraclePxNext && oraclePx && prevDayNtlPosition) {
-        // calculate price movement
         const pxChange = 1 - oraclePx / oraclePxNext;
         const pnl = -1 * prevDayNtlPosition * pxChange;
-        // update hedged pnl based on the price movement and previous days position
         hedgedPnl += pnl;
       }
 
@@ -356,6 +353,23 @@ export default function Hlp() {
       <Box w='100%' mt='3'>
         {dataMode === 'COINS' && (
           <Text color='#bbb'>Top 10 Coins grouped daily and remaining coins grouped by Other</Text>
+        )}
+      </Box>
+      <Box w='100%' mt='3'>
+        {dataMode === 'PNL' && (
+          <Text color='#bbb'>PNL over time</Text>
+        )}
+      </Box>
+
+      <Box w='100%' mt='3'>
+        {dataMode === 'HEDGED' && (
+          <Text color='#bbb'>Hedged PNL over time. Hedge the previous day's position and add to today's PNL.</Text>
+        )}
+      </Box>
+
+      <Box w='100%' mt='3'>
+        {dataMode === 'NET' && (
+          <Text color='#bbb'>Net notional position over time</Text>
         )}
       </Box>
     </ChartWrapper>

@@ -11,7 +11,7 @@ import {
 import { useEffect, useState } from 'react';
 import { Box, Text, useMediaQuery } from '@chakra-ui/react';
 import { useRequest } from '@/hooks/useRequest';
-import ChartWrapper from '../../common/chartWrapper';
+import ChartWrapper, { CoinSelector } from '../../common/chartWrapper';
 import { CHART_HEIGHT } from '../../../constants';
 import {
   tooltipFormatter,
@@ -31,6 +31,7 @@ export default function Liquidity() {
   const [formattedData3000, setFormattedData3000] = useState<any[]>([]);
   const [formattedData10000, setFormattedData10000] = useState<any[]>([]);
 
+  const [coinKeys, setCoinKeys] = useState<any[]>([]);
   const [coinKeys0, setCoinKeys0] = useState<any[]>([]);
   const [coinKeys1000, setCoinKeys1000] = useState<any[]>([]);
   const [coinKeys3000, setCoinKeys3000] = useState<any[]>([]);
@@ -84,6 +85,14 @@ export default function Liquidity() {
     median_slippage_3000: { time: Date; [key: string]: number | Date | string }[];
     median_slippage_10000: { time: Date; [key: string]: number | Date | string }[];
   };
+
+  const extractCoins = (data: InputData): string[] => {
+    let coins = []; 
+    for (let coin of Object.keys(data)) {
+      coins.push(coin); 
+    }
+    return coins; 
+  }
 
   const transformData = (data: InputData): OutputData => {
     // Filter data for each category by top 10 coins
@@ -148,7 +157,7 @@ export default function Liquidity() {
     data:
       | OutputData['median_slippage_1000']
       | OutputData['median_slippage_10000']
-      | OutputData['median_slippage_1000']
+      | OutputData['median_slippage_3000']
   ): string[] => {
     const coinSet = new Set<string>();
     data.forEach((record) => {
@@ -162,6 +171,8 @@ export default function Liquidity() {
   };
 
   const formatData = () => {
+    const extractedCoinKeys = extractCoins(dataLiqudity); 
+    setCoinKeys(extractedCoinKeys); 
     const formattedData = transformData(dataLiqudity);
     setFormattedData0(formattedData.median_slippage_0);
     setFormattedData1000(formattedData.median_slippage_1000);
@@ -171,6 +182,7 @@ export default function Liquidity() {
     const formattedUniqueCoinKeys1000 = extractUniqueCoins(formattedData.median_slippage_1000);
     const formattedUniqueCoinKeys3000 = extractUniqueCoins(formattedData.median_slippage_3000);
     const formattedUniqueCoinKeys10000 = extractUniqueCoins(formattedData.median_slippage_10000);
+        
     setCoinKeys0(formattedUniqueCoinKeys0);
     setCoinKeys1000(formattedUniqueCoinKeys1000);
     setCoinKeys3000(formattedUniqueCoinKeys3000);
@@ -201,6 +213,34 @@ export default function Liquidity() {
       ? coinKeys3000
       : coinKeys10000;
 
+  const coinSelectorsSort = (a: CoinSelector, b: CoinSelector) => {
+    if (a.isChecked !== b.isChecked) {
+      return a.isChecked ? -1 : 1;
+    }
+    return a.name.localeCompare(b.name);
+  };
+
+  const coinSelectors = coinKeys
+    .map((coinKey: string) => {
+      return {
+        name: coinKey,
+        event: () =>
+          setCoinsSelected((coinsSelected) => {
+            let newCoinsSelected = coinsSelected;
+            if (coinsSelected.includes(coinKey)) {
+              newCoinsSelected = coinsSelected.filter((e) => {
+                return e !== coinKey;
+              });
+            } else {
+              newCoinsSelected.push(coinKey);
+            }
+            formatData();
+            return newCoinsSelected;
+          }),
+        isChecked: coinsSelected.includes(coinKey),
+      };
+    })
+    .sort((a: CoinSelector, b: CoinSelector) => coinSelectorsSort(a, b));
   return (
     <ChartWrapper
       title='Slippage % by Trade Size'
@@ -208,6 +248,7 @@ export default function Liquidity() {
       data={chartData}
       controls={controls}
       zIndex={8}
+      coinSelectors={coinSelectors}
     >
       <ResponsiveContainer width='100%' height={CHART_HEIGHT}>
         <LineChart data={chartData}>
@@ -256,9 +297,6 @@ export default function Liquidity() {
           })}
         </LineChart>
       </ResponsiveContainer>
-      <Box w='100%' mt='3'>
-        <Text color='#bbb'>Top 10 Coins over time</Text>
-      </Box>
     </ChartWrapper>
   );
 }
