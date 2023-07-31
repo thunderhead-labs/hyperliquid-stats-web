@@ -363,7 +363,7 @@ export default function Hlp() {
 
       <Box w='100%' mt='3'>
         {dataMode === 'HEDGED' && (
-          <Text color='#bbb'>Hedged PNL over time</Text>
+          <Text color='#bbb'>Hedged PNL over time. Hedge the previous day's position and add to today's PNL.</Text>
         )}
       </Box>
 
