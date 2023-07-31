@@ -19,7 +19,6 @@ import {
   xAxisFormatter,
   tooltipFormatterCurrency,
   tooltipLabelFormatter,
-  tooltipFormatterDate,
 } from '../../../helpers';
 import { total_volume } from '../../../constants/api';
 import { getTokenHex } from '@/constants/tokens';
@@ -116,7 +115,7 @@ export default function TotalVolumeChart() {
 
   return (
     <ChartWrapper title='Total Volume' loading={loading} data={formattedData}>
-      <ResponsiveContainer width='100%' height={CHART_HEIGHT}>
+      <ResponsiveContainer width='99%' height={CHART_HEIGHT}>
         <ComposedChart data={formattedData}>
           <CartesianGrid strokeDasharray='15 15' opacity={0.1} />
           <XAxis

@@ -10,6 +10,8 @@ import {
   MenuList,
   MenuItemOption,
   MenuOptionGroup,
+  useMediaQuery,
+  Grid,
 } from '@chakra-ui/react';
 
 interface Toggle {
@@ -31,7 +33,24 @@ const Loader = () => (
 );
 
 function ChartWrapper(props: any) {
+  const [isMobile] = useMediaQuery('(max-width: 700px)');
   const { title, loading, controls, zIndex, coinSelectors } = props;
+  const controlButtons =
+    controls &&
+    controls.toggles &&
+    controls.toggles.length > 0 &&
+    controls.toggles.map((toggle: Toggle, index: number) => {
+      return (
+        <Button
+          key={`toggle-chart-${index}`}
+          onClick={() => toggle.event()}
+          variant={toggle.active ? 'primary' : 'faded'}
+          size='sm'
+        >
+          {toggle.text}
+        </Button>
+      );
+    });
 
   return (
     <Box display='grid' width={{ xs: '100%', md: '100%' }} mt='3' p={{ xs: '0', md: '0 5 0 0' }}>
@@ -68,22 +87,15 @@ function ChartWrapper(props: any) {
                 mt={controls && controls.toggles && controls.toggles.length && '2'}
                 mb='1rem'
               >
-                <ButtonGroup isAttached={true}>
-                  {controls.toggles &&
-                    controls.toggles.length > 0 &&
-                    controls.toggles.map((toggle: Toggle, index: number) => {
-                      return (
-                        <Button
-                          key={`toggle-chart-${index}`}
-                          onClick={() => toggle.event()}
-                          variant={toggle.active ? 'primary' : 'faded'}
-                          size='sm'
-                        >
-                          {toggle.text}
-                        </Button>
-                      );
-                    })}
-                </ButtonGroup>
+                {isMobile ? (
+                  <Grid templateColumns='1fr 1fr' gap='2'>
+                    {controlButtons}
+                  </Grid>
+                ) : (
+                  <ButtonGroup display={'flex'} flexWrap={'wrap'} isAttached={true}>
+                    {controlButtons}
+                  </ButtonGroup>
+                )}
               </Box>
             )}
             {coinSelectors && (

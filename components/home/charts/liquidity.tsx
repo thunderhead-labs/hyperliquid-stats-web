@@ -26,7 +26,6 @@ const REQUESTS = [liquidity_by_coin];
 
 export default function Liquidity() {
   const [isMobile] = useMediaQuery('(max-width: 700px)');
-
   const [formattedData0, setFormattedData0] = useState<any[]>([]);
   const [formattedData1000, setFormattedData1000] = useState<any[]>([]);
   const [formattedData3000, setFormattedData3000] = useState<any[]>([]);
@@ -38,6 +37,7 @@ export default function Liquidity() {
   const [coinKeys10000, setCoinKeys10000] = useState<any[]>([]);
 
   const [dataMode, setDataMode] = useState<'0' | '1000' | '3000' | '10000'>('0');
+  const [coinsSelected, setCoinsSelected] = useState<string[]>(['ETH', 'BTC', 'ARB']);
 
   const [dataLiqudity, loadingLiqudity, errorLiqudity] = useRequest(REQUESTS[0], [], 'chart_data');
   const loading = loadingLiqudity;
@@ -86,30 +86,9 @@ export default function Liquidity() {
   };
 
   const transformData = (data: InputData): OutputData => {
-    const coinTotals = new Map<string, number>();
-
-    // Compute overall totals for each coin
-    for (let key in data) {
-      data[key].forEach((record) => {
-        coinTotals.set(
-          key,
-          (coinTotals.get(key) || 0) +
-            record.median_slippage_1000 +
-            record.median_slippage_3000 +
-            record.median_slippage_10000
-        );
-      });
-    }
-
-    // Get the top 10 coins by total over the whole time period
-    const topCoins = Array.from(coinTotals.entries())
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 10)
-      .map(([coin]) => coin);
-
     // Filter data for each category by top 10 coins
     const filteredData: InputData = {};
-    for (let coin of topCoins) {
+    for (let coin of coinsSelected) {
       filteredData[coin] = data[coin];
     }
 
