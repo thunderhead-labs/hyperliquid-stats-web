@@ -34,6 +34,7 @@ import {
   daily_usd_volume_by_crossed,
   daily_usd_volume_by_user,
 } from '../../../constants/api';
+import { useIsMobile } from '@/hooks/isMobile';
 
 const REQUESTS = [
   cumulative_usd_volume,
@@ -44,7 +45,8 @@ const REQUESTS = [
 ];
 
 export default function RetailVolumeChart() {
-  const [isMobile] = useMediaQuery('(max-width: 700px)');
+  const [isMobile] = useIsMobile();
+
   const [dataMode, setDataMode] = useState<'COINS' | 'MARGIN'>('COINS');
   const [formattedDataCoins, setFormattedDataCoins] = useState<any[]>([]);
   const [formattedDataMargin, setFormattedDataMargin] = useState<any[]>([]);
@@ -255,6 +257,7 @@ export default function RetailVolumeChart() {
       data={dataMode === 'COINS' ? formattedDataCoins : formattedDataMargin}
       zIndex={9}
       controls={controls}
+      isMobile={isMobile}
     >
       <ResponsiveContainer width='100%' height={CHART_HEIGHT}>
         <ComposedChart

@@ -11,6 +11,7 @@ import {
 } from 'recharts';
 import { useEffect, useState } from 'react';
 import { useRequest } from '@/hooks/useRequest';
+import { useIsMobile } from '@/hooks/isMobile';
 import { useMediaQuery } from '@chakra-ui/react';
 import ChartWrapper from '../../common/chartWrapper';
 import { CHART_HEIGHT, YAXIS_WIDTH, BRIGHT_GREEN, GREEN } from '../../../constants';
@@ -29,7 +30,7 @@ import {
 const REQUESTS = [cumulative_new_users, daily_unique_users, daily_unique_users_by_coin];
 
 export default function CumulativeUsers() {
-  const [isMobile] = useMediaQuery('(max-width: 700px)');
+  const [isMobile] = useIsMobile();
 
   const [formattedData, setFormattedData] = useState<any[]>([]);
 
@@ -74,7 +75,7 @@ export default function CumulativeUsers() {
   }, [loading, error]);
 
   return (
-    <ChartWrapper title='Cumulative New Users' loading={loading} data={formattedData}>
+    <ChartWrapper title='Cumulative New Users' loading={loading} data={formattedData} isMobile={isMobile}>
       <ResponsiveContainer width='100%' height={CHART_HEIGHT}>
         <ComposedChart data={formattedData}>
           <CartesianGrid strokeDasharray='15 15' opacity={0.1} />

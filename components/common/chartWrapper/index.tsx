@@ -32,8 +32,11 @@ const Loader = () => (
   </Box>
 );
 
+
+
+
 function ChartWrapper(props: any) {
-  const [isMobile] = useMediaQuery('(max-width: 700px)');
+  let isMobile = props.isMobile;
   const { title, loading, controls, zIndex, coinSelectors } = props;
   const controlButtons =
     controls &&

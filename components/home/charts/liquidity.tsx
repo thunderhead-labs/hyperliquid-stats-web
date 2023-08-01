@@ -12,6 +12,7 @@ import { useEffect, useState } from 'react';
 import { Box, Text, useMediaQuery } from '@chakra-ui/react';
 import { useRequest } from '@/hooks/useRequest';
 import ChartWrapper, { CoinSelector } from '../../common/chartWrapper';
+import { useIsMobile } from '@/hooks/isMobile';
 import { CHART_HEIGHT } from '../../../constants';
 import {
   tooltipFormatter,
@@ -25,7 +26,8 @@ import { liquidity_by_coin } from '../../../constants/api';
 const REQUESTS = [liquidity_by_coin];
 
 export default function Liquidity() {
-  const [isMobile] = useMediaQuery('(max-width: 700px)');
+  const [isMobile] = useIsMobile();
+
   const [formattedData0, setFormattedData0] = useState<any[]>([]);
   const [formattedData1000, setFormattedData1000] = useState<any[]>([]);
   const [formattedData3000, setFormattedData3000] = useState<any[]>([]);
@@ -249,6 +251,7 @@ export default function Liquidity() {
       controls={controls}
       zIndex={8}
       coinSelectors={coinSelectors}
+      isMobile={isMobile}
     >
       <ResponsiveContainer width='100%' height={CHART_HEIGHT}>
         <LineChart data={chartData}>

@@ -23,11 +23,12 @@ import {
   tooltipFormatterCurrency,
   tooltipFormatterDate,
 } from '../../../helpers';
+import { useIsMobile } from '@/hooks/isMobile';
 
 const REQUESTS = [cumulative_user_pnl, user_pnl];
 
 export default function TradersProfitLossChart() {
-  const [isMobile] = useMediaQuery('(max-width: 700px)');
+  const [isMobile] = useIsMobile();
 
   const [data, setData] = useState<any>(null);
   const [dataCumulativeUserPNL, loadingCumulativeUserPNL, errorCumulativeUserPNL] = useRequest(
@@ -101,7 +102,7 @@ export default function TradersProfitLossChart() {
   }, [loading, error]);
 
   return (
-    <ChartWrapper title='Traders Net PnL' loading={loading} data={data ? data.data : []}>
+    <ChartWrapper title='Traders Net PnL' loading={loading} data={data ? data.data : []} isMobile={isMobile}>
       <ResponsiveContainer width='100%' height={CHART_HEIGHT}>
         <ComposedChart data={data ? data.data : []}>
           <CartesianGrid strokeDasharray='15 15' opacity={0.1} />

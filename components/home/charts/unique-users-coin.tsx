@@ -12,6 +12,8 @@ import {
 import { useEffect, useState } from 'react';
 import { Box, Text, useMediaQuery } from '@chakra-ui/react';
 import { useRequest } from '@/hooks/useRequest';
+import { useIsMobile } from '@/hooks/isMobile';
+
 import ChartWrapper from '../../common/chartWrapper';
 import { CHART_HEIGHT, YAXIS_WIDTH, BRIGHT_GREEN } from '../../../constants';
 import {
@@ -68,7 +70,7 @@ type TempGroupedTradeData = {
 const REQUESTS = [cumulative_new_users, daily_unique_users, daily_unique_users_by_coin];
 
 export default function UniqueUsers() {
-  const [isMobile] = useMediaQuery('(max-width: 700px)');
+  const [isMobile] = useIsMobile();
 
   const [formattedData, setFormattedData] = useState<any[]>([]);
   const [coinKeys, setCoinKeys] = useState<any[]>([]);
@@ -196,6 +198,7 @@ export default function UniqueUsers() {
       loading={loading}
       data={formattedData}
       zIndex={8}
+      isMobile={isMobile}
     >
       <ResponsiveContainer width='100%' height={CHART_HEIGHT}>
         <ComposedChart data={formattedData}>
