@@ -32,9 +32,6 @@ const Loader = () => (
   </Box>
 );
 
-
-
-
 function ChartWrapper(props: any) {
   let isMobile = props.isMobile;
   const { title, loading, controls, zIndex, coinSelectors } = props;
@@ -95,9 +92,7 @@ function ChartWrapper(props: any) {
                     {controlButtons}
                   </Grid>
                 ) : (
-                  <ButtonGroup isAttached={true}>
-                    {controlButtons}
-                  </ButtonGroup>
+                  <ButtonGroup isAttached={true}>{controlButtons}</ButtonGroup>
                 )}
               </Box>
             )}

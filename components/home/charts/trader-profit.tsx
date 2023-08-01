@@ -102,7 +102,12 @@ export default function TradersProfitLossChart() {
   }, [loading, error]);
 
   return (
-    <ChartWrapper title='Traders Net PnL' loading={loading} data={data ? data.data : []} isMobile={isMobile}>
+    <ChartWrapper
+      title='Traders Net PnL'
+      loading={loading}
+      data={data ? data.data : []}
+      isMobile={isMobile}
+    >
       <ResponsiveContainer width='100%' height={CHART_HEIGHT}>
         <ComposedChart data={data ? data.data : []}>
           <CartesianGrid strokeDasharray='15 15' opacity={0.1} />

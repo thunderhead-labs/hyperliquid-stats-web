@@ -27,7 +27,7 @@ import { useIsMobile } from '@/hooks/isMobile';
 const REQUESTS = [daily_inflow, cumulative_inflow];
 
 export default function CumulativeInflow() {
-  const [isMobile] = useIsMobile(); 
+  const [isMobile] = useIsMobile();
 
   const [formattedData, setFormattedData] = useState<any[]>([]);
   const [dataDailyInflow, loadingDailyInflow, errorDailyInflow] = useRequest(

@@ -89,12 +89,12 @@ export default function Liquidity() {
   };
 
   const extractCoins = (data: InputData): string[] => {
-    let coins = []; 
+    let coins = [];
     for (let coin of Object.keys(data)) {
-      coins.push(coin); 
+      coins.push(coin);
     }
-    return coins; 
-  }
+    return coins;
+  };
 
   const transformData = (data: InputData): OutputData => {
     // Filter data for each category by top 10 coins
@@ -173,8 +173,8 @@ export default function Liquidity() {
   };
 
   const formatData = () => {
-    const extractedCoinKeys = extractCoins(dataLiqudity); 
-    setCoinKeys(extractedCoinKeys); 
+    const extractedCoinKeys = extractCoins(dataLiqudity);
+    setCoinKeys(extractedCoinKeys);
     const formattedData = transformData(dataLiqudity);
     setFormattedData0(formattedData.median_slippage_0);
     setFormattedData1000(formattedData.median_slippage_1000);
@@ -184,7 +184,7 @@ export default function Liquidity() {
     const formattedUniqueCoinKeys1000 = extractUniqueCoins(formattedData.median_slippage_1000);
     const formattedUniqueCoinKeys3000 = extractUniqueCoins(formattedData.median_slippage_3000);
     const formattedUniqueCoinKeys10000 = extractUniqueCoins(formattedData.median_slippage_10000);
-        
+
     setCoinKeys0(formattedUniqueCoinKeys0);
     setCoinKeys1000(formattedUniqueCoinKeys1000);
     setCoinKeys3000(formattedUniqueCoinKeys3000);

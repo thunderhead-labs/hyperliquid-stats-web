@@ -51,7 +51,7 @@ const REQUESTS = [
 ];
 
 export default function LiquidatorChart() {
-  const [isMobile] = useIsMobile(); 
+  const [isMobile] = useIsMobile();
 
   const [dataMode, setDataMode] = useState<'COINS' | 'MARGIN' | 'PNL'>('COINS');
   const [formattedDataCoins, setFormattedDataCoins] = useState<any[]>([]);
