@@ -13,6 +13,8 @@ import {
 import { Box, Text, useMediaQuery } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { useRequest } from '@/hooks/useRequest';
+import { useIsMobile } from '@/hooks/isMobile';
+
 import ChartWrapper from '../../common/chartWrapper';
 import { BLUE, BRIGHT_GREEN, CHART_HEIGHT, GREEN, ORANGE, RED } from '../../../constants';
 import {
@@ -29,7 +31,8 @@ const REQUESTS = [hlp_positions, asset_ctxs, hlp_liquidator_pnl];
 const DAY = 60 * 60 * 24 * 1000;
 
 export default function Hlp() {
-  const [isMobile] = useMediaQuery('(max-width: 700px)');
+  const [isMobile] = useIsMobile();
+
   const [dataMode, setDataMode] = useState<'COINS' | 'NET' | 'PNL' | 'HEDGED'>('PNL');
   const [coins, setCoins] = useState<string[]>([]);
   const [dataHlpPositions, loadingDataHlpPositions, errorDataHlpPositions] = useRequest(
@@ -82,7 +85,7 @@ export default function Hlp() {
   const getOraclePxs = (assetCtxs: AssetCtx[]): Map<string, number> => {
     const map = new Map<string, number>();
     assetCtxs.forEach((item) => {
-        map.set(item.coin + item.time, item.first_oracle_px);
+      map.set(item.coin + item.time, item.first_oracle_px);
     });
     return map;
   };
@@ -128,7 +131,7 @@ export default function Hlp() {
       let { time, coin, daily_ntl } = item;
       if (!map.has(time)) {
         const pnl = hlpPnL.get(time)?.pnl || 0;
-        hedgedCumulativePnl += pnl; 
+        hedgedCumulativePnl += pnl;
         map.set(time, {
           time: new Date(time),
           daily_ntl: 0,
@@ -144,12 +147,12 @@ export default function Hlp() {
       existingEntry.daily_ntl += daily_ntl;
 
       const oraclePx = oraclePxs.get(coin + time);
-      let hedgedPnl = 0; 
+      let hedgedPnl = 0;
       const nextTime = getNextTime(time);
       let oraclePxNext = oraclePxs.get(coin + nextTime);
-            
-      let prevTimeData = prevTime ? map.get(prevTime) : null; 
-      let prevDayNtlPosition = prevTimeData ? prevTimeData[`${coin}`] : null; 
+
+      let prevTimeData = prevTime ? map.get(prevTime) : null;
+      let prevDayNtlPosition = prevTimeData ? prevTimeData[`${coin}`] : null;
 
       if (oraclePxNext && oraclePx && prevDayNtlPosition) {
         const pxChange = 1 - oraclePx / oraclePxNext;
@@ -157,9 +160,9 @@ export default function Hlp() {
         hedgedPnl += pnl;
       }
 
-      existingEntry.hedged_pnl += hedgedPnl; 
+      existingEntry.hedged_pnl += hedgedPnl;
       hedgedCumulativePnl += hedgedPnl;
-      existingEntry.hedged_cumulative_pnl = hedgedCumulativePnl; 
+      existingEntry.hedged_cumulative_pnl = hedgedCumulativePnl;
     });
 
     map.forEach((entry) => {
@@ -237,7 +240,13 @@ export default function Hlp() {
   }, [loading, error, hlpPnL]);
 
   return (
-    <ChartWrapper title='HLP' loading={false} data={formattedData} controls={controls}>
+    <ChartWrapper
+      title='HLP'
+      loading={false}
+      data={formattedData}
+      controls={controls}
+      isMobile={isMobile}
+    >
       <ResponsiveContainer width='100%' height={CHART_HEIGHT}>
         <ComposedChart data={dataMode === 'PNL' ? formattedHlpPnL : formattedData}>
           <CartesianGrid strokeDasharray='15 15' opacity={0.1} />
@@ -356,21 +365,19 @@ export default function Hlp() {
         )}
       </Box>
       <Box w='100%' mt='3'>
-        {dataMode === 'PNL' && (
-          <Text color='#bbb'>PNL over time</Text>
-        )}
+        {dataMode === 'PNL' && <Text color='#bbb'>PNL over time</Text>}
       </Box>
 
       <Box w='100%' mt='3'>
         {dataMode === 'HEDGED' && (
-          <Text color='#bbb'>Hedged PNL over time. Hedge the previous day's position and add to today's PNL.</Text>
+          <Text color='#bbb'>
+            Hedged PNL over time. Hedge the previous day's position and add to today's PNL.
+          </Text>
         )}
       </Box>
 
       <Box w='100%' mt='3'>
-        {dataMode === 'NET' && (
-          <Text color='#bbb'>Net notional position over time</Text>
-        )}
+        {dataMode === 'NET' && <Text color='#bbb'>Net notional position over time</Text>}
       </Box>
     </ChartWrapper>
   );

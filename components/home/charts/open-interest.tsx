@@ -22,11 +22,12 @@ import {
 } from '../../../helpers';
 import { getTokenHex } from '../../../constants/tokens';
 import { open_interest } from '../../../constants/api';
+import { useIsMobile } from '@/hooks/isMobile';
 
 const REQUESTS = [open_interest];
 
 export default function VolumeChart() {
-  const [isMobile] = useMediaQuery('(max-width: 700px)');
+  const [isMobile] = useIsMobile();
 
   const [coinKeys, setCoinKeys] = useState<any[]>([]);
   const [formattedData, setFormattedData] = useState<any[]>([]);
@@ -125,7 +126,7 @@ export default function VolumeChart() {
   }, [loading]);
 
   return (
-    <ChartWrapper title='Open Interest' loading={loading} data={formattedData}>
+    <ChartWrapper title='Open Interest' loading={loading} data={formattedData} isMobile={isMobile}>
       <ResponsiveContainer width='100%' height={CHART_HEIGHT}>
         <LineChart data={formattedData}>
           <CartesianGrid strokeDasharray='15 15' opacity={0.1} />

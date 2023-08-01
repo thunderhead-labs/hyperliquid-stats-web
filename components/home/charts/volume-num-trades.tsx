@@ -13,6 +13,8 @@ import {
 import { Box, Text, useMediaQuery } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { useRequest } from '@/hooks/useRequest';
+import { useIsMobile } from '@/hooks/isMobile';
+
 import ChartWrapper from '../../common/chartWrapper';
 import {
   CHART_HEIGHT,
@@ -45,7 +47,7 @@ const REQUESTS = [
 ];
 
 export default function VolumeChart() {
-  const [isMobile] = useMediaQuery('(max-width: 700px)');
+  const [isMobile] = useIsMobile();
 
   const [dataMode, setDataMode] = useState<'COINS' | 'MARGIN' | 'USER'>('COINS');
   const [formattedDataCoins, setFormattedDataCoins] = useState<any[]>([]);
@@ -254,6 +256,7 @@ export default function VolumeChart() {
       }
       controls={controls}
       zIndex={9}
+      isMobile={isMobile}
     >
       <ResponsiveContainer width='100%' height={CHART_HEIGHT}>
         <ComposedChart

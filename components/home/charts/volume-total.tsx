@@ -11,6 +11,8 @@ import {
 } from 'recharts';
 import { useEffect, useState } from 'react';
 import { useRequest } from '@/hooks/useRequest';
+import { useIsMobile } from '@/hooks/isMobile';
+
 import { Box, Text, useMediaQuery } from '@chakra-ui/react';
 import ChartWrapper from '../../common/chartWrapper';
 import { BRIGHT_GREEN, CHART_HEIGHT, YAXIS_WIDTH } from '../../../constants';
@@ -26,7 +28,7 @@ import { getTokenHex } from '@/constants/tokens';
 const REQUESTS = [total_volume];
 
 export default function TotalVolumeChart() {
-  const [isMobile] = useMediaQuery('(max-width: 700px)');
+  const [isMobile] = useIsMobile();
   const [formattedData, setFormattedData] = useState<any[]>([]);
   const [coins, setCoins] = useState<string[]>([]);
   const [dataTotalVolume, loading, error] = useRequest(REQUESTS[0], [], 'chart_data');
@@ -114,7 +116,7 @@ export default function TotalVolumeChart() {
   }, [loading, error]);
 
   return (
-    <ChartWrapper title='Total Volume' loading={loading} data={formattedData}>
+    <ChartWrapper title='Total Volume' loading={loading} data={formattedData} isMobile={isMobile}>
       <ResponsiveContainer width='99%' height={CHART_HEIGHT}>
         <ComposedChart data={formattedData}>
           <CartesianGrid strokeDasharray='15 15' opacity={0.1} />
