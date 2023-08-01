@@ -43,7 +43,7 @@ export default function Hlp() {
     [],
     'chart_data'
   );
-  const [ethOraclePxs, setEthOraclePxs] = useState<Map<string, number>>(new Map());
+  const [oraclePxs, setOraclePxs] = useState<Map<string, number>>(new Map());
   const [hlpPnL, setHlpPnL] = useState<Map<string, HlpPnl>>(new Map());
   const [formattedHlpPnL, setFormattedHlpPnL] = useState<HlpPnl[]>([]);
   const [formattedData, setFormattedData] = useState<GroupedData[]>([]);
@@ -79,12 +79,10 @@ export default function Hlp() {
     hedged_pnl: number;
   };
 
-  const getEthOraclePxs = (assetCtxs: AssetCtx[]): Map<string, number> => {
+  const getOraclePxs = (assetCtxs: AssetCtx[]): Map<string, number> => {
     const map = new Map<string, number>();
     assetCtxs.forEach((item) => {
-      if (item.coin === 'ETH') {
-        map.set(item.time, item.first_oracle_px);
-      }
+        map.set(item.coin + item.time, item.first_oracle_px);
     });
     return map;
   };
@@ -125,35 +123,43 @@ export default function Hlp() {
 
     let prevTime: string | null = null;
     let hedgedCumulativePnl = 0;
+
     hlpPositions.forEach((item: HlpPosition) => {
       let { time, coin, daily_ntl } = item;
       if (!map.has(time)) {
-        const pnl = hlpPnL.get(time)?.pnl;
-        const ethOraclePx = ethOraclePxs.get(time);
-        let hedgedPnl = pnl ?? 0;
-        const nextTime = getNextTime(time);
-        let ethOraclePxNext = ethOraclePxs.get(nextTime);
-        let prevDayNtlPosition = prevTime ? map.get(prevTime)?.daily_ntl : null;
-        if (ethOraclePxNext && ethOraclePx && prevDayNtlPosition) {
-          const ethPxChange = 1 - ethOraclePx / ethOraclePxNext;
-          const ethPnL = -1 * prevDayNtlPosition * ethPxChange;
-          hedgedPnl += ethPnL;
-        }
-        hedgedCumulativePnl += hedgedPnl;
+        const pnl = hlpPnL.get(time)?.pnl || 0;
+        hedgedCumulativePnl += pnl; 
         map.set(time, {
           time: new Date(time),
-          daily_ntl: daily_ntl,
-          [`${coin}`]: daily_ntl,
-          hedged_pnl: hedgedPnl,
+          daily_ntl: 0,
+          hedged_pnl: pnl,
           hedged_cumulative_pnl: hedgedCumulativePnl,
           Other: 0,
         });
         prevTime = time;
-      } else {
-        const existingEntry = map.get(time)!;
-        existingEntry[`${coin}`] = (existingEntry[`${coin}`] || 0) + daily_ntl;
-        existingEntry.daily_ntl += daily_ntl;
       }
+
+      const existingEntry = map.get(time)!;
+      existingEntry[`${coin}`] = (existingEntry[`${coin}`] || 0) + daily_ntl;
+      existingEntry.daily_ntl += daily_ntl;
+
+      const oraclePx = oraclePxs.get(coin + time);
+      let hedgedPnl = 0; 
+      const nextTime = getNextTime(time);
+      let oraclePxNext = oraclePxs.get(coin + nextTime);
+            
+      let prevTimeData = prevTime ? map.get(prevTime) : null; 
+      let prevDayNtlPosition = prevTimeData ? prevTimeData[`${coin}`] : null; 
+
+      if (oraclePxNext && oraclePx && prevDayNtlPosition) {
+        const pxChange = 1 - oraclePx / oraclePxNext;
+        const pnl = -1 * prevDayNtlPosition * pxChange;
+        hedgedPnl += pnl;
+      }
+
+      existingEntry.hedged_pnl += hedgedPnl; 
+      hedgedCumulativePnl += hedgedPnl;
+      existingEntry.hedged_cumulative_pnl = hedgedCumulativePnl; 
     });
 
     map.forEach((entry) => {
@@ -213,8 +219,8 @@ export default function Hlp() {
 
   const formatData = () => {
     if (dataHlpPositions && assetCtxs && dataHlpPnL) {
-      const newEthOraclePxs = getEthOraclePxs(assetCtxs);
-      setEthOraclePxs(newEthOraclePxs);
+      const newOraclePxs = getOraclePxs(assetCtxs);
+      setOraclePxs(newOraclePxs);
       const newHlpPnL = makeHlpPnl(dataHlpPnL);
       setFormattedHlpPnL(Array.from(newHlpPnL.values()));
       setHlpPnL(newHlpPnL);
@@ -347,6 +353,23 @@ export default function Hlp() {
       <Box w='100%' mt='3'>
         {dataMode === 'COINS' && (
           <Text color='#bbb'>Top 10 Coins grouped daily and remaining coins grouped by Other</Text>
+        )}
+      </Box>
+      <Box w='100%' mt='3'>
+        {dataMode === 'PNL' && (
+          <Text color='#bbb'>PNL over time</Text>
+        )}
+      </Box>
+
+      <Box w='100%' mt='3'>
+        {dataMode === 'HEDGED' && (
+          <Text color='#bbb'>Hedged PNL over time. Hedge the previous day's position and add to today's PNL.</Text>
+        )}
+      </Box>
+
+      <Box w='100%' mt='3'>
+        {dataMode === 'NET' && (
+          <Text color='#bbb'>Net notional position over time</Text>
         )}
       </Box>
     </ChartWrapper>

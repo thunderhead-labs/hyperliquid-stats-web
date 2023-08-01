@@ -306,7 +306,7 @@ export default function LiquidatorChart() {
       zIndex={7}
     >
       <ResponsiveContainer width='100%' height={CHART_HEIGHT}>
-        <ComposedChart data={dataModeToData(dataMode)} syncId='syncA'>
+        <ComposedChart data={dataModeToData(dataMode)} syncId='liquidatorSync'>
           <CartesianGrid strokeDasharray='15 15' opacity={0.1} />
           <XAxis
             dataKey='time'
