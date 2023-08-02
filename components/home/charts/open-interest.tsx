@@ -29,7 +29,6 @@ const REQUESTS = [open_interest];
 
 export default function VolumeChart() {
   const [isMobile] = useIsMobile();
-  const [hasSetCoinsSelected, setHasSetCoinsSelected] = useState<boolean>(false);
   const [coinKeys, setCoinKeys] = useState<any[]>([]);
 
   const [formattedData, setFormattedData] = useState<any[]>([]);
