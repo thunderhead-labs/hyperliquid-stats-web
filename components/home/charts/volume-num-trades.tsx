@@ -13,9 +13,8 @@ import {
 import { Box, Text, useMediaQuery } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { useRequest } from '@/hooks/useRequest';
-import { useIsMobile } from '@/hooks/isMobile';
 
-import ChartWrapper,  { CoinSelector } from '../../common/chartWrapper';
+import ChartWrapper, { CoinSelector } from '../../common/chartWrapper';
 import {
   CHART_HEIGHT,
   YAXIS_WIDTH,
@@ -29,7 +28,7 @@ import {
   yaxisFormatterNumber,
   xAxisFormatter,
 } from '../../../helpers';
-import { createCoinSelectorsWithFormatArg } from "../../../helpers/utils"; 
+import { createCoinSelectors } from '../../../helpers/utils';
 
 import { getTokenColor, initialTokensSelectedWithOther } from '../../../constants/tokens';
 import {
@@ -48,8 +47,8 @@ const REQUESTS = [
   cumulative_trades,
 ];
 
-export default function VolumeChart() {
-  const [isMobile] = useIsMobile();
+export default function VolumeChart(props: any) {
+  const isMobile = props.isMobile;
   const [coinsSelected, setCoinsSelected] = useState<string[]>(initialTokensSelectedWithOther);
 
   const [dataMode, setDataMode] = useState<'COINS' | 'MARGIN' | 'USER'>('COINS');
@@ -127,8 +126,12 @@ export default function VolumeChart() {
     }
 
     const selectedCoinData = (obj: { [coin: string]: number }) => {
-      const selectedEntries = Object.entries(obj).filter(([coin]) => CoinsSelected.includes(coin) || coin==="all"); 
-      const otherEntries = Object.entries(obj).filter(([coin]) => (!(CoinsSelected.includes(coin))) && (coin !== "all")); 
+      const selectedEntries = Object.entries(obj).filter(
+        ([coin]) => CoinsSelected.includes(coin) || coin === 'all'
+      );
+      const otherEntries = Object.entries(obj).filter(
+        ([coin]) => !CoinsSelected.includes(coin) && coin !== 'all'
+      );
       const otherVolume = otherEntries.reduce((total, [, volume]) => total + volume, 0);
       return {
         ...Object.fromEntries(selectedEntries),
@@ -151,7 +154,7 @@ export default function VolumeChart() {
   const extractUniqueCoins = (CoinData: any): string[] => {
     const coinSet = new Set<string>();
     for (const data of CoinData) {
-      coinSet.add(data.coin); 
+      coinSet.add(data.coin);
     }
     const coinsArray = Array.from(coinSet);
     return coinsArray;
@@ -235,8 +238,12 @@ export default function VolumeChart() {
     }
   }, [loading, dataMode]);
 
-
-  const coinSelectors = createCoinSelectorsWithFormatArg(coinKeys, coinsSelected, setCoinsSelected, formatData);
+  const coinSelectors = createCoinSelectors(
+    coinKeys,
+    coinsSelected,
+    setCoinsSelected,
+    formatData
+  );
 
   return (
     <ChartWrapper
@@ -252,7 +259,7 @@ export default function VolumeChart() {
       controls={controls}
       zIndex={9}
       isMobile={isMobile}
-      coinSelectors={dataMode === 'COINS' ? coinSelectors: null}
+      coinSelectors={dataMode === 'COINS' ? coinSelectors : null}
     >
       <ResponsiveContainer width='100%' height={CHART_HEIGHT}>
         <ComposedChart

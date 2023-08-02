@@ -12,7 +12,6 @@ import {
 } from 'recharts';
 import { useEffect, useState } from 'react';
 import { useRequest } from '@/hooks/useRequest';
-import { useIsMobile } from '@/hooks/isMobile';
 import { Box, Text, useMediaQuery } from '@chakra-ui/react';
 import ChartWrapper, { CoinSelector } from '../../common/chartWrapper';
 import {
@@ -31,7 +30,7 @@ import {
   tooltipFormatterCurrency,
   tooltipFormatterDate,
 } from '../../../helpers';
-import { createCoinSelectorsWithFormatArg } from "../../../helpers/utils"; 
+import { createCoinSelectors } from '../../../helpers/utils';
 
 import { getTokenColor, initialTokensSelectedWithOther } from '../../../constants/tokens';
 import {
@@ -52,8 +51,8 @@ const REQUESTS = [
   cumulative_hlp_liquidator_pnl_false,
 ];
 
-export default function LiquidatorChart() {
-  const [isMobile] = useIsMobile();
+export default function LiquidatorChart(props: any) {
+  const isMobile = props.isMobile;
 
   const [dataMode, setDataMode] = useState<'COINS' | 'MARGIN' | 'PNL'>('COINS');
   const [coinsSelected, setCoinsSelected] = useState<string[]>(initialTokensSelectedWithOther);
@@ -186,8 +185,12 @@ export default function LiquidatorChart() {
     }
 
     const selectedCoinData = (obj: { [coin: string]: number }) => {
-      const selectedEntries = Object.entries(obj).filter(([coin]) => CoinsSelected.includes(coin) || coin==="all"); 
-      const otherEntries = Object.entries(obj).filter(([coin]) => (!(CoinsSelected.includes(coin))) && (coin !== "all")); 
+      const selectedEntries = Object.entries(obj).filter(
+        ([coin]) => CoinsSelected.includes(coin) || coin === 'all'
+      );
+      const otherEntries = Object.entries(obj).filter(
+        ([coin]) => !CoinsSelected.includes(coin) && coin !== 'all'
+      );
       const otherVolume = otherEntries.reduce((total, [, volume]) => total + volume, 0);
       return {
         ...Object.fromEntries(selectedEntries),
@@ -210,9 +213,14 @@ export default function LiquidatorChart() {
   const extractUniqueCoins = (coinData: any[]): string[] => {
     const coinSet = new Set<string>();
     for (const data of coinData) {
-        if (data.coin !== 'time' && data.coin !== 'unit' && data.coin !== 'cumulative' && data.coin !== 'all') {
-          coinSet.add(data.coin);
-        }
+      if (
+        data.coin !== 'time' &&
+        data.coin !== 'unit' &&
+        data.coin !== 'cumulative' &&
+        data.coin !== 'all'
+      ) {
+        coinSet.add(data.coin);
+      }
     }
     return Array.from(coinSet);
   };
@@ -292,8 +300,12 @@ export default function LiquidatorChart() {
     return [-1 * Math.abs(maxCumulativePnl) * 1.1, Math.abs(maxCumulativePnl) * 1.1];
   };
 
-  const coinSelectors = createCoinSelectorsWithFormatArg(coinKeys, coinsSelected, setCoinsSelected, formatData)
-
+  const coinSelectors = createCoinSelectors(
+    coinKeys,
+    coinsSelected,
+    setCoinsSelected,
+    formatData
+  );
 
   return (
     <ChartWrapper
@@ -302,7 +314,7 @@ export default function LiquidatorChart() {
       data={dataModeToData(dataMode)}
       controls={controls}
       zIndex={7}
-      coinSelectors={dataMode === 'COINS' ? coinSelectors: null}
+      coinSelectors={dataMode === 'COINS' ? coinSelectors : null}
       isMobile={isMobile}
     >
       <ResponsiveContainer width='100%' height={CHART_HEIGHT}>
@@ -334,22 +346,21 @@ export default function LiquidatorChart() {
           <Legend wrapperStyle={{ bottom: -5 }} />
           {dataMode === 'COINS' && (
             <>
-              {
-                coinsSelected.map((coinName, i) => {
-                  return (
-                    <Bar
-                      unit={''}
-                      isAnimationActive={false}
-                      type='monotone'
-                      dataKey={coinName}
-                      stackId='a'
-                      name={coinName.toString()}
-                      fill={getTokenColor(coinName.toString())}
-                      key={i}
-                      maxBarSize={20}
-                    />
-                  );
-                })}
+              {coinsSelected.map((coinName, i) => {
+                return (
+                  <Bar
+                    unit={''}
+                    isAnimationActive={false}
+                    type='monotone'
+                    dataKey={coinName}
+                    stackId='a'
+                    name={coinName.toString()}
+                    fill={getTokenColor(coinName.toString())}
+                    key={i}
+                    maxBarSize={20}
+                  />
+                );
+              })}
             </>
           )}
           {dataMode === 'MARGIN' && (

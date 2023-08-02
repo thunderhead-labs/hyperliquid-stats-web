@@ -13,7 +13,6 @@ import {
 import { Box, Text, useMediaQuery } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { useRequest } from '@/hooks/useRequest';
-import { useIsMobile } from '@/hooks/isMobile';
 
 import ChartWrapper from '../../common/chartWrapper';
 import { BLUE, BRIGHT_GREEN, CHART_HEIGHT, GREEN, ORANGE, RED } from '../../../constants';
@@ -31,11 +30,11 @@ const REQUESTS = [hlp_positions, asset_ctxs, hlp_liquidator_pnl];
 
 const DAY = 60 * 60 * 24 * 1000;
 
-export default function Hlp() {
-  const [isMobile] = useIsMobile();
+type Props = {isMobile: boolean}; 
 
-  const [dataMode, setDataMode] = useState<'COINS' | 'NET' | 'PNL' | 'HEDGED'>('PNL');
-  const [coins, setCoins] = useState<string[]>([]);
+export default function Hlp(props: any) {
+  const isMobile = props.isMobile; 
+  
   const [dataHlpPositions, loadingDataHlpPositions, errorDataHlpPositions] = useRequest(
     REQUESTS[0],
     [],
@@ -47,8 +46,9 @@ export default function Hlp() {
     [],
     'chart_data'
   );
-  const [oraclePxs, setOraclePxs] = useState<Map<string, number>>(new Map());
-  const [hlpPnL, setHlpPnL] = useState<Map<string, HlpPnl>>(new Map());
+  const [dataMode, setDataMode] = useState<'COINS' | 'NET' | 'PNL' | 'HEDGED'>('PNL');
+  const [coins, setCoins] = useState<string[]>([]);
+
   const [formattedHlpPnL, setFormattedHlpPnL] = useState<HlpPnl[]>([]);
   const [formattedData, setFormattedData] = useState<GroupedData[]>([]);
 
@@ -121,12 +121,13 @@ export default function Hlp() {
     return yyyy + '-' + mm + '-' + dd + 'T00:00:00';
   }
 
-  const makeFormattedData = (hlpPositions: HlpPosition[]): [GroupedData[], string[]] => {
+  const makeFormattedData = (hlpPositions: HlpPosition[], hlpPnL: Map<string, HlpPnl>): [GroupedData[], string[]] => {
     const map = new Map<string, GroupedData>();
     const uniqueTopCoins = new Set<string>();
 
     let prevTime: string | null = null;
     let hedgedCumulativePnl = 0;
+    const oraclePxs = getOraclePxs(assetCtxs);
 
     hlpPositions.forEach((item: HlpPosition) => {
       let { time, coin, daily_ntl } = item;
@@ -151,7 +152,6 @@ export default function Hlp() {
       let hedgedPnl = 0;
       const nextTime = getNextTime(time);
       let oraclePxNext = oraclePxs.get(coin + nextTime);
-
       let prevTimeData = prevTime ? map.get(prevTime) : null;
       let prevDayNtlPosition = prevTimeData ? prevTimeData[`${coin}`] : null;
 
@@ -223,12 +223,9 @@ export default function Hlp() {
 
   const formatData = () => {
     if (dataHlpPositions && assetCtxs && dataHlpPnL) {
-      const newOraclePxs = getOraclePxs(assetCtxs);
-      setOraclePxs(newOraclePxs);
       const newHlpPnL = makeHlpPnl(dataHlpPnL);
       setFormattedHlpPnL(Array.from(newHlpPnL.values()));
-      setHlpPnL(newHlpPnL);
-      const [groupedData, coins] = makeFormattedData(dataHlpPositions);
+      const [groupedData, coins] = makeFormattedData(dataHlpPositions, newHlpPnL);
       setCoins(coins);
       setFormattedData(groupedData);
     }
@@ -238,7 +235,7 @@ export default function Hlp() {
     if (!loading && !error) {
       formatData();
     }
-  }, [loading, error, hlpPnL]);
+  }, [loading, error]);
 
   return (
     <ChartWrapper
@@ -372,7 +369,8 @@ export default function Hlp() {
       <Box w='100%' mt='3'>
         {dataMode === 'HEDGED' && (
           <Text color='#bbb'>
-            Hedged PNL over time. Hedge the previous day's position and add to today's PNL.
+            Hedged PNL over time. Hedge the previous day&apos;s position and add to today&apos;s
+            PNL.
           </Text>
         )}
       </Box>

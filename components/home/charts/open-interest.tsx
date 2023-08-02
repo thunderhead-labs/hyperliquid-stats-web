@@ -23,13 +23,11 @@ import {
 
 import { getTokenColor } from '../../../constants/tokens';
 import { open_interest } from '../../../constants/api';
-import { useIsMobile } from '@/hooks/isMobile';
 
 const REQUESTS = [open_interest];
 
-export default function VolumeChart() {
-  const [isMobile] = useIsMobile();
-  const [hasSetCoinsSelected, setHasSetCoinsSelected] = useState<boolean>(false);
+export default function VolumeChart(props: any) {
+  const isMobile = props.isMobile;
   const [coinKeys, setCoinKeys] = useState<any[]>([]);
 
   const [formattedData, setFormattedData] = useState<any[]>([]);
@@ -118,7 +116,7 @@ export default function VolumeChart() {
     const groupedData = groupByTime(dataOpenInterest);
     const uniqueCoins = extractUniqueCoins(groupedData);
     setFormattedData(groupedData);
-    setCoinKeys(uniqueCoins);
+    setCoinKeys(uniqueCoins.sort());
   };
 
   useEffect(() => {

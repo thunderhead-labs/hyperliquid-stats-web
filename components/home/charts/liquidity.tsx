@@ -12,23 +12,22 @@ import { useEffect, useState } from 'react';
 import { Box, Text, useMediaQuery } from '@chakra-ui/react';
 import { useRequest } from '@/hooks/useRequest';
 import ChartWrapper, { CoinSelector } from '../../common/chartWrapper';
-import { useIsMobile } from '@/hooks/isMobile';
 import { CHART_HEIGHT } from '../../../constants';
 import {
   tooltipFormatter,
-  tooltipLabelFormatter,
   xAxisFormatter,
   formatterPercent,
+  tooltipFormatterDate,
 } from '../../../helpers';
-import { createCoinSelectors } from "../../../helpers/utils"; 
+import { createCoinSelectors } from '../../../helpers/utils';
 
 import { getTokenColor, initialTokensSelected } from '../../../constants/tokens';
 import { liquidity_by_coin } from '../../../constants/api';
 
 const REQUESTS = [liquidity_by_coin];
 
-export default function Liquidity() {
-  const [isMobile] = useIsMobile();
+export default function Liquidity(props: any) {
+  const isMobile = props.isMobile;
 
   const [formattedData0, setFormattedData0] = useState<any[]>([]);
   const [formattedData1000, setFormattedData1000] = useState<any[]>([]);
@@ -123,6 +122,9 @@ export default function Liquidity() {
     >();
 
     for (let key in filteredData) {
+      if (!filteredData[key]) {
+        continue;
+      }
       filteredData[key].forEach((record) => {
         const {
           time,
@@ -247,7 +249,7 @@ export default function Liquidity() {
           />
           <Tooltip
             formatter={tooltipFormatter}
-            labelFormatter={tooltipLabelFormatter}
+            labelFormatter={tooltipFormatterDate}
             contentStyle={{
               textAlign: 'left',
               background: '#0A1F1B',

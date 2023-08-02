@@ -26,7 +26,7 @@ import {
   yaxisFormatter,
   xAxisFormatter,
 } from '../../../helpers';
-import { createCoinSelectorsWithFormatArg } from "../../../helpers/utils"; 
+import { createCoinSelectors } from '../../../helpers/utils';
 
 import { getTokenColor, initialTokensSelectedWithOther } from '../../../constants/tokens';
 import {
@@ -36,7 +36,6 @@ import {
   daily_usd_volume_by_crossed,
   daily_usd_volume_by_user,
 } from '../../../constants/api';
-import { useIsMobile } from '@/hooks/isMobile';
 
 const REQUESTS = [
   cumulative_usd_volume,
@@ -46,8 +45,8 @@ const REQUESTS = [
   daily_usd_volume_by_user,
 ];
 
-export default function RetailVolumeChart() {
-  const [isMobile] = useIsMobile();
+export default function RetailVolumeChart(props: any) {
+  const isMobile = props.isMobile;
 
   const [dataMode, setDataMode] = useState<'COINS' | 'MARGIN'>('COINS');
   const [formattedDataCoins, setFormattedDataCoins] = useState<any[]>([]);
@@ -127,8 +126,12 @@ export default function RetailVolumeChart() {
     }
 
     const selectedCoinData = (obj: { [coin: string]: number }) => {
-      const selectedEntries = Object.entries(obj).filter(([coin]) => CoinsSelected.includes(coin) && coin !== "all"); 
-      const otherEntries = Object.entries(obj).filter(([coin]) => (!(CoinsSelected.includes(coin))) && (coin !== "all")); 
+      const selectedEntries = Object.entries(obj).filter(
+        ([coin]) => CoinsSelected.includes(coin) && coin !== 'all'
+      );
+      const otherEntries = Object.entries(obj).filter(
+        ([coin]) => !CoinsSelected.includes(coin) && coin !== 'all'
+      );
       const otherVolume = otherEntries.reduce((total, [, volume]) => total + volume, 0);
       return {
         ...Object.fromEntries(selectedEntries),
@@ -241,7 +244,12 @@ export default function RetailVolumeChart() {
     }
   }, [loading, error]);
 
-  const coinSelectors = createCoinSelectorsWithFormatArg(coinKeys, coinsSelected, setCoinsSelected, formatData);
+  const coinSelectors = createCoinSelectors(
+    coinKeys,
+    coinsSelected,
+    setCoinsSelected,
+    formatData
+  );
 
   return (
     <ChartWrapper
@@ -250,7 +258,7 @@ export default function RetailVolumeChart() {
       data={dataMode === 'COINS' ? formattedDataCoins : formattedDataMargin}
       zIndex={9}
       controls={controls}
-      coinSelectors={dataMode === 'COINS' ? coinSelectors: null}
+      coinSelectors={dataMode === 'COINS' ? coinSelectors : null}
       isMobile={isMobile}
     >
       <ResponsiveContainer width='100%' height={CHART_HEIGHT}>

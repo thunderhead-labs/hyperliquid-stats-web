@@ -11,10 +11,9 @@ import {
 } from 'recharts';
 import { useEffect, useState } from 'react';
 import { useRequest } from '@/hooks/useRequest';
-import { useIsMobile } from '@/hooks/isMobile';
 
 import { Box, Text, useMediaQuery } from '@chakra-ui/react';
-import ChartWrapper, { CoinSelector }  from '../../common/chartWrapper';
+import ChartWrapper, { CoinSelector } from '../../common/chartWrapper';
 import { BRIGHT_GREEN, CHART_HEIGHT, YAXIS_WIDTH } from '../../../constants';
 import {
   yaxisFormatter,
@@ -22,15 +21,16 @@ import {
   tooltipFormatterCurrency,
   tooltipLabelFormatter,
 } from '../../../helpers';
-import { createCoinSelectorsWithFormatArg } from "../../../helpers/utils"; 
+import { createCoinSelectors } from '../../../helpers/utils';
 
 import { total_volume } from '../../../constants/api';
 import { getTokenColor, initialTokensSelectedWithOther } from '@/constants/tokens';
 
 const REQUESTS = [total_volume];
 
-export default function TotalVolumeChart() {
-  const [isMobile] = useIsMobile();
+export default function TotalVolumeChart(props: any) {
+  const isMobile = props.isMobile;
+
   const [formattedData, setFormattedData] = useState<any[]>([]);
   const [coinsSelected, setCoinsSelected] = useState<string[]>(initialTokensSelectedWithOther);
   const [coins, setCoins] = useState<string[]>([]);
@@ -51,7 +51,10 @@ export default function TotalVolumeChart() {
     Other: number;
   }
 
-  const makeFormattedData = (CoinsSelected: string[], dataTotalVolume: TotalVolume[]): [MergedData[], string[]] => {
+  const makeFormattedData = (
+    CoinsSelected: string[],
+    dataTotalVolume: TotalVolume[]
+  ): [MergedData[], string[]] => {
     const map = new Map<string, MergedData>();
     const uniqueCoins = new Set<string>();
 
@@ -86,7 +89,9 @@ export default function TotalVolumeChart() {
           key !== 'unit' &&
           key !== 'Other'
       );
-      const otherCoins = coinEntries.filter(([coin]) => (!(CoinsSelected.includes(coin))) && (coin !== "all"));
+      const otherCoins = coinEntries.filter(
+        ([coin]) => !CoinsSelected.includes(coin) && coin !== 'all'
+      );
 
       coinEntries.forEach(([coin]) => uniqueCoins.add(coin));
 
@@ -113,10 +118,21 @@ export default function TotalVolumeChart() {
     }
   }, [loading, error]);
 
-  const coinSelectors = createCoinSelectorsWithFormatArg(coins, coinsSelected, setCoinsSelected, formatData);
+  const coinSelectors = createCoinSelectors(
+    coins,
+    coinsSelected,
+    setCoinsSelected,
+    formatData
+  );
 
   return (
-    <ChartWrapper title='Total Volume' loading={loading} data={formattedData} isMobile={isMobile} coinSelectors={coinSelectors}>
+    <ChartWrapper
+      title='Total Volume'
+      loading={loading}
+      data={formattedData}
+      isMobile={isMobile}
+      coinSelectors={coinSelectors}
+    >
       <ResponsiveContainer width='99%' height={CHART_HEIGHT}>
         <ComposedChart data={formattedData}>
           <CartesianGrid strokeDasharray='15 15' opacity={0.1} />
@@ -191,7 +207,7 @@ export default function TotalVolumeChart() {
       <Box w='100%' mt='3'>
         <Text color='#bbb'>
           Top 10 Coins grouped daily and remaining coins grouped by Other. Volume tracked since
-          introduction of fees.
+          introduction of fees on 6/13/2023.
         </Text>
       </Box>
     </ChartWrapper>

@@ -1,18 +1,31 @@
 import * as CryptoJS from 'crypto-js';
 
+export const initialTokensSelected = [
+  'APE',
+  'ARB',
+  'ATOM',
+  'AVAX',
+  'BNB',
+  'BTC',
+  'COMP',
+  'CRV',
+  'DOGE',
+  'ETH',
+];
+export const initialTokensSelectedWithOther = [
+  ...initialTokensSelected,
+  'Other',
+];
 
-export const initialTokensSelected = ['ETH', 'BTC', 'ARB', 'APE', 'ATOM', 'AVAX', 'BNB', 'COMP', 'CRV', 'DOGE']; 
-export const initialTokensSelectedWithOther = ['ETH', 'BTC', 'ARB', 'APE', 'ATOM', 'AVAX', 'BNB', 'COMP', 'CRV', 'DOGE','Other']; 
+export function getTokenColor(token: string): string {
+  if (token == 'Other') {
+    return 'pink';
+  }
+  // Use the CryptoJS library to get the MD5 hash of the string
+  let hash = CryptoJS.MD5('col' + token);
 
-export function getTokenColor(inputString: string): string {
-    if (inputString == "Other") {
-      return "pink";
-    }
-    // Use the CryptoJS library to get the MD5 hash of the string
-    let hash = CryptoJS.MD5("col"+inputString);
+  // Convert the hash into a hex string
+  let color = hash.toString(CryptoJS.enc.Hex).substr(0, 6);
 
-    // Convert the hash into a hex string
-    let color = hash.toString(CryptoJS.enc.Hex).substr(0, 6);
-    
-    return "#" + color;
+  return '#' + color;
 }
