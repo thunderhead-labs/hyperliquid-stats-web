@@ -22,11 +22,12 @@ import {
   tooltipFormatterDate,
 } from '../../../helpers';
 import { daily_inflow, cumulative_inflow } from '../../../constants/api';
+import { useIsMobile } from '@/hooks/isMobile';
 
 const REQUESTS = [daily_inflow, cumulative_inflow];
 
 export default function CumulativeInflow() {
-  const [isMobile] = useMediaQuery('(max-width: 700px)');
+  const [isMobile] = useIsMobile();
 
   const [formattedData, setFormattedData] = useState<any[]>([]);
   const [dataDailyInflow, loadingDailyInflow, errorDailyInflow] = useRequest(
@@ -99,7 +100,7 @@ export default function CumulativeInflow() {
   }, [loading, errorDailyInflow]);
 
   return (
-    <ChartWrapper title='Inflows' loading={loading} data={formattedData}>
+    <ChartWrapper title='Inflows' loading={loading} data={formattedData} isMobile={isMobile}>
       <ResponsiveContainer width='100%' height={CHART_HEIGHT}>
         <ComposedChart data={formattedData}>
           <CartesianGrid strokeDasharray='15 15' opacity={0.1} />

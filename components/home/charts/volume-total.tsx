@@ -11,8 +11,10 @@ import {
 } from 'recharts';
 import { useEffect, useState } from 'react';
 import { useRequest } from '@/hooks/useRequest';
+import { useIsMobile } from '@/hooks/isMobile';
+
 import { Box, Text, useMediaQuery } from '@chakra-ui/react';
-import ChartWrapper from '../../common/chartWrapper';
+import ChartWrapper, { CoinSelector }  from '../../common/chartWrapper';
 import { BRIGHT_GREEN, CHART_HEIGHT, YAXIS_WIDTH } from '../../../constants';
 import {
   yaxisFormatter,
@@ -20,14 +22,17 @@ import {
   tooltipFormatterCurrency,
   tooltipLabelFormatter,
 } from '../../../helpers';
+import { createCoinSelectorsWithFormatArg } from "../../../helpers/utils"; 
+
 import { total_volume } from '../../../constants/api';
-import { getTokenHex } from '@/constants/tokens';
+import { getTokenColor, initialTokensSelectedWithOther } from '@/constants/tokens';
 
 const REQUESTS = [total_volume];
 
 export default function TotalVolumeChart() {
-  const [isMobile] = useMediaQuery('(max-width: 700px)');
+  const [isMobile] = useIsMobile();
   const [formattedData, setFormattedData] = useState<any[]>([]);
+  const [coinsSelected, setCoinsSelected] = useState<string[]>(initialTokensSelectedWithOther);
   const [coins, setCoins] = useState<string[]>([]);
   const [dataTotalVolume, loading, error] = useRequest(REQUESTS[0], [], 'chart_data');
 
@@ -46,9 +51,9 @@ export default function TotalVolumeChart() {
     Other: number;
   }
 
-  const makeFormattedData = (dataTotalVolume: TotalVolume[]): [MergedData[], string[]] => {
+  const makeFormattedData = (CoinsSelected: string[], dataTotalVolume: TotalVolume[]): [MergedData[], string[]] => {
     const map = new Map<string, MergedData>();
-    const uniqueTopCoins = new Set<string>();
+    const uniqueCoins = new Set<string>();
 
     let cumulative = 0;
     dataTotalVolume.forEach((item: TotalVolume) => {
@@ -78,43 +83,40 @@ export default function TotalVolumeChart() {
           key !== 'total' &&
           key !== 'cumulative' &&
           key !== 'other' &&
-          key !== 'unit'
+          key !== 'unit' &&
+          key !== 'Other'
       );
-      const sortedCoinEntries = coinEntries.sort(
-        (a, b) => Math.abs(Number(b[1])) - Math.abs(Number(a[1]))
-      );
-      const topCoins = sortedCoinEntries.slice(0, 10).map(([coin]) => coin);
-      const otherCoins = sortedCoinEntries.slice(10);
+      const otherCoins = coinEntries.filter(([coin]) => (!(CoinsSelected.includes(coin))) && (coin !== "all"));
 
-      topCoins.forEach((coin) => uniqueTopCoins.add(coin));
+      coinEntries.forEach(([coin]) => uniqueCoins.add(coin));
 
       let otherTotal = 0;
-      otherCoins.forEach(([coin, value]) => {
+      otherCoins.forEach(([_, value]) => {
         otherTotal += value;
-        delete entry[coin];
       });
       entry.Other = otherTotal;
     });
 
     const result = Array.from(map.values());
-    uniqueTopCoins.add('Other');
-    return [result, Array.from(uniqueTopCoins)];
+    return [result, Array.from(uniqueCoins)];
   };
 
-  const formatData = () => {
-    const [newFormattedData, coins] = makeFormattedData(dataTotalVolume);
+  const formatData = (CoinsSelected: string[]) => {
+    const [newFormattedData, coins] = makeFormattedData(CoinsSelected, dataTotalVolume);
     setCoins(coins);
     setFormattedData(newFormattedData);
   };
 
   useEffect(() => {
     if (!loading && !error) {
-      formatData();
+      formatData(coinsSelected);
     }
   }, [loading, error]);
 
+  const coinSelectors = createCoinSelectorsWithFormatArg(coins, coinsSelected, setCoinsSelected, formatData);
+
   return (
-    <ChartWrapper title='Total Volume' loading={loading} data={formattedData}>
+    <ChartWrapper title='Total Volume' loading={loading} data={formattedData} isMobile={isMobile} coinSelectors={coinSelectors}>
       <ResponsiveContainer width='99%' height={CHART_HEIGHT}>
         <ComposedChart data={formattedData}>
           <CartesianGrid strokeDasharray='15 15' opacity={0.1} />
@@ -142,7 +144,7 @@ export default function TotalVolumeChart() {
             tick={{ fill: '#f9f9f9', fontSize: isMobile ? 14 : 15 }}
           />
           <Legend wrapperStyle={{ bottom: -5 }} />
-          {coins.map((coin, i) => {
+          {coinsSelected.map((coin, i) => {
             return (
               <Bar
                 unit={''}
@@ -151,7 +153,7 @@ export default function TotalVolumeChart() {
                 dataKey={coin}
                 stackId='a'
                 name={coin.toString()}
-                fill={getTokenHex(coin.toString())}
+                fill={getTokenColor(coin.toString())}
                 key={i}
                 maxBarSize={20}
               />

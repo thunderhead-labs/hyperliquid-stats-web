@@ -33,7 +33,7 @@ const Loader = () => (
 );
 
 function ChartWrapper(props: any) {
-  const [isMobile] = useMediaQuery('(max-width: 700px)');
+  let isMobile = props.isMobile;
   const { title, loading, controls, zIndex, coinSelectors } = props;
   const controlButtons =
     controls &&
@@ -92,9 +92,7 @@ function ChartWrapper(props: any) {
                     {controlButtons}
                   </Grid>
                 ) : (
-                  <ButtonGroup isAttached={true}>
-                    {controlButtons}
-                  </ButtonGroup>
+                  <ButtonGroup isAttached={true}>{controlButtons}</ButtonGroup>
                 )}
               </Box>
             )}

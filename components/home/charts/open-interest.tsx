@@ -11,7 +11,7 @@ import {
 import { useEffect, useState } from 'react';
 import { Box, Text, useMediaQuery } from '@chakra-ui/react';
 import { useRequest } from '@/hooks/useRequest';
-import ChartWrapper from '../../common/chartWrapper';
+import ChartWrapper, { CoinSelector } from '../../common/chartWrapper';
 import { BRIGHT_GREEN, CHART_HEIGHT, GREEN, YAXIS_WIDTH } from '../../../constants';
 import {
   xAxisFormatter,
@@ -20,15 +20,18 @@ import {
   tooltipFormatterCurrency,
   tooltipFormatterDate,
 } from '../../../helpers';
-import { getTokenHex } from '../../../constants/tokens';
+
+import { getTokenColor } from '../../../constants/tokens';
 import { open_interest } from '../../../constants/api';
+import { useIsMobile } from '@/hooks/isMobile';
 
 const REQUESTS = [open_interest];
 
 export default function VolumeChart() {
-  const [isMobile] = useMediaQuery('(max-width: 700px)');
-
+  const [isMobile] = useIsMobile();
+  const [hasSetCoinsSelected, setHasSetCoinsSelected] = useState<boolean>(false);
   const [coinKeys, setCoinKeys] = useState<any[]>([]);
+
   const [formattedData, setFormattedData] = useState<any[]>([]);
   const [dataOpenInterest, loadingOpenInterest, errorOpenInterest] = useRequest(
     REQUESTS[0],
@@ -125,7 +128,7 @@ export default function VolumeChart() {
   }, [loading]);
 
   return (
-    <ChartWrapper title='Open Interest' loading={loading} data={formattedData}>
+    <ChartWrapper title='Open Interest' loading={loading} data={formattedData} isMobile={isMobile}>
       <ResponsiveContainer width='100%' height={CHART_HEIGHT}>
         <LineChart data={formattedData}>
           <CartesianGrid strokeDasharray='15 15' opacity={0.1} />
@@ -168,7 +171,7 @@ export default function VolumeChart() {
                 dataKey={coinName}
                 dot={false}
                 name={coinName.toString()}
-                stroke={getTokenHex(coinName.toString())}
+                stroke={getTokenColor(coinName.toString())}
                 key={'open-i-rate-line-' + i}
               />
             );
