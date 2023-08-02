@@ -14,7 +14,7 @@ import { useEffect, useState } from 'react';
 import { useRequest } from '@/hooks/useRequest';
 import { useIsMobile } from '@/hooks/isMobile';
 import { Box, Text, useMediaQuery } from '@chakra-ui/react';
-import ChartWrapper from '../../common/chartWrapper';
+import ChartWrapper, { CoinSelector } from '../../common/chartWrapper';
 import {
   CHART_HEIGHT,
   YAXIS_WIDTH,
@@ -31,7 +31,9 @@ import {
   tooltipFormatterCurrency,
   tooltipFormatterDate,
 } from '../../../helpers';
-import { getTokenHex } from '../../../constants/tokens';
+import { createCoinSelectorsWithFormatArg } from "../../../helpers/utils"; 
+
+import { getTokenColor, initialTokensSelectedWithOther } from '../../../constants/tokens';
 import {
   cumulative_liquidated_notional,
   daily_notional_liquidated_total,
@@ -54,6 +56,7 @@ export default function LiquidatorChart() {
   const [isMobile] = useIsMobile();
 
   const [dataMode, setDataMode] = useState<'COINS' | 'MARGIN' | 'PNL'>('COINS');
+  const [coinsSelected, setCoinsSelected] = useState<string[]>(initialTokensSelectedWithOther);
   const [formattedDataCoins, setFormattedDataCoins] = useState<any[]>([]);
   const [formattedDataMargin, setFormattedDataMargin] = useState<any[]>([]);
 
@@ -169,6 +172,7 @@ export default function LiquidatorChart() {
   type FormattedCoinTradesData = any[];
 
   const formatDailyTradesByCoins = (
+    CoinsSelected: string[],
     dataDailyTradesByCoin: { time: string; coin: string; daily_notional_liquidated: number }[],
     formattedCumulativeByTime: { [key: string]: number }
   ): FormattedCoinTradesData[] => {
@@ -181,25 +185,21 @@ export default function LiquidatorChart() {
       temp[data.time].all += data.daily_notional_liquidated;
     }
 
-    const sortAndSliceTop10 = (obj: { [coin: string]: number }) => {
-      const sortedEntries = Object.entries(obj).sort(
-        ([, aVolume], [, bVolume]) => bVolume - aVolume
-      );
-      const top10Entries = sortedEntries.slice(0, 10);
-      const otherEntries = sortedEntries.slice(10);
-
+    const selectedCoinData = (obj: { [coin: string]: number }) => {
+      const selectedEntries = Object.entries(obj).filter(([coin]) => CoinsSelected.includes(coin) || coin==="all"); 
+      const otherEntries = Object.entries(obj).filter(([coin]) => (!(CoinsSelected.includes(coin))) && (coin !== "all")); 
       const otherVolume = otherEntries.reduce((total, [, volume]) => total + volume, 0);
       return {
-        ...Object.fromEntries(top10Entries),
+        ...Object.fromEntries(selectedEntries),
         Other: otherVolume,
       };
     };
 
     const result: any[] = Object.entries(temp).map(([time, volumes]) => {
-      const top10Volumes = sortAndSliceTop10(volumes);
+      const selectedVolumes = selectedCoinData(volumes);
       return {
         time: new Date(time),
-        ...top10Volumes,
+        ...selectedVolumes,
         cumulative: formattedCumulativeByTime[time as any],
         unit: '',
       };
@@ -207,25 +207,17 @@ export default function LiquidatorChart() {
     return result;
   };
 
-  const extractUniqueCoins = (formattedData: any[]): string[] => {
+  const extractUniqueCoins = (coinData: any[]): string[] => {
     const coinSet = new Set<string>();
-    for (const data of formattedData) {
-      Object.keys(data).forEach((coin) => {
-        if (coin !== 'time' && coin !== 'unit' && coin !== 'cumulative' && coin !== 'all') {
-          coinSet.add(coin);
+    for (const data of coinData) {
+        if (data.coin !== 'time' && data.coin !== 'unit' && data.coin !== 'cumulative' && data.coin !== 'all') {
+          coinSet.add(data.coin);
         }
-      });
     }
-    const coinsArray = Array.from(coinSet);
-    if (coinsArray.includes('Other')) {
-      const index = coinsArray.indexOf('Other');
-      coinsArray.splice(index, 1);
-      coinsArray.push('Other');
-    }
-    return coinsArray;
+    return Array.from(coinSet);
   };
 
-  const formatData = () => {
+  const formatData = (CoinsSelected: string[]) => {
     const formattedCumulativeLiquidatedByTime =
       formatCumulativeLiquidatedByTime(dataCumulativeLiquidated);
     const formattedVolumeByMargin = formatLiquidatedByMargin(
@@ -233,6 +225,7 @@ export default function LiquidatorChart() {
       formattedCumulativeLiquidatedByTime
     );
     const formattedDailyTradesByCoins = formatDailyTradesByCoins(
+      CoinsSelected,
       dataDailyLiquidatedByCoins,
       formattedCumulativeLiquidatedByTime
     );
@@ -241,7 +234,7 @@ export default function LiquidatorChart() {
       dataLiquidatorCumulativePnl
     );
     setFormattedLiquidatorPnl(newFormattedLiquidatorPnl);
-    setCoinKeys(extractUniqueCoins(formattedDailyTradesByCoins));
+    setCoinKeys(extractUniqueCoins(dataDailyLiquidatedByCoins));
     setFormattedDataMargin(formattedVolumeByMargin);
     setFormattedDataCoins(formattedDailyTradesByCoins);
     console.log('dev formattedDailyTradesByCoins', formattedDailyTradesByCoins);
@@ -269,7 +262,7 @@ export default function LiquidatorChart() {
 
   useEffect(() => {
     if (!loading && !error) {
-      formatData();
+      formatData(coinsSelected);
     }
   }, [loading, error]);
 
@@ -298,6 +291,10 @@ export default function LiquidatorChart() {
 
     return [-1 * Math.abs(maxCumulativePnl) * 1.1, Math.abs(maxCumulativePnl) * 1.1];
   };
+
+  const coinSelectors = createCoinSelectorsWithFormatArg(coinKeys, coinsSelected, setCoinsSelected, formatData)
+
+
   return (
     <ChartWrapper
       title='Liquidations'
@@ -305,6 +302,7 @@ export default function LiquidatorChart() {
       data={dataModeToData(dataMode)}
       controls={controls}
       zIndex={7}
+      coinSelectors={dataMode === 'COINS' ? coinSelectors: null}
       isMobile={isMobile}
     >
       <ResponsiveContainer width='100%' height={CHART_HEIGHT}>
@@ -336,8 +334,8 @@ export default function LiquidatorChart() {
           <Legend wrapperStyle={{ bottom: -5 }} />
           {dataMode === 'COINS' && (
             <>
-              {coinKeys &&
-                coinKeys.map((coinName, i) => {
+              {
+                coinsSelected.map((coinName, i) => {
                   return (
                     <Bar
                       unit={''}
@@ -346,7 +344,7 @@ export default function LiquidatorChart() {
                       dataKey={coinName}
                       stackId='a'
                       name={coinName.toString()}
-                      fill={getTokenHex(coinName.toString())}
+                      fill={getTokenColor(coinName.toString())}
                       key={i}
                       maxBarSize={20}
                     />

@@ -24,7 +24,8 @@ import {
   yaxisFormatter,
   tooltipFormatterLongShort,
 } from '../../../helpers';
-import { getTokenHex } from '@/constants/tokens';
+
+import { getTokenColor } from '@/constants/tokens';
 import { asset_ctxs, hlp_liquidator_pnl, hlp_positions } from '@/constants/api';
 const REQUESTS = [hlp_positions, asset_ctxs, hlp_liquidator_pnl];
 
@@ -304,7 +305,7 @@ export default function Hlp() {
                   dataKey={coin}
                   stackId='a'
                   name={coin.toString()}
-                  fill={getTokenHex(coin.toString())}
+                  fill={getTokenColor(coin.toString())}
                   key={i}
                   maxBarSize={20}
                 />

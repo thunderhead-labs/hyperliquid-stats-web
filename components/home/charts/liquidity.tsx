@@ -20,7 +20,9 @@ import {
   xAxisFormatter,
   formatterPercent,
 } from '../../../helpers';
-import { getTokenHex } from '../../../constants/tokens';
+import { createCoinSelectors } from "../../../helpers/utils"; 
+
+import { getTokenColor, initialTokensSelected } from '../../../constants/tokens';
 import { liquidity_by_coin } from '../../../constants/api';
 
 const REQUESTS = [liquidity_by_coin];
@@ -40,7 +42,7 @@ export default function Liquidity() {
   const [coinKeys10000, setCoinKeys10000] = useState<any[]>([]);
 
   const [dataMode, setDataMode] = useState<'0' | '1000' | '3000' | '10000'>('0');
-  const [coinsSelected, setCoinsSelected] = useState<string[]>(['ETH', 'BTC', 'ARB']);
+  const [coinsSelected, setCoinsSelected] = useState<string[]>(initialTokensSelected);
 
   const [dataLiqudity, loadingLiqudity, errorLiqudity] = useRequest(REQUESTS[0], [], 'chart_data');
   const loading = loadingLiqudity;
@@ -215,34 +217,8 @@ export default function Liquidity() {
       ? coinKeys3000
       : coinKeys10000;
 
-  const coinSelectorsSort = (a: CoinSelector, b: CoinSelector) => {
-    if (a.isChecked !== b.isChecked) {
-      return a.isChecked ? -1 : 1;
-    }
-    return a.name.localeCompare(b.name);
-  };
+  const coinSelectors = createCoinSelectors(coinKeys, coinsSelected, setCoinsSelected, formatData);
 
-  const coinSelectors = coinKeys
-    .map((coinKey: string) => {
-      return {
-        name: coinKey,
-        event: () =>
-          setCoinsSelected((coinsSelected) => {
-            let newCoinsSelected = coinsSelected;
-            if (coinsSelected.includes(coinKey)) {
-              newCoinsSelected = coinsSelected.filter((e) => {
-                return e !== coinKey;
-              });
-            } else {
-              newCoinsSelected.push(coinKey);
-            }
-            formatData();
-            return newCoinsSelected;
-          }),
-        isChecked: coinsSelected.includes(coinKey),
-      };
-    })
-    .sort((a: CoinSelector, b: CoinSelector) => coinSelectorsSort(a, b));
   return (
     <ChartWrapper
       title='Slippage % by Trade Size'
@@ -292,7 +268,7 @@ export default function Liquidity() {
                 type='monotone'
                 dataKey={`${coinName}`}
                 name={coinName.toString()}
-                stroke={getTokenHex(coinName.toString())}
+                stroke={getTokenColor(coinName.toString())}
                 key={i}
                 dot={false}
               />
