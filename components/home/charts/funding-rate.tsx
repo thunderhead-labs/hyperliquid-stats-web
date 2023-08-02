@@ -19,7 +19,7 @@ import {
   formatterPercent,
   tooltipFormatterDate,
 } from '../../../helpers';
-import { createCoinSelectors } from "../../../helpers/utils"; 
+import { createCoinSelectors } from '../../../helpers/utils';
 
 import { getTokenColor, initialTokensSelected } from '../../../constants/tokens';
 import { funding_rate } from '../../../constants/api';
@@ -115,7 +115,7 @@ export default function FundingRate(props: any) {
     }
   }, [loading, coinsSelected]);
 
-  const coinSelectors = createCoinSelectors(coinKeys, coinsSelected, setCoinsSelected, formatData)
+  const coinSelectors = createCoinSelectors(coinKeys, coinsSelected, setCoinsSelected, formatData);
 
   return (
     <ChartWrapper

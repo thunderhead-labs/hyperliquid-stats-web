@@ -22,7 +22,7 @@ import {
   yaxisFormatterNumber,
   yaxisFormatterPercent,
 } from '../../../helpers';
-import { createCoinSelectorsWithFormatArg } from "../../../helpers/utils"; 
+import { createCoinSelectorsWithFormatArg } from '../../../helpers/utils';
 
 import { getTokenColor, initialTokensSelectedWithOther } from '../../../constants/tokens';
 import {
@@ -95,7 +95,7 @@ export default function UniqueUsers(props: any) {
   const error = errorCumulativeNewUsers || errorDailyUniqueUsers || errorDailyUniqueUsersByCoin;
 
   const formatTradesByCoinAndTime = (
-    CoinsSelected: string[], 
+    CoinsSelected: string[],
     dataDailyUniqueUsersByCoin: DailyUniqueUsersByCoin[],
     uniqueUserTradeData: UniqueUserTradeData[],
     dataCumulativeNewUsers: CumulativeNewUsersData[]
@@ -129,8 +129,12 @@ export default function UniqueUsers(props: any) {
     );
 
     const selectedCoinData = (obj: { [coin: string]: number }) => {
-      const selectedEntries = Object.entries(obj).filter(([coin]) => CoinsSelected.includes(coin) || coin==="all"); 
-      const otherEntries = Object.entries(obj).filter(([coin]) => (!(CoinsSelected.includes(coin))) && (coin !== "all")); 
+      const selectedEntries = Object.entries(obj).filter(
+        ([coin]) => CoinsSelected.includes(coin) || coin === 'all'
+      );
+      const otherEntries = Object.entries(obj).filter(
+        ([coin]) => !CoinsSelected.includes(coin) && coin !== 'all'
+      );
       const otherVolume = otherEntries.reduce((total, [, volume]) => total + volume, 0);
       return {
         ...Object.fromEntries(selectedEntries),
@@ -151,7 +155,7 @@ export default function UniqueUsers(props: any) {
   const extractUniqueCoins = (CoinData: any): string[] => {
     const coinSet = new Set<string>();
     for (const data of CoinData) {
-      coinSet.add(data.coin); 
+      coinSet.add(data.coin);
     }
     const coinsArray = Array.from(coinSet);
     return coinsArray;
@@ -175,7 +179,12 @@ export default function UniqueUsers(props: any) {
     }
   }, [loading]);
 
-  const coinSelectors = createCoinSelectorsWithFormatArg(coinKeys, coinsSelected, setCoinsSelected, formatData);
+  const coinSelectors = createCoinSelectorsWithFormatArg(
+    coinKeys,
+    coinsSelected,
+    setCoinsSelected,
+    formatData
+  );
 
   return (
     <ChartWrapper

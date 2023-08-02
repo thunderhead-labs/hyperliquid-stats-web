@@ -28,7 +28,6 @@ const Main = () => {
     setIsMobile(window.innerWidth < 700);
   }, [window.innerWidth]);
 
-
   return (
     <Container
       maxWidth='100%'

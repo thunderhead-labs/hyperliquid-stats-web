@@ -13,7 +13,7 @@ import { useEffect, useState } from 'react';
 import { useRequest } from '@/hooks/useRequest';
 
 import { Box, Text, useMediaQuery } from '@chakra-ui/react';
-import ChartWrapper, { CoinSelector }  from '../../common/chartWrapper';
+import ChartWrapper, { CoinSelector } from '../../common/chartWrapper';
 import { BRIGHT_GREEN, CHART_HEIGHT, YAXIS_WIDTH } from '../../../constants';
 import {
   yaxisFormatter,
@@ -21,7 +21,7 @@ import {
   tooltipFormatterCurrency,
   tooltipLabelFormatter,
 } from '../../../helpers';
-import { createCoinSelectorsWithFormatArg } from "../../../helpers/utils"; 
+import { createCoinSelectorsWithFormatArg } from '../../../helpers/utils';
 
 import { total_volume } from '../../../constants/api';
 import { getTokenColor, initialTokensSelectedWithOther } from '@/constants/tokens';
@@ -51,7 +51,10 @@ export default function TotalVolumeChart(props: any) {
     Other: number;
   }
 
-  const makeFormattedData = (CoinsSelected: string[], dataTotalVolume: TotalVolume[]): [MergedData[], string[]] => {
+  const makeFormattedData = (
+    CoinsSelected: string[],
+    dataTotalVolume: TotalVolume[]
+  ): [MergedData[], string[]] => {
     const map = new Map<string, MergedData>();
     const uniqueCoins = new Set<string>();
 
@@ -86,7 +89,9 @@ export default function TotalVolumeChart(props: any) {
           key !== 'unit' &&
           key !== 'Other'
       );
-      const otherCoins = coinEntries.filter(([coin]) => (!(CoinsSelected.includes(coin))) && (coin !== "all"));
+      const otherCoins = coinEntries.filter(
+        ([coin]) => !CoinsSelected.includes(coin) && coin !== 'all'
+      );
 
       coinEntries.forEach(([coin]) => uniqueCoins.add(coin));
 
@@ -113,10 +118,21 @@ export default function TotalVolumeChart(props: any) {
     }
   }, [loading, error]);
 
-  const coinSelectors = createCoinSelectorsWithFormatArg(coins, coinsSelected, setCoinsSelected, formatData);
+  const coinSelectors = createCoinSelectorsWithFormatArg(
+    coins,
+    coinsSelected,
+    setCoinsSelected,
+    formatData
+  );
 
   return (
-    <ChartWrapper title='Total Volume' loading={loading} data={formattedData} isMobile={isMobile} coinSelectors={coinSelectors}>
+    <ChartWrapper
+      title='Total Volume'
+      loading={loading}
+      data={formattedData}
+      isMobile={isMobile}
+      coinSelectors={coinSelectors}
+    >
       <ResponsiveContainer width='99%' height={CHART_HEIGHT}>
         <ComposedChart data={formattedData}>
           <CartesianGrid strokeDasharray='15 15' opacity={0.1} />

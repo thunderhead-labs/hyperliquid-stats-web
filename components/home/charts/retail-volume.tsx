@@ -26,7 +26,7 @@ import {
   yaxisFormatter,
   xAxisFormatter,
 } from '../../../helpers';
-import { createCoinSelectorsWithFormatArg } from "../../../helpers/utils"; 
+import { createCoinSelectorsWithFormatArg } from '../../../helpers/utils';
 
 import { getTokenColor, initialTokensSelectedWithOther } from '../../../constants/tokens';
 import {
@@ -126,8 +126,12 @@ export default function RetailVolumeChart(props: any) {
     }
 
     const selectedCoinData = (obj: { [coin: string]: number }) => {
-      const selectedEntries = Object.entries(obj).filter(([coin]) => CoinsSelected.includes(coin) && coin !== "all"); 
-      const otherEntries = Object.entries(obj).filter(([coin]) => (!(CoinsSelected.includes(coin))) && (coin !== "all")); 
+      const selectedEntries = Object.entries(obj).filter(
+        ([coin]) => CoinsSelected.includes(coin) && coin !== 'all'
+      );
+      const otherEntries = Object.entries(obj).filter(
+        ([coin]) => !CoinsSelected.includes(coin) && coin !== 'all'
+      );
       const otherVolume = otherEntries.reduce((total, [, volume]) => total + volume, 0);
       return {
         ...Object.fromEntries(selectedEntries),
@@ -240,7 +244,12 @@ export default function RetailVolumeChart(props: any) {
     }
   }, [loading, error]);
 
-  const coinSelectors = createCoinSelectorsWithFormatArg(coinKeys, coinsSelected, setCoinsSelected, formatData);
+  const coinSelectors = createCoinSelectorsWithFormatArg(
+    coinKeys,
+    coinsSelected,
+    setCoinsSelected,
+    formatData
+  );
 
   return (
     <ChartWrapper
@@ -249,7 +258,7 @@ export default function RetailVolumeChart(props: any) {
       data={dataMode === 'COINS' ? formattedDataCoins : formattedDataMargin}
       zIndex={9}
       controls={controls}
-      coinSelectors={dataMode === 'COINS' ? coinSelectors: null}
+      coinSelectors={dataMode === 'COINS' ? coinSelectors : null}
       isMobile={isMobile}
     >
       <ResponsiveContainer width='100%' height={CHART_HEIGHT}>
