@@ -12,7 +12,7 @@ export const createCoinSelectors = (
   coinKeys: string[],
   coinsSelected: string[],
   setCoinsSelected: (arg: string[]) => any,
-  formatData: () => any
+  formatData: ((arg: string[]) => any) | (() => any)
 ) => {
   return coinKeys
     .map((coinKey: string) => {
@@ -27,35 +27,12 @@ export const createCoinSelectors = (
           } else {
             newCoinsSelected.push(coinKey);
           }
-          formatData();
-          setCoinsSelected(newCoinsSelected);
-        },
-        isChecked: coinsSelected.includes(coinKey),
-      };
-    })
-    .sort((a: CoinSelector, b: CoinSelector) => coinSelectorsSort(a, b));
-};
-
-export const createCoinSelectorsWithFormatArg = (
-  coinKeys: string[],
-  coinsSelected: string[],
-  setCoinsSelected: (arg: string[]) => any,
-  formatData: (arg: string[]) => any
-) => {
-  return coinKeys
-    .map((coinKey: string) => {
-      return {
-        name: coinKey,
-        event: () => {
-          let newCoinsSelected = coinsSelected;
-          if (coinsSelected.includes(coinKey)) {
-            newCoinsSelected = coinsSelected.filter((e) => {
-              return e !== coinKey;
-            });
+          if (formatData.length > 0) {
+            formatData(newCoinsSelected);
           } else {
-            newCoinsSelected.push(coinKey);
+            const noArgsFormatData = formatData as () => any;
+            noArgsFormatData();
           }
-          formatData(newCoinsSelected);
           setCoinsSelected(newCoinsSelected);
         },
         isChecked: coinsSelected.includes(coinKey),

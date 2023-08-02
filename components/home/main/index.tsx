@@ -21,12 +21,10 @@ import HlpExposure from '../charts/hlp';
 import TotalVolumeChart from '../charts/volume-total';
 import UniqueUsers from '../charts/unique-users-coin';
 import { useEffect, useState } from 'react';
+import { useMediaQuery } from '@chakra-ui/react';
 
 const Main = () => {
-  const [isMobile, setIsMobile] = useState<boolean>(window.innerWidth < 700);
-  useEffect(() => {
-    setIsMobile(window.innerWidth < 700);
-  }, [window.innerWidth]);
+  const isMobile = useMediaQuery('(max-width: 700px)');
 
   return (
     <Container

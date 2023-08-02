@@ -21,7 +21,7 @@ import {
   tooltipFormatterCurrency,
   tooltipLabelFormatter,
 } from '../../../helpers';
-import { createCoinSelectorsWithFormatArg } from '../../../helpers/utils';
+import { createCoinSelectors } from '../../../helpers/utils';
 
 import { total_volume } from '../../../constants/api';
 import { getTokenColor, initialTokensSelectedWithOther } from '@/constants/tokens';
@@ -118,7 +118,7 @@ export default function TotalVolumeChart(props: any) {
     }
   }, [loading, error]);
 
-  const coinSelectors = createCoinSelectorsWithFormatArg(
+  const coinSelectors = createCoinSelectors(
     coins,
     coinsSelected,
     setCoinsSelected,
