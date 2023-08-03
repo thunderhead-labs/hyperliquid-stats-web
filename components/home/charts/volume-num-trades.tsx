@@ -13,9 +13,7 @@ import {
 import { Box, Text, useMediaQuery } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { useRequest } from '@/hooks/useRequest';
-import { useIsMobile } from '@/hooks/isMobile';
-
-import ChartWrapper,  { CoinSelector } from '../../common/chartWrapper';
+import ChartWrapper from '../../common/chartWrapper';
 import {
   CHART_HEIGHT,
   YAXIS_WIDTH,
@@ -29,9 +27,7 @@ import {
   yaxisFormatterNumber,
   xAxisFormatter,
 } from '../../../helpers';
-import { createCoinSelectorsWithFormatArg } from "../../../helpers/utils"; 
-
-import { getTokenColor, initialTokensSelectedWithOther } from '../../../constants/tokens';
+import { getTokenHex } from '../../../constants/tokens';
 import {
   cumulative_trades,
   daily_trades,
@@ -49,8 +45,7 @@ const REQUESTS = [
 ];
 
 export default function VolumeChart() {
-  const [isMobile] = useIsMobile();
-  const [coinsSelected, setCoinsSelected] = useState<string[]>(initialTokensSelectedWithOther);
+  const [isMobile] = useMediaQuery('(max-width: 700px)');
 
   const [dataMode, setDataMode] = useState<'COINS' | 'MARGIN' | 'USER'>('COINS');
   const [formattedDataCoins, setFormattedDataCoins] = useState<any[]>([]);
@@ -113,7 +108,6 @@ export default function VolumeChart() {
   type FormattedCoinTradesData = any[]; //{ time: string, all: number, [coin: string]: number };
 
   const formatDailyTradesByCoins = (
-    CoinsSelected: string[],
     dataDailyTradesByCoin: { coin: string; daily_trades: number; time: string }[],
     formattedCumulativeTradesByTime: { [key: string]: number }
   ): FormattedCoinTradesData[] => {
@@ -126,18 +120,22 @@ export default function VolumeChart() {
       temp[data.time].all += data.daily_trades;
     }
 
-    const selectedCoinData = (obj: { [coin: string]: number }) => {
-      const selectedEntries = Object.entries(obj).filter(([coin]) => CoinsSelected.includes(coin) || coin==="all"); 
-      const otherEntries = Object.entries(obj).filter(([coin]) => (!(CoinsSelected.includes(coin))) && (coin !== "all")); 
+    const sortAndSliceTop10 = (obj: { [coin: string]: number }) => {
+      const sortedEntries = Object.entries(obj).sort(
+        ([, aVolume], [, bVolume]) => bVolume - aVolume
+      );
+      const top10Entries = sortedEntries.slice(0, 10);
+      const otherEntries = sortedEntries.slice(10);
+
       const otherVolume = otherEntries.reduce((total, [, volume]) => total + volume, 0);
       return {
-        ...Object.fromEntries(selectedEntries),
+        ...Object.fromEntries(top10Entries),
         Other: otherVolume,
       };
     };
 
     const result: any[] = Object.entries(temp).map(([time, volumes]) => {
-      const top10Volumes = selectedCoinData(volumes);
+      const top10Volumes = sortAndSliceTop10(volumes);
       return {
         time: new Date(time),
         ...top10Volumes,
@@ -148,12 +146,21 @@ export default function VolumeChart() {
     return result;
   };
 
-  const extractUniqueCoins = (CoinData: any): string[] => {
+  const extractUniqueCoins = (formattedCoinTradesData: FormattedCoinTradesData[]): string[] => {
     const coinSet = new Set<string>();
-    for (const data of CoinData) {
-      coinSet.add(data.coin); 
+    for (const data of formattedCoinTradesData) {
+      Object.keys(data).forEach((coin) => {
+        if (coin !== 'all' && coin !== 'cumulative' && coin !== 'time' && coin !== 'unit') {
+          coinSet.add(coin);
+        }
+      });
     }
     const coinsArray = Array.from(coinSet);
+    if (coinsArray.includes('Other')) {
+      const index = coinsArray.indexOf('Other');
+      coinsArray.splice(index, 1);
+      coinsArray.push('Other');
+    }
     return coinsArray;
   };
 
@@ -197,10 +204,9 @@ export default function VolumeChart() {
     return Object.values(groupedByTime);
   };
 
-  const formatData = (CoinsSelected: string[]) => {
+  const formatData = () => {
     const formattedCumulativeTradesByTime = formatTradesByTime(dataCumulativeTrades);
     const formattedTradesByCoins = formatDailyTradesByCoins(
-      CoinsSelected,
       dataDailyTradesByCoin,
       formattedCumulativeTradesByTime
     );
@@ -209,7 +215,7 @@ export default function VolumeChart() {
       formattedCumulativeTradesByTime
     );
     setMaxAllValueUser(maxAllValueUser);
-    setCoinKeys(extractUniqueCoins(dataDailyTradesByCoin));
+    setCoinKeys(extractUniqueCoins(formattedTradesByCoins));
     setFormattedDataCoins(formattedTradesByCoins);
     setFormattedDataMarin(formattedTradesByMargin);
   };
@@ -231,12 +237,9 @@ export default function VolumeChart() {
 
   useEffect(() => {
     if (!loading && !error) {
-      formatData(coinsSelected);
+      formatData();
     }
   }, [loading, dataMode]);
-
-
-  const coinSelectors = createCoinSelectorsWithFormatArg(coinKeys, coinsSelected, setCoinsSelected, formatData);
 
   return (
     <ChartWrapper
@@ -251,8 +254,6 @@ export default function VolumeChart() {
       }
       controls={controls}
       zIndex={9}
-      isMobile={isMobile}
-      coinSelectors={dataMode === 'COINS' ? coinSelectors: null}
     >
       <ResponsiveContainer width='100%' height={CHART_HEIGHT}>
         <ComposedChart
@@ -312,7 +313,7 @@ export default function VolumeChart() {
           )}
           {dataMode === 'COINS' && (
             <>
-              {coinsSelected.map((coinName, i) => {
+              {coinKeys.map((coinName, i) => {
                 return (
                   <Bar
                     unit={''}
@@ -321,7 +322,7 @@ export default function VolumeChart() {
                     dataKey={coinName}
                     stackId='a'
                     name={coinName.toString()}
-                    fill={getTokenColor(coinName.toString())}
+                    fill={getTokenHex(coinName.toString())}
                     key={i}
                     maxBarSize={20}
                   />

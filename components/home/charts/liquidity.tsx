@@ -12,7 +12,6 @@ import { useEffect, useState } from 'react';
 import { Box, Text, useMediaQuery } from '@chakra-ui/react';
 import { useRequest } from '@/hooks/useRequest';
 import ChartWrapper, { CoinSelector } from '../../common/chartWrapper';
-import { useIsMobile } from '@/hooks/isMobile';
 import { CHART_HEIGHT } from '../../../constants';
 import {
   tooltipFormatter,
@@ -20,16 +19,13 @@ import {
   xAxisFormatter,
   formatterPercent,
 } from '../../../helpers';
-import { createCoinSelectors } from "../../../helpers/utils"; 
-
-import { getTokenColor, initialTokensSelected } from '../../../constants/tokens';
+import { getTokenHex } from '../../../constants/tokens';
 import { liquidity_by_coin } from '../../../constants/api';
 
 const REQUESTS = [liquidity_by_coin];
 
 export default function Liquidity() {
-  const [isMobile] = useIsMobile();
-
+  const [isMobile] = useMediaQuery('(max-width: 700px)');
   const [formattedData0, setFormattedData0] = useState<any[]>([]);
   const [formattedData1000, setFormattedData1000] = useState<any[]>([]);
   const [formattedData3000, setFormattedData3000] = useState<any[]>([]);
@@ -42,7 +38,7 @@ export default function Liquidity() {
   const [coinKeys10000, setCoinKeys10000] = useState<any[]>([]);
 
   const [dataMode, setDataMode] = useState<'0' | '1000' | '3000' | '10000'>('0');
-  const [coinsSelected, setCoinsSelected] = useState<string[]>(initialTokensSelected);
+  const [coinsSelected, setCoinsSelected] = useState<string[]>(['ETH', 'BTC', 'ARB']);
 
   const [dataLiqudity, loadingLiqudity, errorLiqudity] = useRequest(REQUESTS[0], [], 'chart_data');
   const loading = loadingLiqudity;
@@ -91,12 +87,12 @@ export default function Liquidity() {
   };
 
   const extractCoins = (data: InputData): string[] => {
-    let coins = [];
+    let coins = []; 
     for (let coin of Object.keys(data)) {
-      coins.push(coin);
+      coins.push(coin); 
     }
-    return coins;
-  };
+    return coins; 
+  }
 
   const transformData = (data: InputData): OutputData => {
     // Filter data for each category by top 10 coins
@@ -175,8 +171,8 @@ export default function Liquidity() {
   };
 
   const formatData = () => {
-    const extractedCoinKeys = extractCoins(dataLiqudity);
-    setCoinKeys(extractedCoinKeys);
+    const extractedCoinKeys = extractCoins(dataLiqudity); 
+    setCoinKeys(extractedCoinKeys); 
     const formattedData = transformData(dataLiqudity);
     setFormattedData0(formattedData.median_slippage_0);
     setFormattedData1000(formattedData.median_slippage_1000);
@@ -186,7 +182,7 @@ export default function Liquidity() {
     const formattedUniqueCoinKeys1000 = extractUniqueCoins(formattedData.median_slippage_1000);
     const formattedUniqueCoinKeys3000 = extractUniqueCoins(formattedData.median_slippage_3000);
     const formattedUniqueCoinKeys10000 = extractUniqueCoins(formattedData.median_slippage_10000);
-
+        
     setCoinKeys0(formattedUniqueCoinKeys0);
     setCoinKeys1000(formattedUniqueCoinKeys1000);
     setCoinKeys3000(formattedUniqueCoinKeys3000);
@@ -217,8 +213,34 @@ export default function Liquidity() {
       ? coinKeys3000
       : coinKeys10000;
 
-  const coinSelectors = createCoinSelectors(coinKeys, coinsSelected, setCoinsSelected, formatData);
+  const coinSelectorsSort = (a: CoinSelector, b: CoinSelector) => {
+    if (a.isChecked !== b.isChecked) {
+      return a.isChecked ? -1 : 1;
+    }
+    return a.name.localeCompare(b.name);
+  };
 
+  const coinSelectors = coinKeys
+    .map((coinKey: string) => {
+      return {
+        name: coinKey,
+        event: () =>
+          setCoinsSelected((coinsSelected) => {
+            let newCoinsSelected = coinsSelected;
+            if (coinsSelected.includes(coinKey)) {
+              newCoinsSelected = coinsSelected.filter((e) => {
+                return e !== coinKey;
+              });
+            } else {
+              newCoinsSelected.push(coinKey);
+            }
+            formatData();
+            return newCoinsSelected;
+          }),
+        isChecked: coinsSelected.includes(coinKey),
+      };
+    })
+    .sort((a: CoinSelector, b: CoinSelector) => coinSelectorsSort(a, b));
   return (
     <ChartWrapper
       title='Slippage % by Trade Size'
@@ -227,7 +249,6 @@ export default function Liquidity() {
       controls={controls}
       zIndex={8}
       coinSelectors={coinSelectors}
-      isMobile={isMobile}
     >
       <ResponsiveContainer width='100%' height={CHART_HEIGHT}>
         <LineChart data={chartData}>
@@ -268,7 +289,7 @@ export default function Liquidity() {
                 type='monotone'
                 dataKey={`${coinName}`}
                 name={coinName.toString()}
-                stroke={getTokenColor(coinName.toString())}
+                stroke={getTokenHex(coinName.toString())}
                 key={i}
                 dot={false}
               />

@@ -11,7 +11,6 @@ import {
 import { useMediaQuery } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { useRequest } from '@/hooks/useRequest';
-import { useIsMobile } from '@/hooks/isMobile';
 import ChartWrapper, { CoinSelector } from '../../common/chartWrapper';
 import { CHART_HEIGHT } from '../../../constants';
 import {
@@ -20,15 +19,13 @@ import {
   formatterPercent,
   tooltipFormatterDate,
 } from '../../../helpers';
-import { createCoinSelectors } from "../../../helpers/utils"; 
-
-import { getTokenColor, initialTokensSelected } from '../../../constants/tokens';
+import { getTokenHex } from '../../../constants/tokens';
 import { funding_rate } from '../../../constants/api';
 
 const REQUESTS = [funding_rate];
 
 export default function FundingRate() {
-  const [isMobile] = useIsMobile();
+  const [isMobile] = useMediaQuery('(max-width: 700px)');
 
   const [coinKeys, setCoinKeys] = useState<string[]>([]);
   const [formattedData, setFormattedData] = useState<GroupedFundingData[]>([]);
@@ -37,7 +34,7 @@ export default function FundingRate() {
     [],
     'chart_data'
   );
-  const [coinsSelected, setCoinsSelected] = useState<string[]>(initialTokensSelected);
+  const [coinsSelected, setCoinsSelected] = useState<string[]>(['ETH', 'BTC', 'ARB']);
 
   const loading = loadingFundingRate;
   const error = errorFundingRate;
@@ -116,7 +113,34 @@ export default function FundingRate() {
     }
   }, [loading, coinsSelected]);
 
-  const coinSelectors = createCoinSelectors(coinKeys, coinsSelected, setCoinsSelected, formatData)
+  const coinSelectorsSort = (a: CoinSelector, b: CoinSelector) => {
+    if (a.isChecked !== b.isChecked) {
+      return a.isChecked ? -1 : 1;
+    }
+    return a.name.localeCompare(b.name);
+  };
+
+  const coinSelectors = coinKeys
+    .map((coinKey: string) => {
+      return {
+        name: coinKey,
+        event: () =>
+          setCoinsSelected((coinsSelected) => {
+            let newCoinsSelected = coinsSelected;
+            if (coinsSelected.includes(coinKey)) {
+              newCoinsSelected = coinsSelected.filter((e) => {
+                return e !== coinKey;
+              });
+            } else {
+              newCoinsSelected.push(coinKey);
+            }
+            formatData();
+            return newCoinsSelected;
+          }),
+        isChecked: coinsSelected.includes(coinKey),
+      };
+    })
+    .sort((a: CoinSelector, b: CoinSelector) => coinSelectorsSort(a, b));
 
   return (
     <ChartWrapper
@@ -124,7 +148,6 @@ export default function FundingRate() {
       loading={loading}
       data={formattedData}
       coinSelectors={coinSelectors}
-      isMobile={isMobile}
     >
       <ResponsiveContainer width='100%' height={CHART_HEIGHT}>
         <LineChart data={formattedData}>
@@ -166,7 +189,7 @@ export default function FundingRate() {
                 dataKey={coinName.toString()}
                 dot={false}
                 name={coinName.toString()}
-                stroke={getTokenColor(coinName.toString())}
+                stroke={getTokenHex(coinName.toString())}
                 key={'funding-rate-line-' + i}
               />
             );

@@ -1,18 +1,37 @@
-import * as CryptoJS from 'crypto-js';
+const TOKEN_COLORS: any = {
+  BNB: '#ebc509',
+  BTC: '#F2A900',
+  DOGE: '#cb9800',
+  ETH: '#8A94B1',
+  INJ: '#0386FA',
+  KPEPE: '#509844',
+  MATIC: '#8C35D5',
+  Other: '#BBBAC6',
+  SOL: '#C867F0',
+  AVAX: '#e74242',
+  LTC: '#CCCCCC',
+  ARB: '#FCA100',
+  LINK: '#81D2FD',
+  APE: '#4087BE',
+  ATOM: '#FCA100',
+  CFX: '#F3654E',
+  CRV: '#850087',
+  DYDX: '#BE586C',
+  FTM: '#568EC0',
+  GMX: '#59C782',
+  LDO: '#DB6ED7',
+  OP: '#7F0182',
+  RNDR: '#FFA300',
+  SNX: '#498548',
+  STX: '#578374',
+  SUI: '#6A807A',
+};
 
-
-export const initialTokensSelected = ['ETH', 'BTC', 'ARB', 'APE', 'ATOM', 'AVAX', 'BNB', 'COMP', 'CRV', 'DOGE']; 
-export const initialTokensSelectedWithOther = ['ETH', 'BTC', 'ARB', 'APE', 'ATOM', 'AVAX', 'BNB', 'COMP', 'CRV', 'DOGE','Other']; 
-
-export function getTokenColor(inputString: string): string {
-    if (inputString == "Other") {
-      return "pink";
-    }
-    // Use the CryptoJS library to get the MD5 hash of the string
-    let hash = CryptoJS.MD5("col"+inputString);
-
-    // Convert the hash into a hex string
-    let color = hash.toString(CryptoJS.enc.Hex).substr(0, 6);
-    
-    return "#" + color;
-}
+export const getTokenHex = (token: string) => {
+  const symbol = token.toUpperCase();
+  if (TOKEN_COLORS[symbol]) {
+    return TOKEN_COLORS[symbol];
+  } else {
+    return 'pink';
+  }
+};
