@@ -10,7 +10,7 @@ import {
   Line,
   ComposedChart,
 } from 'recharts';
-import { Box, Text, useMediaQuery } from '@chakra-ui/react';
+import { Box, Text } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { useRequest } from '@/hooks/useRequest';
 
@@ -28,13 +28,7 @@ import { getTokenColor } from '@/constants/tokens';
 import { asset_ctxs, hlp_liquidator_pnl, hlp_positions } from '@/constants/api';
 const REQUESTS = [hlp_positions, asset_ctxs, hlp_liquidator_pnl];
 
-const DAY = 60 * 60 * 24 * 1000;
-
-type Props = {isMobile: boolean}; 
-
-export default function Hlp(props: any) {
-  const isMobile = props.isMobile; 
-  
+export default function Hlp() {
   const [dataHlpPositions, loadingDataHlpPositions, errorDataHlpPositions] = useRequest(
     REQUESTS[0],
     [],
@@ -121,7 +115,10 @@ export default function Hlp(props: any) {
     return yyyy + '-' + mm + '-' + dd + 'T00:00:00';
   }
 
-  const makeFormattedData = (hlpPositions: HlpPosition[], hlpPnL: Map<string, HlpPnl>): [GroupedData[], string[]] => {
+  const makeFormattedData = (
+    hlpPositions: HlpPosition[],
+    hlpPnL: Map<string, HlpPnl>
+  ): [GroupedData[], string[]] => {
     const map = new Map<string, GroupedData>();
     const uniqueTopCoins = new Set<string>();
 
@@ -209,7 +206,7 @@ export default function Hlp(props: any) {
         active: dataMode === 'HEDGED',
       },
       {
-        text: 'Net notional position',
+        text: 'Net position',
         event: () => setDataMode('NET'),
         active: dataMode === 'NET',
       },
@@ -238,13 +235,7 @@ export default function Hlp(props: any) {
   }, [loading, error]);
 
   return (
-    <ChartWrapper
-      title='HLP'
-      loading={false}
-      data={formattedData}
-      controls={controls}
-      isMobile={isMobile}
-    >
+    <ChartWrapper title='HLP' loading={false} controls={controls}>
       <ResponsiveContainer width='100%' height={CHART_HEIGHT}>
         <ComposedChart data={dataMode === 'PNL' ? formattedHlpPnL : formattedData}>
           <CartesianGrid strokeDasharray='15 15' opacity={0.1} />
@@ -252,15 +243,10 @@ export default function Hlp(props: any) {
             dataKey='time'
             tickFormatter={xAxisFormatter}
             minTickGap={30}
-            tick={{ fill: '#f9f9f9', fontSize: isMobile ? 14 : 15 }}
+            tick={{ fill: '#f9f9f9' }}
             tickMargin={10}
           />
-          <YAxis
-            tick={{ fill: '#f9f9f9', fontSize: isMobile ? 14 : 15 }}
-            dx={6}
-            width={75}
-            tickFormatter={yaxisFormatter}
-          />
+          <YAxis tick={{ fill: '#f9f9f9' }} dx={6} width={75} tickFormatter={yaxisFormatter} />
           <Tooltip
             formatter={dataMode === 'NET' ? tooltipFormatterLongShort : tooltipFormatterCurrency}
             labelFormatter={tooltipFormatterDate}
@@ -339,6 +325,7 @@ export default function Hlp(props: any) {
                 stroke={BRIGHT_GREEN}
                 dataKey='cumulativePnl'
                 name='Cumulative PnL'
+                dot={false}
               />
               <Bar
                 isAnimationActive={false}

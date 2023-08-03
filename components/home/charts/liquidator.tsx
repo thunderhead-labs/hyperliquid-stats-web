@@ -300,22 +300,15 @@ export default function LiquidatorChart(props: any) {
     return [-1 * Math.abs(maxCumulativePnl) * 1.1, Math.abs(maxCumulativePnl) * 1.1];
   };
 
-  const coinSelectors = createCoinSelectors(
-    coinKeys,
-    coinsSelected,
-    setCoinsSelected,
-    formatData
-  );
+  const coinSelectors = createCoinSelectors(coinKeys, coinsSelected, setCoinsSelected, formatData);
 
   return (
     <ChartWrapper
       title='Liquidations'
       loading={loading}
-      data={dataModeToData(dataMode)}
       controls={controls}
       zIndex={7}
-      coinSelectors={dataMode === 'COINS' ? coinSelectors : null}
-      isMobile={isMobile}
+      coinSelectors={dataMode === 'COINS' ? coinSelectors : undefined}
     >
       <ResponsiveContainer width='100%' height={CHART_HEIGHT}>
         <ComposedChart data={dataModeToData(dataMode)} syncId='liquidatorSync'>
@@ -324,7 +317,7 @@ export default function LiquidatorChart(props: any) {
             dataKey='time'
             tickFormatter={xAxisFormatter}
             minTickGap={30}
-            tick={{ fill: '#f9f9f9', fontSize: isMobile ? 14 : 15 }}
+            tick={{ fill: '#f9f9f9' }}
             tickMargin={10}
           />
           <Tooltip
@@ -395,7 +388,7 @@ export default function LiquidatorChart(props: any) {
                 tickCount={7}
                 tickFormatter={yaxisFormatter}
                 width={70}
-                tick={{ fill: '#f9f9f9', fontSize: isMobile ? 14 : 15 }}
+                tick={{ fill: '#f9f9f9' }}
               />
               <YAxis
                 orientation='right'
@@ -403,7 +396,7 @@ export default function LiquidatorChart(props: any) {
                 dataKey={'cumulative'}
                 tickFormatter={yaxisFormatter}
                 width={YAXIS_WIDTH}
-                tick={{ fill: '#f9f9f9', fontSize: isMobile ? 14 : 15 }}
+                tick={{ fill: '#f9f9f9' }}
               />
               <Line
                 isAnimationActive={false}
@@ -424,7 +417,7 @@ export default function LiquidatorChart(props: any) {
                 width={70}
                 tickFormatter={yaxisFormatter}
                 domain={pnlYDomain()}
-                tick={{ fill: '#f9f9f9', fontSize: isMobile ? 14 : 15 }}
+                tick={{ fill: '#f9f9f9' }}
               />
               <YAxis
                 orientation='right'
@@ -432,7 +425,7 @@ export default function LiquidatorChart(props: any) {
                 tickFormatter={yaxisFormatter}
                 domain={cumulativePnlYDomain()}
                 width={YAXIS_WIDTH}
-                tick={{ fill: '#f9f9f9', fontSize: isMobile ? 14 : 15 }}
+                tick={{ fill: '#f9f9f9' }}
               />
               <Bar
                 isAnimationActive={false}

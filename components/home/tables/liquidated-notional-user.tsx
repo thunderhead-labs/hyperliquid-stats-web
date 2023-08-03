@@ -17,7 +17,6 @@ import {
 import { largest_liquidated_notional_by_user } from '../../../constants/api';
 import { formatNumberWithOptions } from '../../../helpers/index';
 import { useRequest } from '@/hooks/useRequest';
-import ChartWrapper from '../../common/chartWrapper';
 import { formatAddress } from '../../../utils/formatting';
 
 const REQUESTS = [largest_liquidated_notional_by_user];
@@ -56,12 +55,11 @@ export default function TableComponent() {
     page,
     canPreviousPage,
     canNextPage,
-    pageOptions,
     pageCount,
     gotoPage,
     nextPage,
     previousPage,
-    state: { pageIndex, pageSize },
+    state: { pageIndex },
   } = useTable(
     {
       columns,
@@ -72,7 +70,14 @@ export default function TableComponent() {
   );
 
   return (
-    <ChartWrapper>
+    <Box
+      position='relative'
+      marginTop={3}
+      p={{ xs: '2', md: '4 9 4 4' }}
+      bg='#0f2e29'
+      boxShadow='0px 0px 7px rgb(0 0 0 / 20%)'
+      borderRadius={{ xs: '0', md: '2xl' }}
+    >
       <Box w='100%' mx='2' display='flex' justifyContent={'space-between'}>
         <Text fontSize='lg' fontWeight='semibold'>
           Largest Liquidated Users By USD
@@ -143,6 +148,6 @@ export default function TableComponent() {
           Page: {pageIndex + 1} / {pageCount} | Results: {dataLargestLiquidatedNotional.length}
         </Box>
       </Flex>
-    </ChartWrapper>
+    </Box>
   );
 }

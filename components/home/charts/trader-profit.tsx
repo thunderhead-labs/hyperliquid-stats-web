@@ -13,7 +13,7 @@ import {
 } from 'recharts';
 import { sortBy, maxBy, minBy } from 'lodash';
 import { useRequest } from '@/hooks/useRequest';
-import { Box, Text, useMediaQuery } from '@chakra-ui/react';
+import { Box, Text } from '@chakra-ui/react';
 import { cumulative_user_pnl, user_pnl } from '../../../constants/api';
 import ChartWrapper from '../../common/chartWrapper';
 import { CHART_HEIGHT, YAXIS_WIDTH, BRIGHT_GREEN, GREEN, RED } from '../../../constants';
@@ -101,12 +101,7 @@ export default function TradersProfitLossChart(props: any) {
   }, [loading, error]);
 
   return (
-    <ChartWrapper
-      title='Traders Net PnL'
-      loading={loading}
-      data={data ? data.data : []}
-      isMobile={isMobile}
-    >
+    <ChartWrapper title='Traders Net PnL' loading={loading}>
       <ResponsiveContainer width='100%' height={CHART_HEIGHT}>
         <ComposedChart data={data ? data.data : []}>
           <CartesianGrid strokeDasharray='15 15' opacity={0.1} />
@@ -114,7 +109,7 @@ export default function TradersProfitLossChart(props: any) {
             dataKey='timestamp'
             tickFormatter={xAxisFormatter}
             minTickGap={30}
-            tick={{ fill: '#f9f9f9', fontSize: isMobile ? 14 : 15 }}
+            tick={{ fill: '#f9f9f9' }}
             tickMargin={10}
           />
           <YAxis
@@ -123,13 +118,13 @@ export default function TradersProfitLossChart(props: any) {
             yAxisId='right'
             tickFormatter={yaxisFormatter}
             width={YAXIS_WIDTH}
-            tick={{ fill: '#f9f9f9', fontSize: isMobile ? 14 : 15 }}
+            tick={{ fill: '#f9f9f9' }}
           />
           <YAxis
             domain={[-data?.stats.maxAbsPnl * 1.1, data?.stats.maxAbsPnl * 1.1]}
             tickFormatter={yaxisFormatter}
             width={YAXIS_WIDTH}
-            tick={{ fill: '#f9f9f9', fontSize: isMobile ? 14 : 15 }}
+            tick={{ fill: '#f9f9f9' }}
           />
           <Tooltip
             formatter={tooltipFormatterCurrency}

@@ -1,3 +1,4 @@
+import { useIsMobile } from '@/hooks/useIsMobile';
 import { ChevronDownIcon } from '@chakra-ui/icons';
 import {
   Box,
@@ -10,7 +11,6 @@ import {
   MenuList,
   MenuItemOption,
   MenuOptionGroup,
-  useMediaQuery,
   Grid,
 } from '@chakra-ui/react';
 
@@ -32,9 +32,19 @@ const Loader = () => (
   </Box>
 );
 
-function ChartWrapper(props: any) {
-  let isMobile = props.isMobile;
-  const { title, loading, controls, zIndex, coinSelectors } = props;
+type Props = {
+  title: string;
+  loading: boolean;
+  controls?: {
+    toggles: Toggle[];
+  };
+  zIndex?: number;
+  coinSelectors?: CoinSelector[];
+  children?: React.ReactNode;
+};
+
+function ChartWrapper({ title, loading, controls, zIndex, coinSelectors, children }: Props) {
+  const isMobile = useIsMobile();
   const controlButtons =
     controls &&
     controls.toggles &&
@@ -51,6 +61,64 @@ function ChartWrapper(props: any) {
         </Button>
       );
     });
+
+  const coinSelectorsMenu = coinSelectors && (
+    <Box
+      w={{ xs: '100%', md: '100%' }}
+      display='flex'
+      justifyContent={{ xs: 'flex-start', md: 'flex-end' }}
+      mb='1rem'
+    >
+      <Menu closeOnSelect={false} preventOverflow={true}>
+        <MenuButton
+          as={Button}
+          rightIcon={<ChevronDownIcon />}
+          variant='primary'
+          fontSize={'14px'}
+          size='sm'
+        >
+          Select coins
+        </MenuButton>
+        <MenuList
+          minWidth='100px'
+          maxHeight='300px'
+          overflowY='auto'
+          css={{
+            '&::-webkit-scrollbar': {
+              width: '4px',
+            },
+            '&::-webkit-scrollbar-track': {
+              width: '6px',
+            },
+            '&::-webkit-scrollbar-thumb': {
+              background: '#FFF',
+              borderRadius: '24px',
+            },
+          }}
+        >
+          <MenuOptionGroup
+            type='checkbox'
+            value={coinSelectors
+              .filter((coinSelector: CoinSelector) => coinSelector.isChecked)
+              .map((coinSelector: CoinSelector) => coinSelector.name)}
+          >
+            {coinSelectors.map((coinSelector: CoinSelector, index: number) => {
+              return (
+                <MenuItemOption
+                  value={coinSelector.name}
+                  key={`toggle-chart-${index}`}
+                  onClick={() => coinSelector.event()}
+                  isChecked={coinSelector.isChecked}
+                >
+                  {coinSelector.name}
+                </MenuItemOption>
+              );
+            })}
+          </MenuOptionGroup>
+        </MenuList>
+      </Menu>
+    </Box>
+  );
 
   return (
     <Box display='grid' width={{ xs: '100%', md: '100%' }} mt='3' p={{ xs: '0', md: '0 5 0 0' }}>
@@ -69,6 +137,7 @@ function ChartWrapper(props: any) {
             display='flex'
             justifyContent='space-between'
             flexDirection={{ xs: 'column', md: 'row' }}
+            gap={4}
           >
             <Text
               display='flex'
@@ -79,84 +148,28 @@ function ChartWrapper(props: any) {
             >
               {title}
             </Text>
-            {controls && (
-              <Box
-                w={{ xs: '100%', md: '100%' }}
-                display='flex'
-                justifyContent={{ xs: 'flex-start', md: 'center' }}
-                mb='1rem'
-              >
-                {isMobile ? (
-                  <Grid templateColumns='1fr' gap='2'>
-                    {controlButtons}
-                  </Grid>
-                ) : (
+            <Box
+              w={{ xs: '100%', md: '100%' }}
+              display='flex'
+              justifyContent={{ xs: 'flex-start', md: 'center' }}
+              mb='1rem'
+            >
+              {isMobile ? (
+                <Grid templateColumns='1fr 1fr' gap='2'>
+                  {controlButtons}
+                  {coinSelectorsMenu}
+                </Grid>
+              ) : (
+                <>
                   <ButtonGroup isAttached={true}>{controlButtons}</ButtonGroup>
-                )}
-              </Box>
-            )}
-            {coinSelectors && (
-              <Box
-                w={{ xs: '100%', md: '100%' }}
-                display='flex'
-                justifyContent={{ xs: 'flex-start', md: 'flex-end' }}
-                mb='1rem'
-              >
-                <Menu closeOnSelect={false} preventOverflow={true}>
-                  <MenuButton
-                    as={Button}
-                    rightIcon={<ChevronDownIcon />}
-                    variant='primary'
-                    fontSize={'14px'}
-                    size='sm'
-                  >
-                    Select coins
-                  </MenuButton>
-                  <MenuList
-                    minWidth='100px'
-                    maxHeight='300px'
-                    overflowY='auto'
-                    css={{
-                      '&::-webkit-scrollbar': {
-                        width: '4px',
-                      },
-                      '&::-webkit-scrollbar-track': {
-                        width: '6px',
-                      },
-                      '&::-webkit-scrollbar-thumb': {
-                        background: '#FFF',
-                        borderRadius: '24px',
-                      },
-                    }}
-                  >
-                    <MenuOptionGroup
-                      type='checkbox'
-                      defaultValue={coinSelectors}
-                      value={coinSelectors
-                        .filter((coinSelector: CoinSelector) => coinSelector.isChecked)
-                        .map((coinSelector: CoinSelector) => coinSelector.name)}
-                    >
-                      {coinSelectors.map((coinSelector: CoinSelector, index: number) => {
-                        return (
-                          <MenuItemOption
-                            value={coinSelector.name}
-                            key={`toggle-chart-${index}`}
-                            onClick={() => coinSelector.event()}
-                            isChecked={coinSelector.isChecked}
-                          >
-                            {coinSelector.name}
-                          </MenuItemOption>
-                        );
-                      })}
-                    </MenuOptionGroup>
-                  </MenuList>
-                </Menu>
-              </Box>
-            )}
+                  {coinSelectorsMenu}
+                </>
+              )}
+            </Box>
           </Box>
         </Box>
         {loading && <Loader />}
-        {props.children}
+        {children}
       </Box>
     </Box>
   );

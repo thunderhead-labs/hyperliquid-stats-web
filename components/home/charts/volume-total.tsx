@@ -12,8 +12,8 @@ import {
 import { useEffect, useState } from 'react';
 import { useRequest } from '@/hooks/useRequest';
 
-import { Box, Text, useMediaQuery } from '@chakra-ui/react';
-import ChartWrapper, { CoinSelector } from '../../common/chartWrapper';
+import { Box, Text } from '@chakra-ui/react';
+import ChartWrapper from '../../common/chartWrapper';
 import { BRIGHT_GREEN, CHART_HEIGHT, YAXIS_WIDTH } from '../../../constants';
 import {
   yaxisFormatter,
@@ -28,9 +28,7 @@ import { getTokenColor, initialTokensSelectedWithOther } from '@/constants/token
 
 const REQUESTS = [total_volume];
 
-export default function TotalVolumeChart(props: any) {
-  const isMobile = props.isMobile;
-
+export default function TotalVolumeChart() {
   const [formattedData, setFormattedData] = useState<any[]>([]);
   const [coinsSelected, setCoinsSelected] = useState<string[]>(initialTokensSelectedWithOther);
   const [coins, setCoins] = useState<string[]>([]);
@@ -118,21 +116,10 @@ export default function TotalVolumeChart(props: any) {
     }
   }, [loading, error]);
 
-  const coinSelectors = createCoinSelectors(
-    coins,
-    coinsSelected,
-    setCoinsSelected,
-    formatData
-  );
+  const coinSelectors = createCoinSelectors(coins, coinsSelected, setCoinsSelected, formatData);
 
   return (
-    <ChartWrapper
-      title='Total Volume'
-      loading={loading}
-      data={formattedData}
-      isMobile={isMobile}
-      coinSelectors={coinSelectors}
-    >
+    <ChartWrapper title='Total Volume' loading={loading} coinSelectors={coinSelectors}>
       <ResponsiveContainer width='99%' height={CHART_HEIGHT}>
         <ComposedChart data={formattedData}>
           <CartesianGrid strokeDasharray='15 15' opacity={0.1} />
@@ -140,7 +127,7 @@ export default function TotalVolumeChart(props: any) {
             dataKey='time'
             tickFormatter={xAxisFormatter}
             minTickGap={30}
-            tick={{ fill: '#f9f9f9', fontSize: isMobile ? 14 : 15 }}
+            tick={{ fill: '#f9f9f9' }}
             tickMargin={10}
           />
           <YAxis
@@ -149,7 +136,7 @@ export default function TotalVolumeChart(props: any) {
             tickCount={7}
             tickFormatter={yaxisFormatter}
             width={70}
-            tick={{ fill: '#f9f9f9', fontSize: isMobile ? 14 : 15 }}
+            tick={{ fill: '#f9f9f9' }}
           />
           <YAxis
             dataKey='cumulative'
@@ -157,7 +144,7 @@ export default function TotalVolumeChart(props: any) {
             yAxisId='right'
             tickFormatter={yaxisFormatter}
             width={YAXIS_WIDTH}
-            tick={{ fill: '#f9f9f9', fontSize: isMobile ? 14 : 15 }}
+            tick={{ fill: '#f9f9f9' }}
           />
           <Legend wrapperStyle={{ bottom: -5 }} />
           {coinsSelected.map((coin, i) => {
