@@ -12,16 +12,19 @@ import {
 import { useEffect, useState } from 'react';
 import { Box, Text, useMediaQuery } from '@chakra-ui/react';
 import { useRequest } from '@/hooks/useRequest';
-import ChartWrapper from '../../common/chartWrapper';
+
+import ChartWrapper, { CoinSelector } from '../../common/chartWrapper';
 import { CHART_HEIGHT, YAXIS_WIDTH, BRIGHT_GREEN } from '../../../constants';
 import {
   tooltipFormatter,
-  tooltipLabelFormatter,
+  tooltipFormatterDate,
   xAxisFormatter,
   yaxisFormatterNumber,
   yaxisFormatterPercent,
 } from '../../../helpers';
-import { getTokenHex } from '../../../constants/tokens';
+import { createCoinSelectors } from '../../../helpers/utils';
+
+import { getTokenColor, initialTokensSelectedWithOther } from '../../../constants/tokens';
 import {
   cumulative_new_users,
   daily_unique_users,
@@ -67,8 +70,9 @@ type TempGroupedTradeData = {
 
 const REQUESTS = [cumulative_new_users, daily_unique_users, daily_unique_users_by_coin];
 
-export default function UniqueUsers() {
-  const [isMobile] = useMediaQuery('(max-width: 700px)');
+export default function UniqueUsers(props: any) {
+  const isMobile = props.isMobile;
+  const [coinsSelected, setCoinsSelected] = useState<string[]>(initialTokensSelectedWithOther);
 
   const [formattedData, setFormattedData] = useState<any[]>([]);
   const [coinKeys, setCoinKeys] = useState<any[]>([]);
@@ -91,6 +95,7 @@ export default function UniqueUsers() {
   const error = errorCumulativeNewUsers || errorDailyUniqueUsers || errorDailyUniqueUsersByCoin;
 
   const formatTradesByCoinAndTime = (
+    CoinsSelected: string[],
     dataDailyUniqueUsersByCoin: DailyUniqueUsersByCoin[],
     uniqueUserTradeData: UniqueUserTradeData[],
     dataCumulativeNewUsers: CumulativeNewUsersData[]
@@ -123,15 +128,16 @@ export default function UniqueUsers() {
       }
     );
 
-    const sortAndSliceTop10 = (obj: { [coin: string]: number }) => {
-      const sortedEntries = Object.entries(obj).sort(
-        ([, aVolume], [, bVolume]) => bVolume - aVolume
+    const selectedCoinData = (obj: { [coin: string]: number }) => {
+      const selectedEntries = Object.entries(obj).filter(
+        ([coin]) => CoinsSelected.includes(coin) || coin === 'all'
       );
-      const top10Entries = sortedEntries.slice(0, 10);
-      const otherEntries = sortedEntries.slice(10);
+      const otherEntries = Object.entries(obj).filter(
+        ([coin]) => !CoinsSelected.includes(coin) && coin !== 'all'
+      );
       const otherVolume = otherEntries.reduce((total, [, volume]) => total + volume, 0);
       return {
-        ...Object.fromEntries(top10Entries),
+        ...Object.fromEntries(selectedEntries),
         Other: otherVolume,
       };
     };
@@ -139,56 +145,46 @@ export default function UniqueUsers() {
     return Object.values(temp).map(({ time, coins, ...rest }) => {
       return {
         time: new Date(time),
-        ...sortAndSliceTop10(coins),
+        ...selectedCoinData(coins),
         ...rest,
         unit: '%',
       };
     });
   };
 
-  const extractUniqueCoins = (formattedVolumeData: GroupedTradeData[]): string[] => {
+  const extractUniqueCoins = (CoinData: any): string[] => {
     const coinSet = new Set<string>();
-    for (const data of formattedVolumeData) {
-      Object.keys(data).forEach((coin) => {
-        if (
-          coin !== 'all' &&
-          coin !== 'cumulative' &&
-          coin !== 'time' &&
-          coin !== 'other' &&
-          coin !== 'unit' &&
-          coin !== 'daily_unique_users' &&
-          coin !== 'cumulative_unique_users' &&
-          !coin.includes('daily_unique_users')
-        ) {
-          coinSet.add(coin);
-        }
-      });
+    for (const data of CoinData) {
+      coinSet.add(data.coin);
     }
     const coinsArray = Array.from(coinSet);
-    if (coinsArray.includes('Other')) {
-      const index = coinsArray.indexOf('Other');
-      coinsArray.splice(index, 1);
-      coinsArray.push('Other');
-    }
     return coinsArray;
   };
 
-  const formatData = () => {
+  const formatData = (CoinsSelector: string[]) => {
     const formattedData = formatTradesByCoinAndTime(
+      CoinsSelector,
       dataDailyUniqueUsersByCoin,
       dataDailyUniqueUsers,
       dataCumulativeNewUsers
     );
-    const formattedUniqueCoinKeys = extractUniqueCoins(formattedData);
+    const formattedUniqueCoinKeys = extractUniqueCoins(dataDailyUniqueUsersByCoin);
     setFormattedData(formattedData);
     setCoinKeys(formattedUniqueCoinKeys);
   };
 
   useEffect(() => {
     if (!loading && !error) {
-      formatData();
+      formatData(coinsSelected);
     }
   }, [loading]);
+
+  const coinSelectors = createCoinSelectors(
+    coinKeys,
+    coinsSelected,
+    setCoinsSelected,
+    formatData
+  );
 
   return (
     <ChartWrapper
@@ -196,6 +192,8 @@ export default function UniqueUsers() {
       loading={loading}
       data={formattedData}
       zIndex={8}
+      isMobile={isMobile}
+      coinSelectors={coinSelectors}
     >
       <ResponsiveContainer width='100%' height={CHART_HEIGHT}>
         <ComposedChart data={formattedData}>
@@ -225,7 +223,7 @@ export default function UniqueUsers() {
           />
           <Tooltip
             formatter={tooltipFormatter}
-            labelFormatter={tooltipLabelFormatter}
+            labelFormatter={tooltipFormatterDate}
             contentStyle={{
               textAlign: 'left',
               background: '#0A1F1B',
@@ -239,7 +237,7 @@ export default function UniqueUsers() {
             }}
           />
           <Legend wrapperStyle={{ bottom: -5 }} />
-          {coinKeys.map((coinName, i) => {
+          {coinsSelected.map((coinName, i) => {
             return (
               <Bar
                 unit={''}
@@ -248,7 +246,7 @@ export default function UniqueUsers() {
                 dataKey={`${coinName}`}
                 stackId='a'
                 name={coinName.toString()}
-                fill={getTokenHex(coinName.toString())}
+                fill={getTokenColor(coinName.toString())}
                 key={i}
                 maxBarSize={14}
               />

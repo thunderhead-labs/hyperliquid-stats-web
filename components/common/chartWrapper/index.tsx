@@ -33,7 +33,7 @@ const Loader = () => (
 );
 
 function ChartWrapper(props: any) {
-  const [isMobile] = useMediaQuery('(max-width: 700px)');
+  let isMobile = props.isMobile;
   const { title, loading, controls, zIndex, coinSelectors } = props;
   const controlButtons =
     controls &&
@@ -83,18 +83,15 @@ function ChartWrapper(props: any) {
               <Box
                 w={{ xs: '100%', md: '100%' }}
                 display='flex'
-                justifyContent={{ xs: 'flex-start', md: 'flex-end' }}
-                mt={controls && controls.toggles && controls.toggles.length && '2'}
+                justifyContent={{ xs: 'flex-start', md: 'center' }}
                 mb='1rem'
               >
                 {isMobile ? (
-                  <Grid templateColumns='1fr 1fr' gap='2'>
+                  <Grid templateColumns='1fr' gap='2'>
                     {controlButtons}
                   </Grid>
                 ) : (
-                  <ButtonGroup isAttached={true}>
-                    {controlButtons}
-                  </ButtonGroup>
+                  <ButtonGroup isAttached={true}>{controlButtons}</ButtonGroup>
                 )}
               </Box>
             )}
@@ -111,7 +108,7 @@ function ChartWrapper(props: any) {
                     rightIcon={<ChevronDownIcon />}
                     variant='primary'
                     fontSize={'14px'}
-                    fontWeight={'bold'}
+                    size='sm'
                   >
                     Select coins
                   </MenuButton>

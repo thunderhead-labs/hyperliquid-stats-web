@@ -12,7 +12,7 @@ import {
 import { useEffect, useState } from 'react';
 import { Box, Text, useMediaQuery } from '@chakra-ui/react';
 import { useRequest } from '@/hooks/useRequest';
-import ChartWrapper from '../../common/chartWrapper';
+import ChartWrapper, { CoinSelector } from '../../common/chartWrapper';
 import {
   CHART_HEIGHT,
   YAXIS_WIDTH,
@@ -26,7 +26,9 @@ import {
   yaxisFormatter,
   xAxisFormatter,
 } from '../../../helpers';
-import { getTokenHex } from '../../../constants/tokens';
+import { createCoinSelectors } from '../../../helpers/utils';
+
+import { getTokenColor, initialTokensSelectedWithOther } from '../../../constants/tokens';
 import {
   cumulative_usd_volume,
   daily_usd_volume,
@@ -43,11 +45,13 @@ const REQUESTS = [
   daily_usd_volume_by_user,
 ];
 
-export default function RetailVolumeChart() {
-  const [isMobile] = useMediaQuery('(max-width: 700px)');
+export default function RetailVolumeChart(props: any) {
+  const isMobile = props.isMobile;
+
   const [dataMode, setDataMode] = useState<'COINS' | 'MARGIN'>('COINS');
   const [formattedDataCoins, setFormattedDataCoins] = useState<any[]>([]);
   const [formattedDataMargin, setFormattedDataMargin] = useState<any[]>([]);
+  const [coinsSelected, setCoinsSelected] = useState<string[]>(initialTokensSelectedWithOther);
   const [coinKeys, setCoinKeys] = useState<any[]>([]);
   const [dataCumulativeUsdVolume, loadingCumulativeUsdVolume, errorCumulativeUsdVolume] =
     useRequest(REQUESTS[0], [], 'chart_data');
@@ -107,6 +111,7 @@ export default function RetailVolumeChart() {
   type FormattedVolumeData = any[]; //{ time: string, all: number, [coin: string]: number };
 
   const formatVolumeByCoins = (
+    CoinsSelected: string[],
     dataDailyUsdVolumeByCoin: VolumeData[],
     formattedCumulativeUsdVolume: { [key: string]: number },
     formattedDailyVolumeByTime: { [key: string]: number }
@@ -120,25 +125,25 @@ export default function RetailVolumeChart() {
       temp[data.time].all += data.daily_usd_volume;
     }
 
-    const sortAndSliceTop10 = (obj: { [coin: string]: number }) => {
-      const sortedEntries = Object.entries(obj).sort(
-        ([, aVolume], [, bVolume]) => bVolume - aVolume
+    const selectedCoinData = (obj: { [coin: string]: number }) => {
+      const selectedEntries = Object.entries(obj).filter(
+        ([coin]) => CoinsSelected.includes(coin) && coin !== 'all'
       );
-      const top10Entries = sortedEntries.slice(0, 10);
-      const otherEntries = sortedEntries.slice(10);
-
+      const otherEntries = Object.entries(obj).filter(
+        ([coin]) => !CoinsSelected.includes(coin) && coin !== 'all'
+      );
       const otherVolume = otherEntries.reduce((total, [, volume]) => total + volume, 0);
       return {
-        ...Object.fromEntries(top10Entries),
+        ...Object.fromEntries(selectedEntries),
         Other: otherVolume,
       };
     };
 
     const result: any[] = Object.entries(temp).map(([time, volumes]) => {
-      const top10Volumes = sortAndSliceTop10(volumes);
+      const selectedVolumes = selectedCoinData(volumes);
       return {
         time: new Date(time),
-        ...top10Volumes,
+        ...selectedVolumes,
         cumulative: formattedCumulativeUsdVolume[time as any],
         all: formattedDailyVolumeByTime[time as any],
         unit: '$',
@@ -148,20 +153,10 @@ export default function RetailVolumeChart() {
     return result;
   };
 
-  const extractUniqueCoins = (formattedVolumeData: FormattedVolumeData[]): string[] => {
+  const extractUniqueCoins = (formattedVolumeData: VolumeData[]): string[] => {
     const coinSet = new Set<string>();
     for (const data of formattedVolumeData) {
-      Object.keys(data).forEach((coin) => {
-        if (
-          coin !== 'all' &&
-          coin !== 'cumulative' &&
-          coin !== 'time' &&
-          coin !== 'other' &&
-          coin !== 'unit'
-        ) {
-          coinSet.add(coin);
-        }
-      });
+      coinSet.add(data.coin);
     }
     const coinsArray = Array.from(coinSet);
     if (coinsArray.includes('Other')) {
@@ -209,10 +204,11 @@ export default function RetailVolumeChart() {
     return result;
   };
 
-  const formatData = () => {
+  const formatData = (CoinsSelected: string[]) => {
     const formattedCumulativeVolumeByTime = formatCumulativeVolumeByTime(dataCumulativeUsdVolume);
     const formattedDailyVolumeByTime = formatDailyVolumeByTime(dataDailyUsdVolume);
     const formattedVolumeByCoins = formatVolumeByCoins(
+      CoinsSelected,
       dataDailyUsdVolumeByCoin,
       formattedCumulativeVolumeByTime,
       formattedDailyVolumeByTime
@@ -222,7 +218,7 @@ export default function RetailVolumeChart() {
       formattedCumulativeVolumeByTime,
       formattedDailyVolumeByTime
     );
-    setCoinKeys(extractUniqueCoins(formattedVolumeByCoins));
+    setCoinKeys(extractUniqueCoins(dataDailyUsdVolumeByCoin));
     setFormattedDataCoins(formattedVolumeByCoins);
     setFormattedDataMargin(formattedVolumeByCrossed);
   };
@@ -244,9 +240,16 @@ export default function RetailVolumeChart() {
 
   useEffect(() => {
     if (!loading || error) {
-      formatData();
+      formatData(coinsSelected);
     }
   }, [loading, error]);
+
+  const coinSelectors = createCoinSelectors(
+    coinKeys,
+    coinsSelected,
+    setCoinsSelected,
+    formatData
+  );
 
   return (
     <ChartWrapper
@@ -255,6 +258,8 @@ export default function RetailVolumeChart() {
       data={dataMode === 'COINS' ? formattedDataCoins : formattedDataMargin}
       zIndex={9}
       controls={controls}
+      coinSelectors={dataMode === 'COINS' ? coinSelectors : null}
+      isMobile={isMobile}
     >
       <ResponsiveContainer width='100%' height={CHART_HEIGHT}>
         <ComposedChart
@@ -303,7 +308,7 @@ export default function RetailVolumeChart() {
           <Legend wrapperStyle={{ bottom: -5 }} />
           {dataMode === 'COINS' && (
             <>
-              {coinKeys.map((coinName, i) => {
+              {coinsSelected.map((coinName, i) => {
                 return (
                   <Bar
                     unit={''}
@@ -312,7 +317,7 @@ export default function RetailVolumeChart() {
                     dataKey={coinName}
                     stackId='a'
                     name={coinName.toString()}
-                    fill={getTokenHex(coinName.toString())}
+                    fill={getTokenColor(coinName.toString())}
                     key={i}
                     maxBarSize={20}
                   />

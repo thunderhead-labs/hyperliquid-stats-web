@@ -20,8 +20,12 @@ import Liquidity from '../charts/liquidity';
 import HlpExposure from '../charts/hlp';
 import TotalVolumeChart from '../charts/volume-total';
 import UniqueUsers from '../charts/unique-users-coin';
+import { useEffect, useState } from 'react';
+import { useMediaQuery } from '@chakra-ui/react';
 
 const Main = () => {
+  const isMobile = useMediaQuery('(max-width: 700px)');
+
   return (
     <Container
       maxWidth='100%'
@@ -75,35 +79,35 @@ const Main = () => {
           <Box width={{ xs: '100%', md: '100%' }} mt='3' p={{ xs: '2', md: '0 0 0 0' }}>
             <TopStats />
           </Box>
-          <Grid templateColumns={{ xs: '1fr', md: 'repeat(2, 1fr)' }} gap={{ xs: '2', md: '3' }}>
-            <TotalVolumeChart />
-            <OpenInterestChart />
+          <Grid templateColumns={{ xs: '1fr', lg: 'repeat(2, 1fr)' }} gap={{ xs: '2', md: '3' }}>
+            <TotalVolumeChart isMobile={isMobile} />
+            <OpenInterestChart isMobile={isMobile} />
           </Grid>
-          <Grid templateColumns={{ xs: '1fr', md: 'repeat(2, 1fr)' }} gap={{ xs: '2', md: '3' }}>
-            <RetailVolumeChart />
-            <FundingRateChart />
+          <Grid templateColumns={{ xs: '1fr', lg: 'repeat(2, 1fr)' }} gap={{ xs: '2', md: '3' }}>
+            <RetailVolumeChart isMobile={isMobile} />
+            <FundingRateChart isMobile={isMobile} />
           </Grid>
-          <Grid templateColumns={{ xs: '1fr', md: 'repeat(2, 1fr)' }} gap={{ xs: '2', md: '3' }}>
-            <HlpExposure />
-            <CumulativeNotionalLiquidatedChart />
+          <Grid templateColumns={{ xs: '1fr', lg: 'repeat(2, 1fr)' }} gap={{ xs: '2', md: '3' }}>
+            <HlpExposure isMobile={isMobile} />
+            <CumulativeNotionalLiquidatedChart isMobile={isMobile} />
           </Grid>
-          <Grid templateColumns={{ xs: '1fr', md: 'repeat(2, 1fr)' }} gap={{ xs: '2', md: '3' }}>
-            <CumulativeInflowChart />
-            <TradersProfitLossChart />
+          <Grid templateColumns={{ xs: '1fr', lg: 'repeat(2, 1fr)' }} gap={{ xs: '2', md: '3' }}>
+            <CumulativeInflowChart isMobile={isMobile} />
+            <TradersProfitLossChart isMobile={isMobile} />
           </Grid>
-          <Grid templateColumns={{ xs: '1fr', md: 'repeat(2, 1fr)' }} gap={{ xs: '2', md: '3' }}>
-            <Liquidity />
-            <UniqueUsers />
+          <Grid templateColumns={{ xs: '1fr', lg: 'repeat(2, 1fr)' }} gap={{ xs: '2', md: '3' }}>
+            <Liquidity isMobile={isMobile} />
+            <UniqueUsers isMobile={isMobile} />
           </Grid>
-          <Grid templateColumns={{ xs: '1fr', md: 'repeat(2, 1fr)' }} gap={{ xs: '2', md: '3' }}>
-            <CumulativeUsersChart />
-            <VolumeNumTrades />
+          <Grid templateColumns={{ xs: '1fr', lg: 'repeat(2, 1fr)' }} gap={{ xs: '2', md: '3' }}>
+            <CumulativeUsersChart isMobile={isMobile} />
+            <VolumeNumTrades isMobile={isMobile} />
           </Grid>
-          <Grid templateColumns={{ xs: '1fr', md: 'repeat(2, 1fr)' }} gap={{ xs: '2', md: '3' }}>
+          <Grid templateColumns={{ xs: '1fr', lg: 'repeat(2, 1fr)' }} gap={{ xs: '2', md: '3' }}>
             <TableLargestUsers />
             <TableUserDesposits />
           </Grid>
-          <Grid templateColumns={{ xs: '1fr', md: 'repeat(2, 1fr)' }} gap={{ xs: '2', md: '3' }}>
+          <Grid templateColumns={{ xs: '1fr', lg: 'repeat(2, 1fr)' }} gap={{ xs: '2', md: '3' }}>
             <TableLiquidatedNotional />
             <TableTradeCount />
           </Grid>
