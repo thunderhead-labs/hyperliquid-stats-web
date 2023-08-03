@@ -11,7 +11,6 @@ import {
 } from 'recharts';
 import { useEffect, useState } from 'react';
 import { useRequest } from '@/hooks/useRequest';
-import { useIsMobile } from '@/hooks/isMobile';
 import { useMediaQuery } from '@chakra-ui/react';
 import ChartWrapper from '../../common/chartWrapper';
 import { CHART_HEIGHT, YAXIS_WIDTH, BRIGHT_GREEN, GREEN } from '../../../constants';
@@ -26,8 +25,7 @@ import { total_accrued_fees } from '../../../constants/api';
 const REQUESTS = [total_accrued_fees];
 
 export default function Fees() {
-  const [isMobile] = useIsMobile();
-
+  const [isMobile] = useMediaQuery('(max-width: 700px)');
   const [formattedData, setFormattedData] = useState<any[]>([]);
   const [dailyFeesAccrued, loading, error] = useRequest(REQUESTS[0], [], 'chart_data');
 
@@ -70,7 +68,7 @@ export default function Fees() {
   }, [loading, error]);
 
   return (
-    <ChartWrapper title='Fees Accrued' loading={loading} data={formattedData} isMobile={isMobile}>
+    <ChartWrapper title='Fees Accrued' loading={loading} data={formattedData}>
       <ResponsiveContainer width='100%' height={CHART_HEIGHT}>
         <ComposedChart data={formattedData}>
           <CartesianGrid strokeDasharray='15 15' opacity={0.1} />
