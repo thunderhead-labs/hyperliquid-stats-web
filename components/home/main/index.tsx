@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Container, Box, Text, Grid, Flex } from '@chakra-ui/react';
 import TopStats from '../charts/top-stats';
 import RetailVolumeChart from '../charts/retail-volume';
@@ -19,8 +19,17 @@ import Liquidity from '../charts/liquidity';
 import HlpExposure from '../charts/hlp';
 import TotalVolumeChart from '../charts/volume-total';
 import UniqueUsers from '../charts/unique-users-coin';
+import mixpanel from 'mixpanel-browser';
 
 const Main = () => {
+  useEffect(() => {
+    if (process.env.NEXT_PUBLIC_MIXPANEL_TOKEN) {
+      mixpanel.init(process.env.NEXT_PUBLIC_MIXPANEL_TOKEN, {
+        api_host: "https://metrics.hyperliquid.xyz",
+      });
+      mixpanel.track("Stats Loaded");
+    }
+  }, []);
   return (
     <Container
       maxWidth='100%'

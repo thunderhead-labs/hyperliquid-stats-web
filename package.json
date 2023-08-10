@@ -75,6 +75,7 @@
     "ethers": "^5.7.2",
     "framer-motion": "^10.12.16",
     "lodash": "^4.17.21",
+    "mixpanel-browser": "^2.47.0",
     "moment": "^2.29.4",
     "next": "^13.4.4",
     "polished": "^4.2.2",
@@ -93,6 +94,7 @@
   "devDependencies": {
     "@types/console-log-level": "^1.4.2",
     "@types/lodash": "^4.14.195",
+    "@types/mixpanel-browser": "^2.47.1",
     "@types/moment": "^2.13.0",
     "@types/react-date-range": "^1.4.4",
     "@types/react-gtm-module": "^2.0.1",
