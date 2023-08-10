@@ -236,7 +236,7 @@ export default function Hlp() {
 
   return (
     <ChartWrapper title='HLP' loading={false} controls={controls}>
-      <ResponsiveContainer width='100%' height={CHART_HEIGHT}>
+      <ResponsiveContainer width='99%' height={CHART_HEIGHT}>
         <ComposedChart data={dataMode === 'PNL' ? formattedHlpPnL : formattedData}>
           <CartesianGrid strokeDasharray='15 15' opacity={0.1} />
           <XAxis
@@ -302,6 +302,7 @@ export default function Hlp() {
                 stroke={BRIGHT_GREEN}
                 dataKey='hedged_cumulative_pnl'
                 name='Cumulative PnL'
+                dot={false}
               />
               <Bar
                 isAnimationActive={false}
@@ -356,8 +357,8 @@ export default function Hlp() {
       <Box w='100%' mt='3'>
         {dataMode === 'HEDGED' && (
           <Text color='#bbb'>
-            Hedged PNL over time. Hedge the previous day&apos;s position and add to today&apos;s
-            PNL.
+            Hedge each day&apos;s returns by holding the previous day&apos;s ending positions for
+            each asset.
           </Text>
         )}
       </Box>

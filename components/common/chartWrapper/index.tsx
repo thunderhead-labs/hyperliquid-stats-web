@@ -63,12 +63,7 @@ function ChartWrapper({ title, loading, controls, zIndex, coinSelectors, childre
     });
 
   const coinSelectorsMenu = coinSelectors && (
-    <Box
-      w={{ xs: '100%', md: '100%' }}
-      display='flex'
-      justifyContent={{ xs: 'flex-start', md: 'flex-end' }}
-      mb='1rem'
-    >
+    <Box>
       <Menu closeOnSelect={false} preventOverflow={true}>
         <MenuButton
           as={Button}
@@ -120,8 +115,26 @@ function ChartWrapper({ title, loading, controls, zIndex, coinSelectors, childre
     </Box>
   );
 
+  const menu = (
+    <Box display='flex' padding='0'>
+      <Grid
+        mb='1rem'
+        templateColumns='1fr auto'
+        gap={controls ? '2' : '0'}
+        justifyContent='flex-start'
+      >
+        {isMobile && controls ? (
+          controlButtons
+        ) : (
+          <ButtonGroup isAttached={true}>{controlButtons}</ButtonGroup>
+        )}
+        {coinSelectorsMenu}
+      </Grid>
+    </Box>
+  );
+
   return (
-    <Box display='grid' width={{ xs: '100%', md: '100%' }} mt='3' p={{ xs: '0', md: '0 5 0 0' }}>
+    <Box display='grid' mt='3' p={{ xs: '0', md: '0 5 0 0' }}>
       <Box
         position='relative'
         p={{ xs: '2', md: '4' }}
@@ -130,44 +143,12 @@ function ChartWrapper({ title, loading, controls, zIndex, coinSelectors, childre
         borderRadius={{ xs: '0', md: '2xl' }}
         zIndex={zIndex}
       >
-        <Box w='100%' mb='2'>
-          <Box
-            w='100%'
-            mb='2'
-            display='flex'
-            justifyContent='space-between'
-            flexDirection={{ xs: 'column', md: 'row' }}
-            gap={4}
-          >
-            <Text
-              display='flex'
-              w={{ xs: '100%', md: '100%' }}
-              fontSize='1.2rem'
-              fontWeight='600'
-              whiteSpace={'nowrap'}
-            >
-              {title}
-            </Text>
-            <Box
-              w={{ xs: '100%', md: '100%' }}
-              display='flex'
-              justifyContent={{ xs: 'flex-start', md: 'center' }}
-              mb='1rem'
-            >
-              {isMobile ? (
-                <Grid templateColumns='1fr 1fr' gap='2'>
-                  {controlButtons}
-                  {coinSelectorsMenu}
-                </Grid>
-              ) : (
-                <>
-                  <ButtonGroup isAttached={true}>{controlButtons}</ButtonGroup>
-                  {coinSelectorsMenu}
-                </>
-              )}
-            </Box>
-          </Box>
-        </Box>
+        <Grid gridTemplateColumns={{ xs: '1fr', xl: '1fr auto' }} gap={4}>
+          <Text fontSize='1.2rem' fontWeight='600' whiteSpace={'nowrap'}>
+            {title}
+          </Text>
+          {menu}
+        </Grid>
         {loading && <Loader />}
         {children}
       </Box>
