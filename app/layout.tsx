@@ -3,8 +3,9 @@ import theme from '../styles/theme';
 import { Providers } from './providers';
 
 export const metadata = {
-  title: 'Hyperliquid Stats',
-  description: 'Explore the Hyperliquid protocol’s statistics',
+  title: 'Hyperliquid stats',
+  description:
+    'Stats dashboard for Hyperliquid, a decentralized perpetual futures exchange on its own L1. Metrics include volume, users, open interest, funding rate, vault pnl, trader pnl, liquidations, inflows, outflows, and more.',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
