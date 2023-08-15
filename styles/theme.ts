@@ -1,5 +1,4 @@
 import { extendTheme, ThemeConfig } from '@chakra-ui/react';
-import { createBreakpoints } from '@chakra-ui/theme-tools';
 import Button from './components/button';
 import Progress from './components/progress';
 import Text from './components/text';
@@ -8,8 +7,7 @@ import Drawer from './components/drawer';
 import Input from './components/input';
 import Tooltip from './components/tooltip';
 import Alert from './components/alert';
-import { tabsTheme } from "./components/tabs";
-
+import { tabsTheme } from './components/tabs';
 
 const config: ThemeConfig = {
   initialColorMode: 'dark',
@@ -21,7 +19,7 @@ const breakpoints = {
   sm: '576px',
   md: '768px',
   lg: '992px',
-  xl: '1500px',
+  xl: '1400px',
   xxl: '2400px',
 };
 
@@ -68,6 +66,6 @@ const baseTheme = extendTheme({
   },
 });
 
-export const theme =  extendTheme(baseTheme)
+export const theme = extendTheme(baseTheme);
 
 export default baseTheme;

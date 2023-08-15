@@ -1,8 +1,10 @@
-export const CHART_HEIGHT = 400
-export const YAXIS_WIDTH = 60
+export const CHART_HEIGHT = 400;
+export const YAXIS_WIDTH = 60;
 
-export const GREEN = '#62B143'
-export const RED = '#DC0428'
+export const GREEN = '#62B143';
+export const RED = '#DC0428';
+export const ORANGE = '#ffa500';
+export const BLUE = '#008ECC';
 export const BRIGHT_GREEN = '#97ffe4';
 export const BRAND_GREEN_2 = '#4E8174';
 export const BRAND_GREEN_3 = '#72BDAB';

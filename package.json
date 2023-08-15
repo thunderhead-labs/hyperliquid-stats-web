@@ -5,7 +5,56 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "npx eslint . --fix",
+    "prettify": "npx prettier --write ."
+  },
+  "eslintConfig": {
+    "plugins": [
+      "react",
+      "@typescript-eslint"
+    ],
+    "extends": [
+      "react-app",
+      "react-app/jest",
+      "eslint:recommended",
+      "plugin:react/recommended",
+      "plugin:@typescript-eslint/recommended"
+    ],
+    "rules": {
+      "no-var": "warn",
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        {
+          "vars": "all",
+          "args": "all",
+          "ignoreRestSiblings": false,
+          "argsIgnorePattern": "^_"
+        }
+      ],
+      "@typescript-eslint/naming-convention": [
+        "error",
+        {
+          "selector": "parameter",
+          "format": [
+            "camelCase"
+          ],
+          "leadingUnderscore": "allow"
+        }
+      ]
+    },
+    "ignorePatterns": [
+      "build/**"
+    ],
+    "overrides": [
+      {
+        "files": [
+          "**/*.stories.*"
+        ],
+        "rules": {
+          "import/no-anonymous-default-export": "off"
+        }
+      }
+    ]
   },
   "dependencies": {
     "@chakra-ui/icons": "^2.0.19",
@@ -14,19 +63,23 @@
     "@emotion/react": "^11.11.0",
     "@emotion/styled": "^11.11.0",
     "@svgr/webpack": "^8.0.1",
+    "@types/crypto-js": "^4.1.1",
     "@types/node": "20.2.5",
     "@types/react": "18.2.7",
     "@types/react-dom": "18.2.4",
     "@types/strftime": "^0.9.4",
     "axios": "^1.4.0",
+    "crypto-js": "^4.1.1",
     "eslint": "8.41.0",
     "eslint-config-next": "13.4.4",
     "ethers": "^5.7.2",
     "framer-motion": "^10.12.16",
     "lodash": "^4.17.21",
+    "mixpanel-browser": "^2.47.0",
     "moment": "^2.29.4",
-    "next": "13.4.4",
+    "next": "^13.4.4",
     "polished": "^4.2.2",
+    "prettier": "^3.0.0",
     "react": "18.2.0",
     "react-date-range": "^1.4.0",
     "react-dom": "18.2.0",
@@ -41,6 +94,7 @@
   "devDependencies": {
     "@types/console-log-level": "^1.4.2",
     "@types/lodash": "^4.14.195",
+    "@types/mixpanel-browser": "^2.47.1",
     "@types/moment": "^2.13.0",
     "@types/react-date-range": "^1.4.4",
     "@types/react-gtm-module": "^2.0.1",
