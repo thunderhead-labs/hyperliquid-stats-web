@@ -356,9 +356,9 @@ export default function RetailVolumeChart(props: any) {
         </ComposedChart>
       </ResponsiveContainer>
       <Box w='100%' mt='3'>
-        {dataMode === 'COINS' && (
-          <Text color='#bbb'>Top 10 Coins grouped daily and remaining coins grouped by Other</Text>
-        )}
+        <Text color='#bbb'>
+          This measures two-sided volume, i.e. each side of a trade is counted once if that side is retail.
+        </Text>
       </Box>
     </ChartWrapper>
   );
