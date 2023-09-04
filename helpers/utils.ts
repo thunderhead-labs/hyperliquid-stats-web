@@ -11,31 +11,44 @@ export const createCoinSelectors = (
   coinKeys: string[],
   coinsSelected: string[],
   setCoinsSelected: (arg: string[]) => any,
-  formatData: ((arg: string[]) => any) | (() => any)
+  formatData: ((arg: string[]) => any) | (() => any),
+  noOtherOption?: boolean
 ) => {
-  return coinKeys
-    .map((coinKey: string) => {
-      return {
-        name: coinKey,
-        event: () => {
-          let newCoinsSelected = coinsSelected;
-          if (coinsSelected.includes(coinKey)) {
-            newCoinsSelected = coinsSelected.filter((e) => {
-              return e !== coinKey;
-            });
-          } else {
-            newCoinsSelected.push(coinKey);
-          }
+  const emptySelection = noOtherOption ? [] : ['Other'];
+  const deselectAll = {
+    name: 'Deselect All',
+    event: () => {
+      setCoinsSelected(emptySelection);
+    },
+    isChecked: coinsSelected.length === 0,
+  };
+
+  const coinSelectors = coinKeys.map((coinKey: string) => {
+    return {
+      name: coinKey,
+      event: () => {
+        let newCoinsSelected = [...coinsSelected];
+        if (coinsSelected.includes(coinKey)) {
+          newCoinsSelected = newCoinsSelected.filter((e) => e !== coinKey);
+        } else {
+          newCoinsSelected.push(coinKey);
+        }
+
+        if (typeof formatData === 'function') {
           if (formatData.length > 0) {
             formatData(newCoinsSelected);
           } else {
             const noArgsFormatData = formatData as () => any;
             noArgsFormatData();
           }
-          setCoinsSelected(newCoinsSelected);
-        },
-        isChecked: coinsSelected.includes(coinKey),
-      };
-    })
-    .sort((a: CoinSelector, b: CoinSelector) => coinSelectorsSort(a, b));
+        }
+        setCoinsSelected(newCoinsSelected);
+      },
+      isChecked: coinsSelected.includes(coinKey),
+    };
+  });
+
+  const sortedCoinSelectors = coinSelectors.sort((a, b) => coinSelectorsSort(a, b));
+
+  return [deselectAll, ...sortedCoinSelectors];
 };

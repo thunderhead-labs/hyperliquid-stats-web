@@ -45,9 +45,7 @@ const REQUESTS = [
   daily_usd_volume_by_user,
 ];
 
-export default function RetailVolumeChart(props: any) {
-  const isMobile = props.isMobile;
-
+export default function RetailVolumeChart() {
   const [dataMode, setDataMode] = useState<'COINS' | 'MARGIN'>('COINS');
   const [formattedDataCoins, setFormattedDataCoins] = useState<any[]>([]);
   const [formattedDataMargin, setFormattedDataMargin] = useState<any[]>([]);
@@ -358,7 +356,8 @@ export default function RetailVolumeChart(props: any) {
       </ResponsiveContainer>
       <Box w='100%' mt='3'>
         <Text color='#bbb'>
-          This measures two-sided volume, i.e. each side of a trade is counted once if that side is retail.
+          This measures two-sided volume, i.e. each side of a trade is counted once if that side is
+          retail.
         </Text>
       </Box>
     </ChartWrapper>

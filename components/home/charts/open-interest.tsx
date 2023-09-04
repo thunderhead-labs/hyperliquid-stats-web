@@ -15,20 +15,20 @@ import ChartWrapper, { CoinSelector } from '../../common/chartWrapper';
 import { BRIGHT_GREEN, CHART_HEIGHT, GREEN, YAXIS_WIDTH } from '../../../constants';
 import {
   xAxisFormatter,
-  tooltipLabelFormatter,
   yaxisFormatter,
   tooltipFormatterCurrency,
   tooltipFormatterDate,
 } from '../../../helpers';
 
-import { getTokenColor } from '../../../constants/tokens';
+import { getTokenColor, initialTokensSelectedWithOther } from '../../../constants/tokens';
 import { open_interest } from '../../../constants/api';
+import { createCoinSelectors } from '@/helpers/utils';
 
 const REQUESTS = [open_interest];
 
-export default function VolumeChart(props: any) {
-  const isMobile = props.isMobile;
-  const [coinKeys, setCoinKeys] = useState<any[]>([]);
+export default function OpenInterestChart() {
+  const [coins, setCoins] = useState<any[]>([]);
+  const [coinsSelected, setCoinsSelected] = useState<string[]>(initialTokensSelectedWithOther);
 
   const [formattedData, setFormattedData] = useState<any[]>([]);
   const [dataOpenInterest, loadingOpenInterest, errorOpenInterest] = useRequest(
@@ -48,75 +48,51 @@ export default function VolumeChart(props: any) {
     [key: string]: number | Date | string;
   };
 
-  const groupByTime = (data: OpenInterestData[]): GroupedOpenInterestData[] => {
+  const groupByTime = (data: OpenInterestData[]): [GroupedOpenInterestData[], string[]] => {
     const map = new Map<string, any>();
     const totalOpenInterestMap = new Map<string, number>();
+    const uniqueCoins = new Set<string>();
 
     data.forEach((item) => {
       const key = item.time;
       if (!map.has(key)) {
         map.set(key, {
           time: new Date(key),
-          Other: 0, // Initialize the 'Other' property
-          all: 0, // Initialize the 'all' property
-          unit: '$', // Initialize the 'unit' property
+          all: 0,
+          unit: '$',
         });
       }
       const existingEntry = map.get(key);
       existingEntry[item.coin] = (existingEntry[item.coin] || 0) + item.open_interest;
-      existingEntry.all += item.open_interest; // Aggregate total open interest for 'all' property
+      existingEntry.all += item.open_interest;
 
-      // Aggregate total open interest for each coin
       totalOpenInterestMap.set(
         item.coin,
         (totalOpenInterestMap.get(item.coin) || 0) + item.open_interest
       );
     });
 
-    // Get top 10 coins by total open interest
-    const top10Coins = Array.from(totalOpenInterestMap.entries())
-      .sort(([, a], [, b]) => b - a)
-      .slice(0, 10)
-      .map(([coin]) => coin);
-
-    // Filter out the coins that are not in the top 10 and calculate 'Other'
-    return Array.from(map.values()).map((record: any) => {
-      let otherSum = 0;
-      Object.keys(record).forEach((coin) => {
-        if (coin !== 'time' && coin !== 'unit' && coin !== 'all' && !top10Coins.includes(coin)) {
-          // Exclude 'unit' and 'all' from calculations
-          otherSum += record[coin];
-          delete record[coin];
-        }
-      });
-      record.Other = otherSum; // Update 'Other' property with sum of other coins
-      return record as GroupedOpenInterestData;
+    map.forEach((entry) => {
+      const coinEntries = Object.entries(entry).filter(
+        ([key]) =>
+          key !== 'time' &&
+          key !== 'total' &&
+          key !== 'cumulative' &&
+          key !== 'other' &&
+          key !== 'unit' &&
+          key !== 'Other' &&
+          key !== 'all'
+      );
+      coinEntries.forEach(([coin]) => uniqueCoins.add(coin));
     });
-  };
-
-  const extractUniqueCoins = (formattedVolumeData: GroupedOpenInterestData[]): string[] => {
-    const coinSet = new Set<string>();
-    for (const data of formattedVolumeData) {
-      Object.keys(data).forEach((coin) => {
-        if (coin !== 'all' && coin !== 'time' && coin !== 'unit') {
-          coinSet.add(coin);
-        }
-      });
-    }
-    const coinsArray = Array.from(coinSet);
-    if (coinsArray.includes('Other')) {
-      const index = coinsArray.indexOf('Other');
-      coinsArray.splice(index, 1);
-      coinsArray.push('Other');
-    }
-    return coinsArray;
+    const result = Array.from(map.values());
+    return [result, Array.from(uniqueCoins)];
   };
 
   const formatData = () => {
-    const groupedData = groupByTime(dataOpenInterest);
-    const uniqueCoins = extractUniqueCoins(groupedData);
+    const [groupedData, coins] = groupByTime(dataOpenInterest);
+    setCoins(coins);
     setFormattedData(groupedData);
-    setCoinKeys(uniqueCoins.sort());
   };
 
   useEffect(() => {
@@ -125,8 +101,16 @@ export default function VolumeChart(props: any) {
     }
   }, [loading]);
 
+  const coinSelectors = createCoinSelectors(
+    coins,
+    coinsSelected,
+    setCoinsSelected,
+    formatData,
+    true
+  );
+
   return (
-    <ChartWrapper title='Open Interest' loading={loading}>
+    <ChartWrapper title='Open Interest' loading={loading} coinSelectors={coinSelectors}>
       <ResponsiveContainer width='99%' height={CHART_HEIGHT}>
         <LineChart data={formattedData}>
           <CartesianGrid strokeDasharray='15 15' opacity={0.1} />
@@ -161,7 +145,7 @@ export default function VolumeChart(props: any) {
             }}
           />
           <Legend wrapperStyle={{ bottom: -5 }} />
-          {coinKeys.map((coinName, i) => {
+          {coinsSelected.map((coinName, i) => {
             return (
               <Line
                 unit={''}
