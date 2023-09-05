@@ -45,13 +45,12 @@ const REQUESTS = [
   daily_usd_volume_by_user,
 ];
 
-export default function RetailVolumeChart(props: any) {
-  const isMobile = props.isMobile;
-
+export default function RetailVolumeChart() {
   const [dataMode, setDataMode] = useState<'COINS' | 'MARGIN'>('COINS');
   const [formattedDataCoins, setFormattedDataCoins] = useState<any[]>([]);
   const [formattedDataMargin, setFormattedDataMargin] = useState<any[]>([]);
-  const [coinsSelected, setCoinsSelected] = useState<string[]>(initialTokensSelectedWithOther);
+  const initialTokensSelected = [...initialTokensSelectedWithOther, 'Cumulative'];
+  const [coinsSelected, setCoinsSelected] = useState<string[]>(initialTokensSelected);
   const [coinKeys, setCoinKeys] = useState<any[]>([]);
   const [dataCumulativeUsdVolume, loadingCumulativeUsdVolume, errorCumulativeUsdVolume] =
     useRequest(REQUESTS[0], [], 'chart_data');
@@ -144,7 +143,7 @@ export default function RetailVolumeChart(props: any) {
       return {
         time: new Date(time),
         ...selectedVolumes,
-        cumulative: formattedCumulativeUsdVolume[time as any],
+        Cumulative: formattedCumulativeUsdVolume[time as any],
         all: formattedDailyVolumeByTime[time as any],
         unit: '$',
       };
@@ -158,13 +157,7 @@ export default function RetailVolumeChart(props: any) {
     for (const data of formattedVolumeData) {
       coinSet.add(data.coin);
     }
-    const coinsArray = Array.from(coinSet);
-    if (coinsArray.includes('Other')) {
-      const index = coinsArray.indexOf('Other');
-      coinsArray.splice(index, 1);
-      coinsArray.push('Other');
-    }
-
+    const coinsArray = ['Other', 'Cumulative', ...Array.from(coinSet)];
     return coinsArray;
   };
 
@@ -192,11 +185,17 @@ export default function RetailVolumeChart(props: any) {
     }
     // Convert the collected data into an array
     const result: any[] = Object.entries(temp).map((item: any) => {
+      console.log(
+        '1111',
+        formattedCumulativeUsdVolume,
+        formattedCumulativeUsdVolume[item[0]],
+        item[0]
+      );
       return {
         time: new Date(item[0]),
         maker: item[1].maker || 0,
         taker: item[1].taker || 0,
-        cumulative: formattedCumulativeUsdVolume[item[0]],
+        Cumulative: formattedCumulativeUsdVolume[item[0]],
         all: formattedDailyVolumeByTime[item[0]],
         unit: '$',
       };
@@ -244,8 +243,15 @@ export default function RetailVolumeChart(props: any) {
     }
   }, [loading, error]);
 
-  const coinSelectors = createCoinSelectors(coinKeys, coinsSelected, setCoinsSelected, formatData);
-
+  const coinSelectors = createCoinSelectors(
+    coinKeys,
+    coinsSelected,
+    setCoinsSelected,
+    formatData,
+    false,
+    'Cumulative'
+  );
+  console.log('***', formattedDataCoins);
   return (
     <ChartWrapper
       title='Retail Volume'
@@ -268,17 +274,8 @@ export default function RetailVolumeChart(props: any) {
             tickMargin={10}
           />
           <YAxis
-            dataKey='all'
             interval='preserveStartEnd'
             tickCount={7}
-            tickFormatter={yaxisFormatter}
-            width={YAXIS_WIDTH}
-            tick={{ fill: '#f9f9f9' }}
-          />
-          <YAxis
-            dataKey='cumulative'
-            orientation='right'
-            yAxisId='right'
             tickFormatter={yaxisFormatter}
             width={YAXIS_WIDTH}
             tick={{ fill: '#f9f9f9' }}
@@ -303,19 +300,21 @@ export default function RetailVolumeChart(props: any) {
           {dataMode === 'COINS' && (
             <>
               {coinsSelected.map((coinName, i) => {
-                return (
-                  <Bar
-                    unit={''}
-                    isAnimationActive={false}
-                    type='monotone'
-                    dataKey={coinName}
-                    stackId='a'
-                    name={coinName.toString()}
-                    fill={getTokenColor(coinName.toString())}
-                    key={i}
-                    maxBarSize={20}
-                  />
-                );
+                if (coinName !== 'Cumulative') {
+                  return (
+                    <Bar
+                      unit={''}
+                      isAnimationActive={false}
+                      type='monotone'
+                      dataKey={coinName}
+                      stackId='a'
+                      name={coinName.toString()}
+                      fill={getTokenColor(coinName.toString())}
+                      key={i}
+                      maxBarSize={20}
+                    />
+                  );
+                }
               })}
             </>
           )}
@@ -343,22 +342,35 @@ export default function RetailVolumeChart(props: any) {
               />
             </>
           )}
-          <Line
-            isAnimationActive={false}
-            type='monotone'
-            dot={false}
-            strokeWidth={1}
-            stroke={BRIGHT_GREEN}
-            dataKey='cumulative'
-            yAxisId='right'
-            opacity={0.7}
-            name='Cumulative'
-          />
+          {coinsSelected.includes('Cumulative') && (
+            <>
+              <YAxis
+                dataKey='Cumulative'
+                orientation='right'
+                yAxisId='right'
+                tickFormatter={yaxisFormatter}
+                width={YAXIS_WIDTH}
+                tick={{ fill: '#f9f9f9' }}
+              />
+              <Line
+                isAnimationActive={false}
+                type='monotone'
+                dot={false}
+                strokeWidth={1}
+                stroke={BRIGHT_GREEN}
+                dataKey='Cumulative'
+                yAxisId='right'
+                opacity={0.7}
+                name='Cumulative'
+              />
+            </>
+          )}
         </ComposedChart>
       </ResponsiveContainer>
       <Box w='100%' mt='3'>
         <Text color='#bbb'>
-          This measures two-sided volume, i.e. each side of a trade is counted once if that side is retail.
+          This measures two-sided volume, i.e. each side of a trade is counted once if that side is
+          retail.
         </Text>
       </Box>
     </ChartWrapper>
