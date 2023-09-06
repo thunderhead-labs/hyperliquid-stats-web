@@ -60,7 +60,11 @@ interface FormatNumberOpts {
   compact?: boolean;
 }
 
-export const formatNumberWithOptions = (value: number, opts: FormatNumberOpts = {}): string => {
+export const formatNumberWithOptions = (
+  value: number,
+  opts: FormatNumberOpts = {},
+  fixedDecimals?: number
+): string => {
   const currency = !!opts.currency;
   const compact = !!opts.compact;
   const sign = value < 0 ? '-' : '';
@@ -71,7 +75,7 @@ export const formatNumberWithOptions = (value: number, opts: FormatNumberOpts = 
   }
 
   const display = compact
-    ? formatNumberToCompactForm(absoluteValue)
+    ? formatNumberToCompactForm(absoluteValue, fixedDecimals)
     : getNumberFormatBasedOnValue(absoluteValue).format(absoluteValue);
 
   if (currency) {
@@ -80,16 +84,16 @@ export const formatNumberWithOptions = (value: number, opts: FormatNumberOpts = 
   return display;
 };
 
-export const formatNumberToCompactForm = (value: number): string => {
+export const formatNumberToCompactForm = (value: number, fixedDecimals?: number): string => {
   const abs = Math.abs(value);
   if (abs >= 1e9) {
-    return `${(value / 1e9).toFixed(abs < 1e10 ? 2 : 1)}B`;
+    return `${(value / 1e9).toFixed(fixedDecimals !== undefined ? 0 : abs < 1e10 ? 2 : 1)}B`;
   }
   if (abs >= 1e6) {
-    return `${(value / 1e6).toFixed(abs < 1e7 ? 2 : 1)}M`;
+    return `${(value / 1e6).toFixed(fixedDecimals !== undefined ? 0 : abs < 1e7 ? 2 : 1)}M`;
   }
   if (abs >= 1e3) {
-    return `${(value / 1e3).toFixed(abs < 1e4 ? 2 : 1)}K`;
+    return `${(value / 1e3).toFixed(fixedDecimals !== undefined ? 0 : abs < 1e4 ? 2 : 1)}K`;
   }
   return `${value.toFixed(1)}`;
 };
@@ -181,7 +185,7 @@ export const yaxisFormatterNumber = (value: number): string => {
 };
 
 export const yaxisFormatter = (value: number): string => {
-  return formatNumberWithOptions(value, { currency: true, compact: true });
+  return formatNumberWithOptions(value, { currency: true, compact: true }, 0);
 };
 
 export const tooltipFormatterNumber = (value: number | string): string => {
