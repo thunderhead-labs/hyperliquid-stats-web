@@ -44,7 +44,7 @@ export default function TotalVolumeChart() {
     time: Date;
     total: number;
     [coin: string]: any;
-    Cumulative: number;
+    cumulative: number;
     unit: string;
     Other: number;
   }
@@ -56,24 +56,28 @@ export default function TotalVolumeChart() {
     const map = new Map<string, MergedData>();
     const uniqueCoins = new Set<string>();
 
-    let Cumulative = 0;
+    let cumulative = 0;
     dataTotalVolume.forEach((item: TotalVolume) => {
       let { time, coin, total_volume } = item;
-      Cumulative += total_volume;
+      if (CoinsSelected.includes(coin) || CoinsSelected.includes('Other')) {
+        cumulative += total_volume;
+      }
       if (!map.has(time)) {
         map.set(time, {
           time: new Date(time),
           total: total_volume,
           [`${coin}`]: total_volume,
-          Cumulative,
+          cumulative,
           Other: 0,
           unit: '$',
         });
       } else {
         const existingEntry = map.get(time)!;
         existingEntry[`${coin}`] = (existingEntry[`${coin}`] || 0) + total_volume;
-        existingEntry.total += total_volume;
-        existingEntry.Cumulative = Cumulative;
+        if (CoinsSelected.includes(coin) || CoinsSelected.includes('Other')) {
+          existingEntry.total += total_volume;
+        }
+        existingEntry.cumulative = cumulative;
       }
     });
 
@@ -89,7 +93,7 @@ export default function TotalVolumeChart() {
 
       let otherTotal = 0;
       otherCoins.forEach(([key, value]) => {
-        if (key !== 'Cumulative') {
+        if (key !== 'cumulative') {
           otherTotal += value;
         }
       });
@@ -118,7 +122,7 @@ export default function TotalVolumeChart() {
     setCoinsSelected,
     formatData,
     false,
-    'Cumulative'
+    'Other'
   );
 
   return (
@@ -142,45 +146,39 @@ export default function TotalVolumeChart() {
           />
           <Legend wrapperStyle={{ bottom: -5 }} />
           {coinsSelected.map((coin, i) => {
-            if (coin !== 'Cumulative') {
-              return (
-                <Bar
-                  unit={''}
-                  isAnimationActive={false}
-                  type='monotone'
-                  dataKey={coin}
-                  stackId='a'
-                  name={coin.toString()}
-                  fill={getTokenColor(coin.toString())}
-                  key={i}
-                  maxBarSize={20}
-                />
-              );
-            }
-          })}
-          {coinsSelected.includes('Cumulative') && (
-            <>
-              <YAxis
-                dataKey='Cumulative'
-                orientation='right'
-                yAxisId='right'
-                tickFormatter={yaxisFormatter}
-                width={YAXIS_WIDTH}
-                tick={{ fill: '#f9f9f9' }}
-              />
-              <Line
+            return (
+              <Bar
+                unit={''}
                 isAnimationActive={false}
                 type='monotone'
-                dot={false}
-                strokeWidth={1}
-                stroke={BRIGHT_GREEN}
-                dataKey='Cumulative'
-                yAxisId='right'
-                opacity={0.7}
-                name='Cumulative'
+                dataKey={coin}
+                stackId='a'
+                name={coin.toString()}
+                fill={getTokenColor(coin.toString())}
+                key={i}
+                maxBarSize={20}
               />
-            </>
-          )}
+            );
+          })}
+          <YAxis
+            dataKey='cumulative'
+            orientation='right'
+            yAxisId='right'
+            tickFormatter={yaxisFormatter}
+            width={YAXIS_WIDTH}
+            tick={{ fill: '#f9f9f9' }}
+          />
+          <Line
+            isAnimationActive={false}
+            type='monotone'
+            dot={false}
+            strokeWidth={1}
+            stroke={BRIGHT_GREEN}
+            dataKey='cumulative'
+            yAxisId='right'
+            opacity={0.7}
+            name='Cumulative'
+          />
           <Tooltip
             formatter={tooltipFormatterCurrency}
             labelFormatter={(label, args) => tooltipLabelFormatter(label, args, 'total')}

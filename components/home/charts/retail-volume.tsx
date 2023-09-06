@@ -110,23 +110,23 @@ export default function RetailVolumeChart() {
 
   const formatVolumeByCoins = (
     CoinsSelected: string[],
-    dataDailyUsdVolumeByCoin: VolumeData[],
+    dataDailyUsdVolumeByCoin: VolumeData[]
   ): FormattedVolumeData[] => {
-    const temp: { [key: string]: { all: number; [coin: string]: number; } } = {};
-    const cumulativeByTime: { [key: string]: {selected: number; total: number; }} = {};
+    const temp: { [key: string]: { all: number; [coin: string]: number } } = {};
+    const cumulativeByTime: { [key: string]: number } = {};
     let runningSelectedCumulative = 0;
     let runningTotalCumulative = 0;
     for (const data of dataDailyUsdVolumeByCoin) {
       if (!temp[data.time]) {
         temp[data.time] = { all: 0, cumulative: 0 };
       }
-      if (CoinsSelected.includes(data.coin)) {
+      if (CoinsSelected.includes(data.coin) || CoinsSelected.includes('Other')) {
         temp[data.time].all += data.daily_usd_volume;
         runningSelectedCumulative += data.daily_usd_volume;
       }
       temp[data.time][data.coin] = data.daily_usd_volume;
       runningTotalCumulative += data.daily_usd_volume;
-      cumulativeByTime[data.time] = {selected: runningSelectedCumulative, total: runningTotalCumulative}
+      cumulativeByTime[data.time] = runningSelectedCumulative;
     }
 
     const selectedCoinData = (obj: { [coin: string]: number }) => {
@@ -140,18 +140,19 @@ export default function RetailVolumeChart() {
       return {
         ...Object.fromEntries(selectedEntries),
         Other: otherVolume,
-        all: obj.all
+        all: obj.all,
       };
     };
 
     const result: any[] = Object.entries(temp).map(([time, volumes]) => {
       const selectedVolumes = selectedCoinData(volumes);
-      let cumulative = CoinsSelected.includes("Other") ? cumulativeByTime[time].total : cumulativeByTime[time].selected;
-      const all = CoinsSelected.includes("Other") ? selectedVolumes.Other + selectedVolumes.all :  selectedVolumes.all;
+      const all = CoinsSelected.includes('Other')
+        ? selectedVolumes.Other + selectedVolumes.all
+        : selectedVolumes.all;
       return {
         time: new Date(time),
         ...selectedVolumes,
-        Cumulative: cumulative,
+        cumulative: cumulativeByTime[time],
         all,
         unit: '$',
       };
@@ -208,10 +209,7 @@ export default function RetailVolumeChart() {
   const formatData = (CoinsSelected: string[]) => {
     const formattedCumulativeVolumeByTime = formatCumulativeVolumeByTime(dataCumulativeUsdVolume);
     const formattedDailyVolumeByTime = formatDailyVolumeByTime(dataDailyUsdVolume);
-    const formattedVolumeByCoins = formatVolumeByCoins(
-      CoinsSelected,
-      dataDailyUsdVolumeByCoin,
-    );
+    const formattedVolumeByCoins = formatVolumeByCoins(CoinsSelected, dataDailyUsdVolumeByCoin);
     const formattedVolumeByCrossed = formatVolumeByCrossed(
       dataDailyUsdVolumeByCrossed,
       formattedCumulativeVolumeByTime,
@@ -247,7 +245,10 @@ export default function RetailVolumeChart() {
     coinKeys,
     coinsSelected,
     setCoinsSelected,
-    formatData, false, "Other");
+    formatData,
+    false,
+    'Other'
+  );
   return (
     <ChartWrapper
       title='Retail Volume'
@@ -296,19 +297,19 @@ export default function RetailVolumeChart() {
           {dataMode === 'COINS' && (
             <>
               {coinsSelected.map((coinName, i) => {
-                  return (
-                    <Bar
-                      unit={''}
-                      isAnimationActive={false}
-                      type='monotone'
-                      dataKey={coinName}
-                      stackId='a'
-                      name={coinName.toString()}
-                      fill={getTokenColor(coinName.toString())}
-                      key={i}
-                      maxBarSize={20}
-                    />
-                  );
+                return (
+                  <Bar
+                    unit={''}
+                    isAnimationActive={false}
+                    type='monotone'
+                    dataKey={coinName}
+                    stackId='a'
+                    name={coinName.toString()}
+                    fill={getTokenColor(coinName.toString())}
+                    key={i}
+                    maxBarSize={20}
+                  />
+                );
               })}
             </>
           )}
@@ -337,7 +338,7 @@ export default function RetailVolumeChart() {
             </>
           )}
           <YAxis
-            dataKey='Cumulative'
+            dataKey='cumulative'
             orientation='right'
             yAxisId='right'
             tickFormatter={yaxisFormatter}
@@ -350,7 +351,7 @@ export default function RetailVolumeChart() {
             dot={false}
             strokeWidth={1}
             stroke={BRIGHT_GREEN}
-            dataKey='Cumulative'
+            dataKey='cumulative'
             yAxisId='right'
             opacity={0.7}
             name='Cumulative'
