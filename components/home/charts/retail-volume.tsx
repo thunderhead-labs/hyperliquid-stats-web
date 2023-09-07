@@ -146,9 +146,10 @@ export default function RetailVolumeChart() {
 
     const result: any[] = Object.entries(temp).map(([time, volumes]) => {
       const selectedVolumes = selectedCoinData(volumes);
-      const all = CoinsSelected.includes('Other')
-        ? selectedVolumes.Other + selectedVolumes.all
-        : selectedVolumes.all;
+      const all =
+        CoinsSelected.length === 1 && CoinsSelected.includes('Other')
+          ? selectedVolumes.Other
+          : selectedVolumes.all;
       return {
         time: new Date(time),
         ...selectedVolumes,
