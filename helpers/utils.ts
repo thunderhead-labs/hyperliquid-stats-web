@@ -26,6 +26,7 @@ export const createCoinSelectors = (
     name: 'Deselect All',
     event: () => {
       setCoinsSelected(emptySelection);
+      formatData(emptySelection);
     },
     isChecked: coinsSelected.length === 0,
   };
